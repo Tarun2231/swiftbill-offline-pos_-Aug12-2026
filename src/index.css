@@ -2,14 +2,14 @@
   /* Swiggy Instamart Inspired Palette */
   --instamart-green: #0c831f;
   --instamart-green-hover: #096b19;
-  --instamart-green-light: rgba(12, 131, 31, 0.12);
+  --instamart-green-light: rgba(12, 131, 31, 0.08);
   --swiggy-orange: #fc8019;
   --swiggy-orange-hover: #e06c07;
-  --swiggy-orange-light: rgba(252, 128, 25, 0.14);
+  --swiggy-orange-light: rgba(252, 128, 25, 0.1);
   
   --primary: #0c831f;
   --primary-hover: #096b19;
-  --primary-glow: rgba(12, 131, 31, 0.3);
+  --primary-glow: rgba(12, 131, 31, 0.25);
   
   /* Dark Theme */
   --bg-main: #0a0f1d;
@@ -19,46 +19,46 @@
   --bg-input: #0e162a;
   --bg-modal: #111a30;
   
-  --border-color: rgba(255, 255, 255, 0.09);
-  --border-hover: rgba(12, 131, 31, 0.5);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(12, 131, 31, 0.4);
   
-  --text-main: #ffffff;
+  --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --text-dim: #64748b;
   
-  --radius-xs: 6px;
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 22px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
   --radius-full: 9999px;
   
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 20px 45px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.4);
   
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-/* Crisp Swiggy Instamart Light Theme */
+/* Clean Swiggy Instamart Light Theme */
 [data-theme="light"] {
-  --bg-main: #f4f6fa;
+  --bg-main: #f6f7fb;
   --bg-sidebar: #ffffff;
   --bg-card: #ffffff;
-  --bg-card-hover: #fafbfd;
-  --bg-input: #f1f4f9;
+  --bg-card-hover: #fcfdfe;
+  --bg-input: #f1f4f8;
   --bg-modal: #ffffff;
   
-  --border-color: #e2e8f0;
-  --border-hover: rgba(12, 131, 31, 0.5);
+  --border-color: #e5e9f0;
+  --border-hover: rgba(12, 131, 31, 0.4);
   
-  --text-main: #1c1c1c;
-  --text-muted: #686b78;
-  --text-dim: #93959f;
+  --text-main: #1f2937;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.09);
 }
 
 * {
@@ -76,8 +76,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
-  line-height: 1.45;
-  letter-spacing: -0.012em;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
@@ -92,7 +92,7 @@ html, body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -125,14 +125,14 @@ html, body {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .card-hover:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   border-color: var(--border-hover);
   box-shadow: var(--shadow-md);
 }
@@ -142,31 +142,30 @@ html, body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 9px 16px;
+  gap: 6px;
+  padding: 8px 14px;
   font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 13.5px;
+  font-weight: 600;
+  font-size: 13px;
   border-radius: var(--radius-sm);
   border: none;
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
   user-select: none;
   line-height: 1.2;
 }
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #0c831f 0%, #076816 100%);
+  background: #0c831f;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(12, 131, 31, 0.35);
+  box-shadow: 0 2px 8px rgba(12, 131, 31, 0.25);
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #109e27 0%, #0c831f 100%);
-  box-shadow: 0 6px 20px rgba(12, 131, 31, 0.45);
-  transform: translateY(-1px);
+  background: #0a731b;
+  box-shadow: 0 4px 12px rgba(12, 131, 31, 0.35);
 }
 
 .btn-secondary {
@@ -180,16 +179,16 @@ html, body {
 }
 
 .btn-danger {
-  background: rgba(244, 63, 94, 0.12);
+  background: rgba(244, 63, 94, 0.1);
   color: #f43f5e;
-  border: 1px solid rgba(244, 63, 94, 0.25);
+  border: 1px solid rgba(244, 63, 94, 0.2);
 }
 .btn-danger:hover {
-  background: rgba(244, 63, 94, 0.22);
+  background: rgba(244, 63, 94, 0.18);
 }
 
 .btn-icon {
-  padding: 8px;
+  padding: 7px;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-muted);
@@ -205,53 +204,53 @@ html, body {
   background: rgba(255, 255, 255, 0.08);
 }
 [data-theme="light"] .btn-icon:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.04);
 }
 
-/* Swiggy Instamart ADD Button & Inline Stepper */
+/* Swiggy Instamart ADD Button & Inline Stepper (Streamlined & Lightweight) */
 .instamart-add-btn {
   background-color: var(--bg-card);
-  border: 1.5px solid var(--instamart-green);
+  border: 1px solid var(--instamart-green);
   color: var(--instamart-green);
-  font-weight: 800;
-  font-size: 13px;
-  border-radius: 8px;
-  padding: 6px 16px;
+  font-weight: 600;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 6px 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
   transition: all 0.15s ease;
-  box-shadow: 0 2px 6px rgba(12, 131, 31, 0.12);
   width: 100%;
+  height: 32px;
 }
 .instamart-add-btn:hover {
   background-color: var(--instamart-green);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(12, 131, 31, 0.3);
 }
 
 .instamart-stepper {
   background-color: var(--instamart-green);
   color: #ffffff;
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: 6px;
+  padding: 2px 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  box-shadow: 0 4px 14px rgba(12, 131, 31, 0.35);
+  height: 32px;
+  box-shadow: 0 2px 6px rgba(12, 131, 31, 0.25);
   user-select: none;
 }
 .instamart-stepper button {
   background: none;
   border: none;
   color: #ffffff;
-  font-weight: 900;
-  font-size: 16px;
-  width: 28px;
-  height: 26px;
+  font-weight: 700;
+  font-size: 15px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,30 +262,30 @@ html, body {
   background: rgba(255, 255, 255, 0.2);
 }
 .instamart-stepper-qty {
-  font-weight: 800;
-  font-size: 13px;
+  font-weight: 600;
+  font-size: 12px;
   color: #ffffff;
   text-align: center;
 }
 
 /* Discount & Savings Badge */
 .discount-badge {
-  background: linear-gradient(135deg, #0c831f 0%, #056614 100%);
+  background: #0c831f;
   color: #ffffff;
-  font-size: 9.5px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.3px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.2px;
 }
 
 .time-badge {
-  background: rgba(252, 128, 25, 0.14);
+  background: rgba(252, 128, 25, 0.1);
   color: var(--swiggy-orange);
-  border: 1px solid rgba(252, 128, 25, 0.3);
-  font-size: 10px;
-  font-weight: 800;
-  padding: 2px 6px;
+  border: 1px solid rgba(252, 128, 25, 0.25);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 5px;
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
@@ -296,21 +295,21 @@ html, body {
 /* Form Controls */
 .form-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 12px;
   background-color: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-main);
   font-family: var(--font-sans);
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.4;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  min-height: 42px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: 38px;
 }
 .form-input:focus {
   border-color: var(--instamart-green);
-  box-shadow: 0 0 0 3px rgba(12, 131, 31, 0.18);
+  box-shadow: 0 0 0 2px rgba(12, 131, 31, 0.15);
 }
 .form-input::placeholder {
   color: var(--text-dim);
@@ -318,17 +317,17 @@ html, body {
 
 .form-select {
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 12px;
   background-color: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-main);
   font-family: var(--font-sans);
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.4;
   outline: none;
   cursor: pointer;
-  min-height: 42px;
+  min-height: 38px;
 }
 .form-select:focus {
   border-color: var(--instamart-green);
@@ -336,11 +335,10 @@ html, body {
 
 .form-label {
   display: block;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 6px;
-  line-height: 1.3;
+  margin-bottom: 5px;
 }
 
 /* Badges */
@@ -348,31 +346,30 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: var(--radius-full);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: 10.5px;
+  font-weight: 600;
 }
 .badge-success {
   background: var(--instamart-green-light);
   color: var(--instamart-green);
-  border: 1px solid rgba(12, 131, 31, 0.3);
+  border: 1px solid rgba(12, 131, 31, 0.2);
 }
 .badge-warning {
-  background: rgba(245, 158, 11, 0.14);
+  background: rgba(245, 158, 11, 0.1);
   color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 .badge-danger {
-  background: rgba(244, 63, 94, 0.14);
+  background: rgba(244, 63, 94, 0.1);
   color: #f43f5e;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  border: 1px solid rgba(244, 63, 94, 0.2);
 }
 .badge-info {
-  background: rgba(59, 130, 246, 0.14);
+  background: rgba(59, 130, 246, 0.1);
   color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .mono {
@@ -383,15 +380,15 @@ html, body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(3, 7, 18, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(3, 7, 18, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalFadeIn 0.18s ease-out;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -399,9 +396,9 @@ html, body {
   background: var(--bg-modal);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  max-width: 850px;
+  max-width: 800px;
   width: 100%;
-  max-height: 92vh;
+  max-height: 90vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-lg);
@@ -416,7 +413,7 @@ html, body {
 /* Mobile Topbar */
 .mobile-topbar {
   display: none;
-  min-height: 56px;
+  min-height: 52px;
   background-color: var(--bg-sidebar);
   border-bottom: 1px solid var(--border-color);
   padding: 8px 16px;
@@ -429,7 +426,7 @@ html, body {
 
 /* Desktop Sidebar */
 .sidebar-container {
-  width: 270px;
+  width: 260px;
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   display: flex;
@@ -438,7 +435,7 @@ html, body {
   position: sticky;
   top: 0;
   user-select: none;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s ease;
   z-index: 50;
   overflow-y: auto;
 }
@@ -447,8 +444,8 @@ html, body {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   z-index: 45;
 }
 
@@ -476,7 +473,7 @@ html, body {
     bottom: 0 !important;
     height: 100% !important;
     transform: translateX(-100%) !important;
-    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.6) !important;
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.5) !important;
   }
   .sidebar-container.open {
     transform: translateX(0) !important;
@@ -493,21 +490,21 @@ html, body {
   }
 
   .main-content {
-    min-height: calc(100vh - 56px) !important;
+    min-height: calc(100vh - 52px) !important;
     height: auto !important;
     overflow-y: visible !important;
   }
 
   .pos-container {
     flex-direction: column !important;
-    min-height: calc(100vh - 56px) !important;
+    min-height: calc(100vh - 52px) !important;
     height: auto !important;
     overflow: visible !important;
   }
 
   .pos-catalog-panel {
-    padding: 12px !important;
-    gap: 12px !important;
+    padding: 10px !important;
+    gap: 10px !important;
     width: 100% !important;
     overflow-y: visible !important;
     height: auto !important;
@@ -521,13 +518,13 @@ html, body {
   }
 
   .product-grid-responsive {
-    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)) !important;
-    gap: 10px !important;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    gap: 8px !important;
   }
 
   .modal-container {
     max-width: 95vw !important;
-    padding: 18px 14px !important;
+    padding: 16px 12px !important;
   }
 }
 
