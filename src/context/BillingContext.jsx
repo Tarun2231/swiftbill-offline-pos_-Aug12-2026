@@ -627,6 +627,7 @@ export const BillingProvider = ({ children }) => {
       id: 'T_' + Date.now(),
       name: newTable.name || `Table ${Math.floor(10 + Math.random() * 90)}`,
       section: newTable.section || 'Main Dining Hall',
+      shape: newTable.shape || 'rectangle', // 'round', 'rectangle', 'booth', 'patio'
       capacity: parseInt(newTable.capacity) || 4,
       status: 'available',
       seatedAt: null,
@@ -648,7 +649,68 @@ export const BillingProvider = ({ children }) => {
     }));
   };
 
-  // Automotive Service Job Status Update
+  const transferTable = (fromTableNo, toTableNo) => {
+    setData((prev) => {
+      const tables = (prev.restaurantTables || []).map(t => ({ ...t }));
+      const fromTable = tables.find(t => t.name === fromTableNo || t.id === fromTableNo);
+      const toTable = tables.find(t => t.name === toTableNo || t.id === toTableNo);
+
+      if (!fromTable || !toTable) return prev;
+
+      toTable.status = 'occupied';
+      toTable.seatedAt = fromTable.seatedAt || new Date().toISOString();
+      toTable.currentItems = [...(toTable.currentItems || []), ...(fromTable.currentItems || [])];
+
+      fromTable.status = 'available';
+      fromTable.seatedAt = null;
+      fromTable.currentItems = [];
+
+      return { ...prev, restaurantTables: tables };
+    });
+  };
+
+  const mergeTables = (primaryTableNo, secondaryTableNo) => {
+    transferTable(secondaryTableNo, primaryTableNo);
+  };
+
+  const reserveTable = (tableNo, guestName, timeStr) => {
+    setData((prev) => ({
+      ...prev,
+      restaurantTables: (prev.restaurantTables || []).map(t =>
+        t.name === tableNo || t.id === tableNo
+          ? { ...t, status: 'reserved', reservation: { guestName, time: timeStr } }
+          : t
+      )
+    }));
+  };
+
+  // Automotive Service Job Status & Creation
+  const createJobCard = (newJob) => {
+    const jobNum = Math.floor(400 + Math.random() * 600);
+    const jobObj = {
+      id: `JOB-${jobNum}`,
+      vehicleNo: newJob.vehicleNo,
+      vehicleModel: newJob.vehicleModel || 'Vehicle',
+      customerName: newJob.customerName || 'Walk-in Customer',
+      phone: newJob.phone || '-',
+      serviceName: newJob.serviceName || 'Full Inspection & Service',
+      technician: newJob.technician || 'Head Technician',
+      receivedAt: new Date().toISOString(),
+      estimatedDelivery: newJob.estimatedDelivery || 'Today',
+      odometerKm: newJob.odometerKm || '45000',
+      nextServiceKm: (parseInt(newJob.odometerKm) || 45000) + 10000,
+      estimatedCost: parseFloat(newJob.estimatedCost) || 2500,
+      status: 'Received'
+    };
+
+    setData((prev) => ({
+      ...prev,
+      serviceJobs: [jobObj, ...(prev.serviceJobs || [])]
+    }));
+
+    return jobObj;
+  };
+
   const updateJobStatus = (jobId, newStatus) => {
     setData((prev) => ({
       ...prev,
@@ -889,6 +951,10 @@ export const BillingProvider = ({ children }) => {
         clearTable,
         addTable,
         deleteTable,
+        transferTable,
+        mergeTables,
+        reserveTable,
+        createJobCard,
         recordCashPayout,
         exportDataJSON,
         importDataJSON,

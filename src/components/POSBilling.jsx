@@ -1241,6 +1241,39 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               })}
             </div>
 
+            {/* Quick Chef Modifiers for Restaurant Mode */}
+            {activeBusinessId === 'restaurant' && cart.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '6px 8px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Chef Instructions / Modifiers:</span>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {['Less Spicy', 'Extra Cheese', 'No Onion/Garlic (Jain)', 'Gluten Free', 'Parcel Pack'].map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setChefNotes(prev => prev ? `${prev}, ${tag}` : tag)}
+                      style={{
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--border-color)',
+                        backgroundColor: (chefNotes || '').includes(tag) ? 'rgba(245,158,11,0.2)' : 'var(--bg-input)',
+                        color: (chefNotes || '').includes(tag) ? '#f59e0b' : 'var(--text-muted)',
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      +{tag}
+                    </button>
+                  ))}
+                </div>
+                {chefNotes && (
+                  <div style={{ fontSize: '10.5px', color: '#f59e0b', fontWeight: '600' }}>
+                    Note: {chefNotes}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
               {/* RESTAURANT: FIRE KOT TO KITCHEN FIRST */}
