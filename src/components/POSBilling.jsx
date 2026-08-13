@@ -20,18 +20,20 @@ import {
   X, 
   Smartphone, 
   Eye, 
-  EyeOff,
-  ShoppingBag,
-  ArrowRight,
-  ArrowLeft,
-  History,
-  Repeat,
-  Sparkles,
-  Percent,
-  Receipt,
-  Zap,
-  CheckCircle2,
-  ShieldCheck
+  EyeOff, 
+  ShoppingBag, 
+  ArrowRight, 
+  ArrowLeft, 
+  History, 
+  Repeat, 
+  Sparkles, 
+  Percent, 
+  Receipt, 
+  Zap, 
+  CheckCircle2, 
+  Calculator,
+  Layers,
+  RotateCcw
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -91,9 +93,12 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const [orderType, setOrderType] = useState('Dine-In');
   const [chefNotes, setChefNotes] = useState('');
 
-  // Grocery Weighing Scale Simulator Modal State
+  // SMART WEIGHING SCALE HUB STATE
   const [weighingProduct, setWeighingProduct] = useState(null);
-  const [simulatedWeight, setSimulatedWeight] = useState(0.75);
+  const [simulatedWeight, setSimulatedWeight] = useState(0.5);
+  const [tareWeight, setTareWeight] = useState(0); // in kg (e.g. 0.02 for 20g bag)
+  const [weightMode, setWeightMode] = useState('weight'); // 'weight' or 'amount'
+  const [targetAmountInput, setTargetAmountInput] = useState('');
 
   // Dynamic UPI QR Code Modal State
   const [showUpiModal, setShowUpiModal] = useState(false);
@@ -157,7 +162,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, qty: parseFloat((item.qty + defaultQty).toFixed(2)) } : item
+          item.id === product.id ? { ...item, qty: parseFloat((item.qty + defaultQty).toFixed(3)) } : item
         );
       } else {
         return [
@@ -186,7 +191,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       return;
     }
     setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, qty: parseFloat(val.toFixed(2)) } : item))
+      prev.map((item) => (item.id === id ? { ...item, qty: parseFloat(val.toFixed(3)) } : item))
     );
   };
 
@@ -195,7 +200,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       prev
         .map((item) => {
           if (item.id === id) {
-            const newQty = parseFloat((item.qty + delta).toFixed(2));
+            const newQty = parseFloat((item.qty + delta).toFixed(3));
             if (newQty <= 0) return null;
             return { ...item, qty: newQty };
           }
@@ -353,6 +358,29 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     setShowAddCustomerModal(false);
   };
 
+  // Open Smart Weight Scale
+  const openWeighingModal = (prod) => {
+    setWeighingProduct(prod);
+    setSimulatedWeight(0.5);
+    setTareWeight(0);
+    setWeightMode('weight');
+    setTargetAmountInput('');
+  };
+
+  // Compute Net Weight with Tare deduction
+  const netWeight = Math.max(0.01, parseFloat((simulatedWeight - tareWeight).toFixed(3)));
+  const calculatedWeightPrice = weighingProduct ? Math.round(weighingProduct.price * netWeight * 100) / 100 : 0;
+
+  // Handle Reverse Price-to-Weight calculation (e.g. customer says "give ₹50 of apples")
+  const handleAmountToWeight = (amountStr) => {
+    setTargetAmountInput(amountStr);
+    const amt = parseFloat(amountStr);
+    if (!isNaN(amt) && amt > 0 && weighingProduct && weighingProduct.price > 0) {
+      const computedWeight = parseFloat((amt / weighingProduct.price).toFixed(3));
+      setSimulatedWeight(computedWeight);
+    }
+  };
+
   const showCatalogPanel = !isMobile || mobileTab === 'catalog';
   const showCartPanel = !isMobile || mobileTab === 'cart';
 
@@ -473,7 +501,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               </button>
             </div>
 
-            {/* Instamart Search Bar with Animated Placeholder Feel */}
+            {/* Search Bar */}
             <div style={{ position: 'relative' }}>
               <Search size={17} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '12px' }} />
               <input
@@ -557,7 +585,6 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               const cartItem = cart.find((i) => i.id === prod.id);
               const inCart = Boolean(cartItem);
               
-              // Simulated MRP (15% higher) for Instamart discount badge
               const fakeMrp = Math.round(prod.price * 1.18);
               const discountPercentCalc = Math.round(((fakeMrp - prod.price) / fakeMrp) * 100);
 
@@ -578,7 +605,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     overflow: 'hidden'
                   }}
                 >
-                  {/* Top Badges: Savings Discount or Weight scale */}
+                  {/* Top Badges: Savings Discount */}
                   <div style={{
                     position: 'absolute',
                     top: '8px',
@@ -626,15 +653,19 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       position: 'absolute',
                       bottom: '4px',
                       left: '4px',
-                      backgroundColor: 'rgba(0,0,0,0.65)',
+                      backgroundColor: prod.isWeightBased ? 'rgba(12,131,31,0.9)' : 'rgba(0,0,0,0.65)',
                       color: '#ffffff',
-                      fontSize: '10px',
-                      fontWeight: '700',
+                      fontSize: '9.5px',
+                      fontWeight: '800',
                       padding: '1px 6px',
                       borderRadius: '4px',
-                      backdropFilter: 'blur(4px)'
+                      backdropFilter: 'blur(4px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '3px'
                     }}>
-                      {prod.isWeightBased ? `1 ${prod.unit}` : `1 ${prod.unit}`}
+                      {prod.isWeightBased ? <Scale size={10} /> : null}
+                      <span>{prod.isWeightBased ? `By Weight (${prod.unit})` : `1 ${prod.unit}`}</span>
                     </div>
                   </div>
 
@@ -657,34 +688,64 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
                     <span className="mono" style={{ fontSize: isMobile ? '14px' : '15px', fontWeight: '900', color: 'var(--text-main)' }}>
                       {settings.currency}{prod.price.toLocaleString()}
+                      <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 'normal' }}>/{prod.unit}</span>
                     </span>
                     <span className="mono" style={{ fontSize: '11px', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                       {settings.currency}{fakeMrp}
                     </span>
                   </div>
 
+                  {/* WEIGHT FEATURE: Quick-Tap Weight Preset Chips for Produce & Meat */}
+                  {prod.isWeightBased && !inCart && (
+                    <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
+                      {[
+                        { label: '250g', val: 0.25 },
+                        { label: '500g', val: 0.5 },
+                        { label: '1kg', val: 1.0 },
+                        { label: '2kg', val: 2.0 }
+                      ].map((preset) => (
+                        <button
+                          key={preset.label}
+                          onClick={() => addToCart(prod, preset.val)}
+                          style={{
+                            flex: 1,
+                            padding: '3px 0',
+                            borderRadius: '4px',
+                            border: '1px solid var(--border-color)',
+                            backgroundColor: 'var(--bg-input)',
+                            color: 'var(--text-muted)',
+                            fontSize: '10px',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            transition: 'all 0.12s ease'
+                          }}
+                          title={`Quick add ${preset.label} to cart`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Instamart Interactive ADD / Inline Stepper Button */}
                   <div style={{ marginTop: '4px' }}>
                     {prod.isWeightBased && !inCart ? (
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <button
-                          onClick={() => {
-                            setWeighingProduct(prod);
-                            setSimulatedWeight(0.5);
-                          }}
-                          className="instamart-add-btn"
-                          style={{ fontSize: '11.5px', padding: '6px 4px', gap: '3px' }}
-                        >
-                          <Scale size={12} /> WEIGH
-                        </button>
-                        <button
-                          onClick={() => addToCart(prod, 1)}
-                          className="instamart-add-btn"
-                          style={{ width: '45px', padding: '6px 0' }}
-                        >
-                          +1kg
-                        </button>
-                      </div>
+                      /* Sleek Unified Weigh Scale Trigger Button */
+                      <button
+                        onClick={() => openWeighingModal(prod)}
+                        className="instamart-add-btn"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          padding: '7px 10px',
+                          fontSize: '12px'
+                        }}
+                      >
+                        <Scale size={14} />
+                        <span>SMART WEIGH</span>
+                      </button>
                     ) : inCart ? (
                       /* Swiggy Instamart Active Stepper [ - QTY + ] */
                       <div className="instamart-stepper">
@@ -1332,58 +1393,257 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
         </div>
       )}
 
-      {/* WEIGHING SCALE SIMULATOR MODAL */}
+      {/* SMART DIGITAL WEIGHING SCALE HUB MODAL (UPGRADED) */}
       {weighingProduct && (
         <div className="modal-overlay">
-          <div className="modal-container" style={{ maxWidth: '420px', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <div className="modal-container" style={{ maxWidth: '480px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Scale color="var(--instamart-green)" size={20} />
-                <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-                  Digital Weighing Scale
-                </h3>
+                <Scale color="var(--instamart-green)" size={22} />
+                <div>
+                  <h3 style={{ fontSize: '16.5px', fontWeight: '900', color: 'var(--text-main)', margin: 0 }}>
+                    Smart Digital Scale Hub
+                  </h3>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    Precision Weighing & Tare Compensation
+                  </span>
+                </div>
               </div>
               <button onClick={() => setWeighingProduct(null)} className="btn-icon">
                 <X size={18} />
               </button>
             </div>
 
-            <div style={{ textAlign: 'center', padding: '16px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-md)', marginBottom: '16px' }}>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', wordBreak: 'break-word', margin: 0 }}>
-                {weighingProduct.name}
-              </h4>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                Rate: {settings.currency}{weighingProduct.price} / {weighingProduct.unit}
-              </span>
-
-              <div style={{
-                margin: '14px auto',
-                padding: '12px',
-                backgroundColor: '#050a14',
-                borderRadius: '10px',
-                border: '2px solid var(--instamart-green)',
-                boxShadow: '0 0 20px rgba(12,131,31,0.3)',
-                maxWidth: '220px'
-              }}>
-                <span className="mono" style={{ fontSize: '32px', fontWeight: '900', color: 'var(--instamart-green)', letterSpacing: '2px' }}>
-                  {simulatedWeight} <span style={{ fontSize: '16px' }}>{weighingProduct.unit}</span>
+            {/* Product Info Bar */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 14px',
+              backgroundColor: 'var(--bg-input)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border-color)'
+            }}>
+              <div>
+                <h4 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                  {weighingProduct.name}
+                </h4>
+                <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
+                  SKU: {weighingProduct.sku}
                 </span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginTop: '10px' }}>
-                {[0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 5.0].map((w) => (
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', display: 'block' }}>Unit Rate</span>
+                <span className="mono" style={{ fontSize: '14px', fontWeight: '800', color: 'var(--instamart-green)' }}>
+                  {settings.currency}{weighingProduct.price}/{weighingProduct.unit}
+                </span>
+              </div>
+            </div>
+
+            {/* Mode Switcher: Direct Weight vs Target Amount Calculator */}
+            <div style={{
+              display: 'flex',
+              backgroundColor: 'var(--bg-input)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '3px',
+              gap: '4px'
+            }}>
+              <button
+                onClick={() => setWeightMode('weight')}
+                style={{
+                  flex: 1,
+                  padding: '7px',
+                  borderRadius: 'var(--radius-xs)',
+                  border: 'none',
+                  backgroundColor: weightMode === 'weight' ? 'var(--instamart-green)' : 'transparent',
+                  color: weightMode === 'weight' ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px'
+                }}
+              >
+                <Scale size={13} />
+                By Weight (kg/g)
+              </button>
+
+              <button
+                onClick={() => setWeightMode('amount')}
+                style={{
+                  flex: 1,
+                  padding: '7px',
+                  borderRadius: 'var(--radius-xs)',
+                  border: 'none',
+                  backgroundColor: weightMode === 'amount' ? 'var(--instamart-green)' : 'transparent',
+                  color: weightMode === 'amount' ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px'
+                }}
+              >
+                <Calculator size={13} />
+                By Amount (e.g. ₹50 worth)
+              </button>
+            </div>
+
+            {/* If Amount Calculator Mode is Active */}
+            {weightMode === 'amount' && (
+              <div style={{
+                padding: '12px 14px',
+                backgroundColor: 'rgba(252,128,25,0.08)',
+                border: '1px solid rgba(252,128,25,0.25)',
+                borderRadius: 'var(--radius-sm)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <label className="form-label" style={{ margin: 0, color: 'var(--swiggy-orange)', fontSize: '11.5px' }}>
+                  Customer Target Amount ({settings.currency})
+                </label>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <input
+                    type="number"
+                    placeholder="Enter ₹ amount (e.g. 50, 100)"
+                    value={targetAmountInput}
+                    onChange={(e) => handleAmountToWeight(e.target.value)}
+                    className="form-input"
+                    style={{ flex: 1, height: '38px', minHeight: '38px', fontSize: '14px', fontWeight: '800' }}
+                    autoFocus
+                  />
+                  {[20, 50, 100, 200].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => handleAmountToWeight(amt.toString())}
+                      style={{
+                        padding: '6px 10px',
+                        borderRadius: 'var(--radius-xs)',
+                        border: '1px solid var(--border-color)',
+                        backgroundColor: 'var(--bg-card)',
+                        color: 'var(--text-main)',
+                        fontSize: '11.5px',
+                        fontWeight: '700',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ₹{amt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Glowing High-Tech LED Digital Readout */}
+            <div style={{
+              padding: '16px',
+              backgroundColor: '#040812',
+              borderRadius: '12px',
+              border: '2px solid var(--instamart-green)',
+              boxShadow: '0 0 24px rgba(12,131,31,0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11px', color: '#64748b' }}>
+                <span>GROSS: {(simulatedWeight * 1000).toFixed(0)}g</span>
+                <span>TARE: {(tareWeight * 1000).toFixed(0)}g</span>
+                <span style={{ color: '#10b981', fontWeight: '700' }}>NET WEIGHT</span>
+              </div>
+
+              <div style={{ margin: '6px 0' }}>
+                <span className="mono" style={{ fontSize: '38px', fontWeight: '900', color: '#10b981', letterSpacing: '2px' }}>
+                  {netWeight} <span style={{ fontSize: '18px', color: '#6ee7b7' }}>{weighingProduct.unit}</span>
+                </span>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+                borderTop: '1px dashed #1e293b',
+                paddingTop: '6px'
+              }}>
+                <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>Total Computed:</span>
+                <span className="mono" style={{ fontSize: '18px', fontWeight: '900', color: '#ffffff' }}>
+                  {settings.currency}{calculatedWeightPrice.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {/* Tare Container Weight Compensator */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>
+                  Tare / Container Deduction:
+                </span>
+                <span style={{ fontSize: '10.5px', color: tareWeight > 0 ? '#f59e0b' : 'var(--text-dim)' }}>
+                  {tareWeight > 0 ? `Deducting ${(tareWeight * 1000)}g` : 'Zero Tare (0g)'}
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                {[
+                  { label: 'None (0g)', val: 0 },
+                  { label: 'Bag (-20g)', val: 0.02 },
+                  { label: 'Tray (-50g)', val: 0.05 },
+                  { label: 'Box (-100g)', val: 0.1 }
+                ].map((t) => (
+                  <button
+                    key={t.label}
+                    type="button"
+                    onClick={() => setTareWeight(t.val)}
+                    style={{
+                      padding: '5px 4px',
+                      borderRadius: 'var(--radius-xs)',
+                      border: '1px solid',
+                      borderColor: tareWeight === t.val ? 'var(--instamart-green)' : 'var(--border-color)',
+                      backgroundColor: tareWeight === t.val ? 'var(--instamart-green-light)' : 'var(--bg-input)',
+                      color: tareWeight === t.val ? 'var(--instamart-green)' : 'var(--text-muted)',
+                      fontSize: '10.5px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Weight Preset Chips Grid */}
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                Quick Weight Presets:
+              </span>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
+                {[0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 5.0].map((w) => (
                   <button
                     key={w}
                     type="button"
-                    onClick={() => setSimulatedWeight(w)}
+                    onClick={() => {
+                      setSimulatedWeight(w);
+                      setTargetAmountInput('');
+                    }}
                     style={{
-                      padding: '6px 4px',
+                      padding: '7px 4px',
                       borderRadius: 'var(--radius-xs)',
-                      border: '1px solid var(--border-color)',
+                      border: '1px solid',
+                      borderColor: simulatedWeight === w ? 'var(--instamart-green)' : 'var(--border-color)',
                       backgroundColor: simulatedWeight === w ? 'var(--instamart-green)' : 'var(--bg-card)',
                       color: simulatedWeight === w ? '#ffffff' : 'var(--text-main)',
                       fontSize: '11px',
-                      fontWeight: '700',
+                      fontWeight: '800',
                       cursor: 'pointer'
                     }}
                   >
@@ -1393,22 +1653,16 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Calculated Price:</span>
-              <span className="mono" style={{ fontSize: '18px', fontWeight: '800', color: 'var(--instamart-green)' }}>
-                {settings.currency}{(Math.round(weighingProduct.price * simulatedWeight * 100) / 100).toLocaleString()}
-              </span>
-            </div>
-
+            {/* Add to Cart CTA */}
             <button
               onClick={() => {
-                addToCart(weighingProduct, simulatedWeight);
+                addToCart(weighingProduct, netWeight);
                 setWeighingProduct(null);
               }}
               className="btn btn-primary"
-              style={{ width: '100%', padding: '12px' }}
+              style={{ width: '100%', padding: '12px', fontSize: '14.5px', marginTop: '2px' }}
             >
-              Add {simulatedWeight}{weighingProduct.unit} to Cart
+              Add {netWeight}{weighingProduct.unit} ({settings.currency}{calculatedWeightPrice.toLocaleString()}) to Bill
             </button>
           </div>
         </div>
