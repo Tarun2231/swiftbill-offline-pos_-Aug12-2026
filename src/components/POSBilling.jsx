@@ -25,7 +25,10 @@ import {
   ArrowRight,
   ArrowLeft,
   History,
-  Repeat
+  Repeat,
+  Sparkles,
+  Percent,
+  Receipt
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -341,7 +344,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {isMobile && (
         <div style={{
           display: 'flex',
-          padding: '10px 14px',
+          padding: '8px 12px',
           backgroundColor: 'var(--bg-card)',
           borderBottom: '1px solid var(--border-color)',
           gap: '8px',
@@ -351,7 +354,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             onClick={() => setMobileTab('catalog')}
             style={{
               flex: 1,
-              padding: '10px',
+              padding: '9px',
               borderRadius: 'var(--radius-sm)',
               border: 'none',
               backgroundColor: mobileTab === 'catalog' ? '#10b981' : 'var(--bg-input)',
@@ -362,18 +365,19 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px'
+              gap: '6px',
+              boxShadow: mobileTab === 'catalog' ? '0 2px 8px rgba(16,185,129,0.3)' : 'none'
             }}
           >
-            <ShoppingBag size={16} />
-            Items Catalog ({products.length})
+            <ShoppingBag size={15} />
+            Items ({products.length})
           </button>
           
           <button
             onClick={() => setMobileTab('cart')}
             style={{
               flex: 1,
-              padding: '10px',
+              padding: '9px',
               borderRadius: 'var(--radius-sm)',
               border: 'none',
               backgroundColor: mobileTab === 'cart' ? '#10b981' : 'var(--bg-input)',
@@ -384,11 +388,18 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px'
+              gap: '6px',
+              boxShadow: mobileTab === 'cart' ? '0 2px 8px rgba(16,185,129,0.3)' : 'none'
             }}
           >
             <span>🛒 Cart ({cart.length})</span>
-            <span className="badge" style={{ backgroundColor: mobileTab === 'cart' ? '#ffffff' : '#10b981', color: mobileTab === 'cart' ? '#10b981' : '#ffffff', fontSize: '11px', padding: '1px 6px' }}>
+            <span className="badge" style={{
+              backgroundColor: mobileTab === 'cart' ? '#ffffff' : '#10b981',
+              color: mobileTab === 'cart' ? '#10b981' : '#ffffff',
+              fontSize: '11px',
+              padding: '1px 6px',
+              fontWeight: '800'
+            }}>
               {settings.currency}{grandTotal}
             </span>
           </button>
@@ -399,7 +410,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {showCatalogPanel && (
         <div className="pos-catalog-panel" style={{
           flex: 1,
-          padding: isMobile ? '12px 14px' : '20px 24px',
+          padding: isMobile ? '12px 14px' : '18px 24px',
           display: 'flex',
           flexDirection: 'column',
           gap: isMobile ? '10px' : '14px',
@@ -408,8 +419,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           position: 'relative'
         }}>
           
-          {/* SIMPLIFIED, CLEAN & COMPACT HEADER */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {/* Header Row with Search & Filter */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                 <h2 style={{
@@ -433,56 +444,85 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 className="btn btn-secondary"
                 style={{
                   fontSize: '11.5px',
-                  padding: '5px 9px',
+                  padding: '5px 10px',
                   height: '32px',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  gap: '6px'
                 }}
-                title="Toggle Profit Margin Visibility"
+                title="Toggle Estimated Profit Margin"
               >
-                {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} />}
-                {showProfitPeek ? `${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
+                {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="#10b981" />}
+                {showProfitPeek ? `Est: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
               </button>
             </div>
 
-            {/* Search Bar */}
+            {/* Search Bar with Glow */}
             <div style={{ position: 'relative' }}>
-              <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+              <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '12px' }} />
               <input
                 type="text"
-                placeholder={`Search ${activeBusinessId === 'automotive' ? 'services or parts' : activeBusinessId === 'restaurant' ? 'menu items' : 'items, vegetables, meat'}...`}
+                placeholder={`Search ${activeBusinessId === 'automotive' ? 'services or parts' : activeBusinessId === 'restaurant' ? 'dishes & drinks' : 'produce, groceries, meat'}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="form-input"
-                style={{ paddingLeft: '38px', fontSize: '13px', minHeight: '38px', height: '38px' }}
+                style={{
+                  paddingLeft: '40px',
+                  fontSize: '13px',
+                  minHeight: '38px',
+                  height: '38px',
+                  borderRadius: 'var(--radius-full)'
+                }}
               />
-            </div>
-
-            {/* Category Chips */}
-            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
-              {categories.map((cat) => (
+              {searchQuery && (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
+                  onClick={() => setSearchQuery('')}
                   style={{
-                    padding: '5px 12px',
-                    borderRadius: 'var(--radius-full)',
-                    border: '1px solid',
-                    borderColor: selectedCategory === cat ? 'var(--primary)' : 'var(--border-color)',
-                    backgroundColor: selectedCategory === cat ? 'rgba(16,185,129,0.15)' : 'var(--bg-card)',
-                    color: selectedCategory === cat ? '#10b981' : 'var(--text-muted)',
-                    fontSize: '12px',
-                    fontWeight: '600',
+                    position: 'absolute',
+                    right: '12px',
+                    top: '11px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
                     cursor: 'pointer',
-                    whiteSpace: 'nowrap'
+                    padding: 0
                   }}
                 >
-                  {cat}
+                  <X size={15} />
                 </button>
-              ))}
+              )}
+            </div>
+
+            {/* Modern Category Pills */}
+            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', scrollbarWidth: 'none' }}>
+              {categories.map((cat) => {
+                const isSelected = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: 'var(--radius-full)',
+                      border: '1px solid',
+                      borderColor: isSelected ? '#10b981' : 'var(--border-color)',
+                      backgroundColor: isSelected ? 'rgba(16,185,129,0.18)' : 'var(--bg-card)',
+                      color: isSelected ? '#10b981' : 'var(--text-muted)',
+                      fontSize: '12px',
+                      fontWeight: isSelected ? '700' : '500',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      boxShadow: isSelected ? '0 2px 10px rgba(16,185,129,0.2)' : 'none',
+                      transition: 'all 0.16s ease'
+                    }}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Product Cards Grid with zero overlaps */}
+          {/* Product Cards Grid with Modern Aesthetics */}
           <div className="product-grid-responsive" style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(140px, 1fr))' : 'repeat(auto-fill, minmax(210px, 1fr))',
@@ -505,37 +545,50 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     justifyContent: 'space-between',
                     gap: '8px',
                     position: 'relative',
-                    border: inCart ? '2px solid #10b981' : '1px solid var(--border-color)'
+                    border: inCart ? '1.5px solid #10b981' : '1px solid var(--border-color)',
+                    background: inCart ? 'rgba(16,185,129,0.04)' : 'var(--bg-card)',
+                    overflow: 'hidden'
                   }}
                 >
                   {inCart && (
                     <span style={{
                       position: 'absolute',
-                      top: '6px',
-                      right: '6px',
+                      top: '8px',
+                      right: '8px',
                       backgroundColor: '#10b981',
                       color: '#ffffff',
                       fontSize: '10.5px',
                       fontWeight: '800',
-                      padding: '2px 7px',
-                      borderRadius: '10px',
-                      boxShadow: '0 2px 6px rgba(16,185,129,0.4)',
-                      zIndex: 2
+                      padding: '2px 8px',
+                      borderRadius: 'var(--radius-full)',
+                      boxShadow: '0 2px 8px rgba(16,185,129,0.45)',
+                      zIndex: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '3px'
                     }}>
-                      {inCart.qty} {prod.unit}
+                      ✓ {inCart.qty} {prod.unit}
                     </span>
                   )}
 
                   {prod.image ? (
-                    <img
-                      src={prod.image}
-                      alt={prod.name}
-                      style={{ width: '100%', height: isMobile ? '85px' : '110px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
-                    />
+                    <div style={{ overflow: 'hidden', borderRadius: 'var(--radius-sm)' }}>
+                      <img
+                        src={prod.image}
+                        alt={prod.name}
+                        style={{
+                          width: '100%',
+                          height: isMobile ? '85px' : '115px',
+                          objectFit: 'cover',
+                          borderRadius: 'var(--radius-sm)',
+                          transition: 'transform 0.3s ease'
+                        }}
+                      />
+                    </div>
                   ) : (
                     <div style={{
                       width: '100%',
-                      height: isMobile ? '85px' : '110px',
+                      height: isMobile ? '85px' : '115px',
                       backgroundColor: 'var(--bg-input)',
                       borderRadius: 'var(--radius-sm)',
                       display: 'flex',
@@ -543,18 +596,26 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       justifyContent: 'center',
                       color: 'var(--text-dim)'
                     }}>
-                      {activeBusinessId === 'automotive' ? <Car size={28} /> : activeBusinessId === 'restaurant' ? <Utensils size={28} /> : <PackageCheck size={28} />}
+                      {activeBusinessId === 'automotive' ? <Car size={30} /> : activeBusinessId === 'restaurant' ? <Utensils size={30} /> : <PackageCheck size={30} />}
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '10.5px', color: 'var(--text-dim)', fontWeight: '600' }}>
                         {prod.sku}
                       </span>
-                      {prod.isWeightBased && (
+                      {prod.isWeightBased ? (
                         <span className="badge badge-info" style={{ fontSize: '9px', padding: '1px 5px' }}>
-                          Per {prod.unit}
+                          Scale ({prod.unit})
+                        </span>
+                      ) : (
+                        <span style={{
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          color: prod.stock <= 5 ? '#f43f5e' : 'var(--text-dim)'
+                        }}>
+                          {isOutOfStock ? 'Out of Stock' : `${prod.stock} ${prod.unit}`}
                         </span>
                       )}
                     </div>
@@ -564,13 +625,14 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       fontWeight: '700',
                       color: 'var(--text-main)',
                       lineHeight: '1.3',
-                      wordBreak: 'break-word'
+                      wordBreak: 'break-word',
+                      minHeight: '34px'
                     }}>
                       {prod.name}
                     </h3>
                   </div>
 
-                  {/* Add Buttons */}
+                  {/* Add / Modifier Action Buttons */}
                   <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {prod.isWeightBased ? (
                       <div style={{ display: 'flex', gap: '4px' }}>
@@ -580,14 +642,21 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                             setSimulatedWeight(0.5);
                           }}
                           className="btn btn-secondary"
-                          style={{ flex: 1, padding: '5px 2px', fontSize: '10.5px', fontWeight: '700' }}
+                          style={{
+                            flex: 1,
+                            padding: '6px 2px',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            gap: '4px',
+                            color: '#10b981'
+                          }}
                         >
-                          <Scale size={11} /> Weigh
+                          <Scale size={12} /> Weigh
                         </button>
                         <button
                           onClick={() => addToCart(prod, 1)}
                           className="btn btn-secondary"
-                          style={{ padding: '5px 6px', fontSize: '10.5px', fontWeight: '700' }}
+                          style={{ padding: '6px 8px', fontSize: '11px', fontWeight: '700' }}
                         >
                           +1kg
                         </button>
@@ -597,9 +666,15 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                         onClick={() => addToCart(prod, 1)}
                         disabled={isOutOfStock}
                         className="btn btn-secondary"
-                        style={{ width: '100%', padding: '6px', fontSize: '11.5px' }}
+                        style={{
+                          width: '100%',
+                          padding: '6px',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          gap: '5px'
+                        }}
                       >
-                        <Plus size={13} /> Add
+                        <Plus size={13} color="#10b981" /> Add to Bill
                       </button>
                     )}
 
@@ -616,7 +691,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       </span>
 
                       <span style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>
-                        {prod.stock} left
+                        Tax: {prod.taxRate}%
                       </span>
                     </div>
                   </div>
@@ -634,13 +709,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 bottom: '16px',
                 left: '16px',
                 right: '16px',
-                backgroundColor: '#10b981',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 borderRadius: 'var(--radius-md)',
                 padding: '12px 18px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                boxShadow: '0 8px 25px rgba(16,185,129,0.5)',
+                boxShadow: '0 8px 25px rgba(16,185,129,0.55)',
                 zIndex: 40,
                 cursor: 'pointer'
               }}
@@ -666,10 +741,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
         </div>
       )}
 
-      {/* Right Area: Dynamic Cart Panel */}
+      {/* Right Area: Dynamic Cart & Settle Panel */}
       {showCartPanel && (
         <div className="pos-cart-panel" style={{
-          width: isMobile ? '100%' : '460px',
+          width: isMobile ? '100%' : '450px',
           backgroundColor: 'var(--bg-card)',
           borderLeft: isMobile ? 'none' : '1px solid var(--border-color)',
           display: 'flex',
@@ -679,11 +754,12 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
         }}>
           {/* Cart Header Section */}
           <div style={{
-            padding: '16px 20px',
+            padding: '14px 18px',
             borderBottom: '1px solid var(--border-color)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '12px'
+            gap: '10px',
+            background: 'linear-gradient(180deg, rgba(16,185,129,0.03) 0%, transparent 100%)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -696,18 +772,20 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     <ArrowLeft size={14} /> Back
                   </button>
                 )}
-                <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)' }}>Active Order Cart</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                  Active Order Cart
+                </h3>
               </div>
 
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>
-                {cart.length} items
+              <span className="badge badge-success" style={{ fontSize: '11px', padding: '2px 8px' }}>
+                {cart.length} {cart.length === 1 ? 'item' : 'items'}
               </span>
             </div>
 
             {/* Customer Selection with Purchase History Button */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <label className="form-label" style={{ margin: 0 }}>Customer Record</label>
+                <label className="form-label" style={{ margin: 0, fontSize: '11.5px' }}>Customer Account</label>
                 <button
                   onClick={() => setShowCustomerHistoryModal(true)}
                   style={{
@@ -721,14 +799,14 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     alignItems: 'center',
                     gap: '4px'
                   }}
-                  title="View what this customer bought previously and when"
+                  title="View customer purchase history"
                 >
                   <History size={13} />
                   Past Orders ({selectedCustomerInvoices.length})
                 </button>
               </div>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
                 <select
                   className="form-select"
                   value={selectedCustomer.id}
@@ -736,7 +814,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     const found = customers.find((c) => c.id === e.target.value);
                     if (found) setSelectedCustomer(found);
                   }}
-                  style={{ flex: 1, fontSize: '13px' }}
+                  style={{ flex: 1, fontSize: '13px', height: '38px', minHeight: '38px' }}
                 >
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -747,10 +825,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 <button
                   onClick={() => setShowAddCustomerModal(true)}
                   className="btn btn-secondary"
-                  style={{ padding: '8px 12px' }}
+                  style={{ padding: '8px 12px', height: '38px' }}
                   title="Add New Customer"
                 >
-                  <UserPlus size={16} />
+                  <UserPlus size={16} color="#10b981" />
                 </button>
               </div>
 
@@ -764,7 +842,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     backgroundColor: 'rgba(16,185,129,0.08)',
                     borderRadius: 'var(--radius-xs)',
                     border: '1px solid rgba(16,185,129,0.2)',
-                    fontSize: '11.5px',
+                    fontSize: '11px',
                     color: 'var(--text-muted)',
                     display: 'flex',
                     alignItems: 'center',
@@ -773,7 +851,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   }}
                 >
                   <span>
-                    🛍️ Last bought: <strong style={{ color: 'var(--text-main)' }}>{new Date(selectedCustomerInvoices[0].date).toLocaleDateString()}</strong>
+                    🛍️ Last purchase: <strong style={{ color: 'var(--text-main)' }}>{new Date(selectedCustomerInvoices[0].date).toLocaleDateString()}</strong>
                   </span>
                   <span style={{ color: '#10b981', fontWeight: '700' }}>
                     View Items ➔
@@ -784,7 +862,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
             {/* Automotive Garage Fields */}
             {activeBusinessId === 'automotive' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-sm)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-sm)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <div>
                     <label className="form-label" style={{ fontSize: '11px' }}>Vehicle Number *</label>
@@ -794,7 +872,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       value={vehicleNo}
                       onChange={(e) => setVehicleNo(e.target.value)}
                       className="form-input"
-                      style={{ padding: '6px 8px', fontSize: '12px', height: '36px' }}
+                      style={{ padding: '6px 8px', fontSize: '12px', height: '34px', minHeight: '34px' }}
                     />
                   </div>
 
@@ -806,7 +884,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       value={vehicleModel}
                       onChange={(e) => setVehicleModel(e.target.value)}
                       className="form-input"
-                      style={{ padding: '6px 8px', fontSize: '12px', height: '36px' }}
+                      style={{ padding: '6px 8px', fontSize: '12px', height: '34px', minHeight: '34px' }}
                     />
                   </div>
                 </div>
@@ -815,23 +893,23 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   onClick={() => setShowInspectionModal(true)}
                   type="button"
                   className="btn btn-secondary"
-                  style={{ width: '100%', padding: '6px', fontSize: '11.5px' }}
+                  style={{ width: '100%', padding: '6px', fontSize: '11.5px', gap: '6px' }}
                 >
-                  <CheckSquare size={14} /> Vehicle Inspection Checklist
+                  <CheckSquare size={13} color="#3b82f6" /> Vehicle Inspection Checklist
                 </button>
               </div>
             )}
 
             {/* Restaurant Dining Fields */}
             {activeBusinessId === 'restaurant' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '12px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-sm)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '10px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-sm)' }}>
                 <div>
                   <label className="form-label" style={{ fontSize: '11px' }}>Table Number</label>
                   <select
                     className="form-select"
                     value={tableNo}
                     onChange={(e) => setTableNo(e.target.value)}
-                    style={{ padding: '6px 8px', fontSize: '12px', height: '36px' }}
+                    style={{ padding: '6px 8px', fontSize: '12px', height: '34px', minHeight: '34px' }}
                   >
                     <option value="Table 1">Table 1</option>
                     <option value="Table 2">Table 2</option>
@@ -847,7 +925,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     className="form-select"
                     value={orderType}
                     onChange={(e) => setOrderType(e.target.value)}
-                    style={{ padding: '6px 8px', fontSize: '12px', height: '36px' }}
+                    style={{ padding: '6px 8px', fontSize: '12px', height: '34px', minHeight: '34px' }}
                   >
                     <option value="Dine-In">Dine-In</option>
                     <option value="Takeaway">Takeaway</option>
@@ -860,7 +938,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           </div>
 
           {/* Cart Items List */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {cart.length === 0 ? (
               <div style={{
                 height: '100%',
@@ -873,13 +951,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 gap: '12px',
                 padding: '40px 0'
               }}>
-                <ShoppingBag size={44} opacity={0.35} />
-                <p style={{ fontSize: '13.5px', lineHeight: '1.4' }}>Cart is empty.<br />Add items from the catalog.</p>
+                <ShoppingBag size={42} opacity={0.3} />
+                <p style={{ fontSize: '13px', lineHeight: '1.4' }}>Cart is currently empty.<br />Add items from the catalog.</p>
                 {isMobile && (
                   <button
                     onClick={() => setMobileTab('catalog')}
                     className="btn btn-primary"
-                    style={{ fontSize: '12.5px', padding: '8px 16px' }}
+                    style={{ fontSize: '12px', padding: '8px 16px' }}
                   >
                     Browse Items Catalog
                   </button>
@@ -890,18 +968,19 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 <div
                   key={item.id}
                   style={{
-                    padding: '12px 14px',
+                    padding: '10px 12px',
                     backgroundColor: 'var(--bg-input)',
                     borderRadius: 'var(--radius-sm)',
                     border: '1px solid var(--border-color)',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '6px'
+                    gap: '6px',
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <h4 style={{ fontSize: '13.5px', fontWeight: '700', color: 'var(--text-main)', wordBreak: 'break-word' }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', wordBreak: 'break-word', margin: 0 }}>
                         {item.name}
                       </h4>
                       <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
@@ -913,20 +992,21 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       onClick={() => removeFromCart(item.id)}
                       className="btn-icon"
                       style={{ color: '#f43f5e', padding: '4px' }}
+                      title="Remove item"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
                     {/* Quantity modifier */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <button
                         onClick={() => adjustCartQty(item.id, item.isWeightBased ? -0.25 : -1)}
                         style={{
                           width: '26px',
                           height: '26px',
-                          borderRadius: '4px',
+                          borderRadius: '6px',
                           border: '1px solid var(--border-color)',
                           backgroundColor: 'var(--bg-card)',
                           color: 'var(--text-main)',
@@ -947,7 +1027,15 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                         value={item.qty}
                         onChange={(e) => updateCartQty(item.id, e.target.value)}
                         className="form-input"
-                        style={{ width: '65px', padding: '2px 6px', textAlign: 'center', fontSize: '13px', fontWeight: '700', height: '30px' }}
+                        style={{
+                          width: '60px',
+                          padding: '2px 4px',
+                          textAlign: 'center',
+                          fontSize: '12.5px',
+                          fontWeight: '700',
+                          height: '28px',
+                          minHeight: '28px'
+                        }}
                       />
 
                       <button
@@ -955,7 +1043,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                         style={{
                           width: '26px',
                           height: '26px',
-                          borderRadius: '4px',
+                          borderRadius: '6px',
                           border: '1px solid var(--border-color)',
                           backgroundColor: 'var(--bg-card)',
                           color: 'var(--text-main)',
@@ -969,12 +1057,12 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                         +
                       </button>
 
-                      <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '2px' }}>
                         {item.unit}
                       </span>
                     </div>
 
-                    <span className="mono" style={{ fontSize: '14.5px', fontWeight: '800', color: 'var(--text-main)' }}>
+                    <span className="mono" style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>
                       {settings.currency}{(Math.round(item.price * item.qty * 100) / 100).toLocaleString()}
                     </span>
                   </div>
@@ -983,22 +1071,22 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             )}
           </div>
 
-          {/* Calculation Summary Footer */}
+          {/* Calculation Summary & Settle Footer */}
           <div style={{
-            padding: '16px 20px',
+            padding: '14px 18px',
             borderTop: '1px solid var(--border-color)',
             backgroundColor: 'var(--bg-input)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px'
+            gap: '8px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', color: 'var(--text-muted)' }}>
               <span>Subtotal</span>
               <span className="mono">{settings.currency}{rawSubtotal.toFixed(2)}</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>Discount Presets:</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Discount:</span>
               <div style={{ display: 'flex', gap: '4px' }}>
                 {[0, 5, 10, 15].map((pct) => (
                   <button
@@ -1006,13 +1094,14 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     onClick={() => setDiscountPercent(pct)}
                     style={{
                       padding: '3px 8px',
-                      borderRadius: '4px',
+                      borderRadius: 'var(--radius-xs)',
                       border: '1px solid var(--border-color)',
                       backgroundColor: parseFloat(discountPercent) === pct ? '#10b981' : 'var(--bg-card)',
                       color: parseFloat(discountPercent) === pct ? '#ffffff' : 'var(--text-muted)',
-                      fontSize: '11.5px',
+                      fontSize: '11px',
                       fontWeight: '700',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
                     }}
                   >
                     {pct}%
@@ -1021,7 +1110,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', color: 'var(--text-muted)' }}>
               <span>GST Tax</span>
               <span className="mono">{settings.currency}{totalTax.toFixed(2)}</span>
             </div>
@@ -1030,19 +1119,20 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              padding: '10px 12px',
+              padding: '10px 14px',
               backgroundColor: 'var(--bg-card)',
               borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border-color)'
+              border: '1.5px solid rgba(16,185,129,0.35)',
+              boxShadow: '0 2px 10px rgba(16,185,129,0.08)'
             }}>
-              <span style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)' }}>Total Due</span>
-              <span className="mono" style={{ fontSize: '22px', fontWeight: '800', color: '#10b981' }}>
+              <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>Total Due</span>
+              <span className="mono" style={{ fontSize: '22px', fontWeight: '900', color: '#10b981' }}>
                 {settings.currency}{grandTotal.toLocaleString()}
               </span>
             </div>
 
             {/* Payment Method Selector */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginTop: '2px' }}>
               {[
                 { id: 'Cash', icon: Banknote },
                 { id: 'UPI', icon: QrCode },
@@ -1050,6 +1140,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 { id: 'Credit', icon: Clock }
               ].map((pm) => {
                 const Icon = pm.icon;
+                const isSelected = paymentMethod === pm.id;
                 return (
                   <button
                     key={pm.id}
@@ -1061,16 +1152,18 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       padding: '8px 4px',
                       borderRadius: 'var(--radius-sm)',
                       border: '1.5px solid',
-                      borderColor: paymentMethod === pm.id ? '#10b981' : 'var(--border-color)',
-                      backgroundColor: paymentMethod === pm.id ? 'rgba(16,185,129,0.15)' : 'var(--bg-card)',
-                      color: paymentMethod === pm.id ? '#10b981' : 'var(--text-muted)',
-                      fontSize: '11.5px',
+                      borderColor: isSelected ? '#10b981' : 'var(--border-color)',
+                      backgroundColor: isSelected ? 'rgba(16,185,129,0.18)' : 'var(--bg-card)',
+                      color: isSelected ? '#10b981' : 'var(--text-muted)',
+                      fontSize: '11px',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '3px'
+                      gap: '3px',
+                      boxShadow: isSelected ? '0 2px 8px rgba(16,185,129,0.2)' : 'none',
+                      transition: 'all 0.15s ease'
                     }}
                   >
                     <Icon size={15} />
@@ -1086,10 +1179,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 onClick={handleSaveQuotation}
                 disabled={cart.length === 0}
                 className="btn btn-secondary"
-                style={{ flex: 1, fontSize: '13px', padding: '10px', opacity: cart.length === 0 ? 0.5 : 1 }}
+                style={{ flex: 1, fontSize: '12.5px', padding: '10px', opacity: cart.length === 0 ? 0.5 : 1 }}
                 title="Save as quotation"
               >
-                <FileCheck size={16} />
+                <FileCheck size={15} />
                 Quotation
               </button>
 
@@ -1103,10 +1196,11 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   fontSize: '14.5px',
                   fontWeight: '800',
                   opacity: cart.length === 0 ? 0.5 : 1,
-                  cursor: cart.length === 0 ? 'not-allowed' : 'pointer'
+                  cursor: cart.length === 0 ? 'not-allowed' : 'pointer',
+                  gap: '6px'
                 }}
               >
-                <Printer size={17} />
+                <Printer size={16} />
                 Print Bill
               </button>
             </div>
@@ -1142,7 +1236,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 <p style={{ fontSize: '13px' }}>No previous purchase records found for this customer.</p>
               </div>
             ) : (
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {selectedCustomerInvoices.map((inv) => {
                   const formattedDate = new Date(inv.date).toLocaleDateString('en-IN', {
                     day: '2-digit',
@@ -1196,7 +1290,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                               style={{ padding: '2px 6px', fontSize: '10px', height: '22px' }}
                               title="Add this item to current cart"
                             >
-                              <Plus size={10} /> Add to Cart
+                              <Plus size={10} color="#10b981" /> Add to Cart
                             </button>
                           </div>
                         ))}
@@ -1235,7 +1329,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Smartphone color="#10b981" size={22} />
-                <h3 style={{ fontSize: '17px', fontWeight: '800', color: 'var(--text-main)' }}>
+                <h3 style={{ fontSize: '17px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                   Scan UPI QR to Pay
                 </h3>
               </div>
@@ -1244,7 +1338,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               </button>
             </div>
 
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginBottom: '16px' }}>
               Accept payments via Google Pay, PhonePe, Paytm, or BHIM UPI.
             </p>
 
@@ -1253,7 +1347,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               backgroundColor: '#ffffff',
               borderRadius: '16px',
               display: 'inline-block',
-              boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
+              boxShadow: '0 8px 30px rgba(0,0,0,0.18)'
             }}>
               <svg width="180" height="180" viewBox="0 0 180 180">
                 <rect width="180" height="180" fill="#ffffff" />
@@ -1283,7 +1377,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
             <div style={{ marginTop: '14px' }}>
               <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Total Amount Due</span>
-              <div className="mono" style={{ fontSize: '26px', fontWeight: '800', color: '#10b981' }}>
+              <div className="mono" style={{ fontSize: '26px', fontWeight: '900', color: '#10b981' }}>
                 {settings.currency}{grandTotal.toLocaleString()}
               </div>
             </div>
@@ -1291,7 +1385,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             <button
               onClick={handleCheckout}
               className="btn btn-primary"
-              style={{ width: '100%', padding: '12px', marginTop: '14px', fontSize: '15px' }}
+              style={{ width: '100%', padding: '12px', marginTop: '14px', fontSize: '14.5px' }}
             >
               Payment Confirmed & Print
             </button>
@@ -1306,7 +1400,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Scale color="#10b981" size={20} />
-                <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                   Digital Weighing Scale
                 </h3>
               </div>
@@ -1316,7 +1410,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             </div>
 
             <div style={{ textAlign: 'center', padding: '16px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-md)', marginBottom: '16px' }}>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', wordBreak: 'break-word' }}>
+              <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', wordBreak: 'break-word', margin: 0 }}>
                 {weighingProduct.name}
               </h4>
               <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
@@ -1326,13 +1420,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               <div style={{
                 margin: '14px auto',
                 padding: '12px',
-                backgroundColor: '#0a0f1d',
-                borderRadius: '8px',
+                backgroundColor: '#050a14',
+                borderRadius: '10px',
                 border: '2px solid #10b981',
-                boxShadow: '0 0 15px rgba(16,185,129,0.25)',
+                boxShadow: '0 0 20px rgba(16,185,129,0.3)',
                 maxWidth: '220px'
               }}>
-                <span className="mono" style={{ fontSize: '32px', fontWeight: '800', color: '#10b981', letterSpacing: '2px' }}>
+                <span className="mono" style={{ fontSize: '32px', fontWeight: '900', color: '#10b981', letterSpacing: '2px' }}>
                   {simulatedWeight} <span style={{ fontSize: '16px' }}>{weighingProduct.unit}</span>
                 </span>
               </div>
@@ -1345,7 +1439,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     onClick={() => setSimulatedWeight(w)}
                     style={{
                       padding: '6px 4px',
-                      borderRadius: '4px',
+                      borderRadius: 'var(--radius-xs)',
                       border: '1px solid var(--border-color)',
                       backgroundColor: simulatedWeight === w ? '#10b981' : 'var(--bg-card)',
                       color: simulatedWeight === w ? '#ffffff' : 'var(--text-main)',
@@ -1361,7 +1455,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Price:</span>
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Calculated Price:</span>
               <span className="mono" style={{ fontSize: '18px', fontWeight: '800', color: '#10b981' }}>
                 {settings.currency}{(Math.round(weighingProduct.price * simulatedWeight * 100) / 100).toLocaleString()}
               </span>
@@ -1388,7 +1482,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <CheckSquare color="#3b82f6" size={20} />
-                <h3 style={{ fontSize: '17px', fontWeight: '800', color: 'var(--text-main)' }}>
+                <h3 style={{ fontSize: '17px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                   Vehicle Inspection Checklist
                 </h3>
               </div>

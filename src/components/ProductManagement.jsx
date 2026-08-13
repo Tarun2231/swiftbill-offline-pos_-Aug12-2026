@@ -12,7 +12,10 @@ import {
   X,
   Check,
   Tag,
-  Boxes
+  Boxes,
+  TrendingUp,
+  AlertCircle,
+  Layers
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -21,6 +24,7 @@ export default function ProductManagement() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [stockFilter, setStockFilter] = useState('all'); // 'all', 'low', 'instock'
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -55,15 +59,27 @@ export default function ProductManagement() {
     return ['All', ...Array.from(set)];
   }, [products]);
 
+  // Inventory KPI Metrics
+  const totalItemsCount = products.length;
+  const lowStockItems = useMemo(() => products.filter((p) => p.stock <= (p.minStockAlert || 5)), [products]);
+  const totalValuation = useMemo(() => products.reduce((acc, p) => acc + (p.price * p.stock), 0), [products]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       const matchCat = selectedCategory === 'All' || p.category === selectedCategory;
       const matchSearch =
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.sku.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCat && matchSearch;
+      
+      const isLow = p.stock <= (p.minStockAlert || 5);
+      const matchStock = 
+        stockFilter === 'all' || 
+        (stockFilter === 'low' && isLow) || 
+        (stockFilter === 'instock' && !isLow && p.stock > 0);
+
+      return matchCat && matchSearch && matchStock;
     });
-  }, [products, selectedCategory, searchQuery]);
+  }, [products, selectedCategory, searchQuery, stockFilter]);
 
   const handleOpenAdd = () => {
     setEditingProduct(null);
@@ -127,10 +143,10 @@ export default function ProductManagement() {
 
   return (
     <div style={{
-      padding: isMobile ? '16px' : '28px 32px',
+      padding: isMobile ? '14px' : '24px 32px',
       display: 'flex',
       flexDirection: 'column',
-      gap: isMobile ? '16px' : '22px',
+      gap: isMobile ? '14px' : '20px',
       flex: 1,
       overflowY: 'auto'
     }}>
@@ -164,6 +180,98 @@ export default function ProductManagement() {
         </button>
       </div>
 
+      {/* Modern KPI Summary Stat Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)',
+        gap: '12px'
+      }}>
+        <div className="glass-panel" style={{
+          padding: '14px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '14px',
+          borderLeft: '4px solid #10b981'
+        }}>
+          <div style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(16,185,129,0.12)',
+            color: '#10b981',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <Boxes size={22} />
+          </div>
+          <div>
+            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Total SKUs</span>
+            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+              {totalItemsCount}
+            </h3>
+          </div>
+        </div>
+
+        <div className="glass-panel" style={{
+          padding: '14px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '14px',
+          borderLeft: '4px solid #f59e0b'
+        }}>
+          <div style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(245,158,11,0.12)',
+            color: '#f59e0b',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <AlertCircle size={22} />
+          </div>
+          <div>
+            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Low Stock Items</span>
+            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#f59e0b', margin: 0 }}>
+              {lowStockItems.length}
+            </h3>
+          </div>
+        </div>
+
+        <div className="glass-panel" style={{
+          padding: '14px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '14px',
+          borderLeft: '4px solid #3b82f6',
+          gridColumn: isMobile ? 'span 2' : 'auto'
+        }}>
+          <div style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(59,130,246,0.12)',
+            color: '#3b82f6',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <TrendingUp size={22} />
+          </div>
+          <div>
+            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Total Inventory Valuation</span>
+            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#3b82f6', margin: 0 }}>
+              {settings.currency}{Math.round(totalValuation).toLocaleString()}
+            </h3>
+          </div>
+        </div>
+      </div>
+
       {/* Filter and Search Bar */}
       <div style={{
         display: 'flex',
@@ -172,31 +280,60 @@ export default function ProductManagement() {
         alignItems: isMobile ? 'stretch' : 'center'
       }}>
         <div style={{ position: 'relative', flex: 1 }}>
-          <Search size={17} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '13px' }} />
+          <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '13px' }} />
           <input
             type="text"
             placeholder="Search items by name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="form-input"
-            style={{ paddingLeft: '42px', fontSize: '13.5px' }}
+            style={{ paddingLeft: '40px', fontSize: '13.5px' }}
           />
         </div>
 
+        {/* Stock status filter pills */}
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {[
+            { id: 'all', label: 'All Items' },
+            { id: 'low', label: `Low Stock (${lowStockItems.length})` },
+            { id: 'instock', label: 'In Stock' }
+          ].map((sf) => (
+            <button
+              key={sf.id}
+              onClick={() => setStockFilter(sf.id)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid',
+                borderColor: stockFilter === sf.id ? '#10b981' : 'var(--border-color)',
+                backgroundColor: stockFilter === sf.id ? 'rgba(16,185,129,0.18)' : 'var(--bg-card)',
+                color: stockFilter === sf.id ? '#10b981' : 'var(--text-muted)',
+                fontSize: '12px',
+                fontWeight: stockFilter === sf.id ? '700' : '500',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {sf.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Category Pills */}
         <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               style={{
-                padding: '6px 14px',
+                padding: '6px 12px',
                 borderRadius: 'var(--radius-full)',
                 border: '1px solid',
-                borderColor: selectedCategory === cat ? 'var(--primary)' : 'var(--border-color)',
-                backgroundColor: selectedCategory === cat ? 'rgba(16,185,129,0.15)' : 'var(--bg-card)',
+                borderColor: selectedCategory === cat ? '#10b981' : 'var(--border-color)',
+                backgroundColor: selectedCategory === cat ? 'rgba(16,185,129,0.18)' : 'var(--bg-card)',
                 color: selectedCategory === cat ? '#10b981' : 'var(--text-muted)',
-                fontSize: '12.5px',
-                fontWeight: '600',
+                fontSize: '12px',
+                fontWeight: selectedCategory === cat ? '700' : '500',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap'
               }}
@@ -343,7 +480,7 @@ export default function ProductManagement() {
                         </td>
 
                         <td style={{ padding: '14px 18px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                          {p.category}
+                          <span className="badge badge-info" style={{ fontSize: '10px', padding: '2px 7px' }}>{p.category}</span>
                         </td>
 
                         <td style={{ padding: '14px 18px', fontSize: '14px', fontWeight: '800', textAlign: 'right' }} className="mono">
