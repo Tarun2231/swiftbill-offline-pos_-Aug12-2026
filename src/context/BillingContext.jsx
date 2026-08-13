@@ -622,6 +622,32 @@ export const BillingProvider = ({ children }) => {
     });
   };
 
+  const addTable = (newTable) => {
+    const tableObj = {
+      id: 'T_' + Date.now(),
+      name: newTable.name || `Table ${Math.floor(10 + Math.random() * 90)}`,
+      section: newTable.section || 'Main Dining Hall',
+      capacity: parseInt(newTable.capacity) || 4,
+      status: 'available',
+      seatedAt: null,
+      currentItems: []
+    };
+
+    setData((prev) => ({
+      ...prev,
+      restaurantTables: [...(prev.restaurantTables || []), tableObj]
+    }));
+
+    return tableObj;
+  };
+
+  const deleteTable = (tableId) => {
+    setData((prev) => ({
+      ...prev,
+      restaurantTables: (prev.restaurantTables || []).filter(t => t.id !== tableId && t.name !== tableId)
+    }));
+  };
+
   // Automotive Service Job Status Update
   const updateJobStatus = (jobId, newStatus) => {
     setData((prev) => ({
@@ -861,6 +887,8 @@ export const BillingProvider = ({ children }) => {
         fireKOT,
         updateItemCookingStatus,
         clearTable,
+        addTable,
+        deleteTable,
         recordCashPayout,
         exportDataJSON,
         importDataJSON,

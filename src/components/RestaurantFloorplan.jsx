@@ -11,7 +11,11 @@ import {
   Eye,
   X,
   ChefHat,
-  Timer
+  Timer,
+  Trash2,
+  HelpCircle,
+  Sparkles,
+  Layers
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -20,6 +24,8 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
     restaurantTables, 
     settings, 
     clearTable, 
+    addTable,
+    deleteTable,
     updateItemCookingStatus 
   } = useBilling();
 
@@ -29,15 +35,27 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
   // Selected Table for Status & Timing Tracker Modal
   const [activeTimingTable, setActiveTimingTable] = useState(null);
 
+  // Add Table Modal State
+  const [showAddTableModal, setShowAddTableModal] = useState(false);
+  const [newTableName, setNewTableName] = useState('');
+  const [newTableSection, setNewTableSection] = useState('Main Dining Hall');
+  const [newTableCapacity, setNewTableCapacity] = useState('4');
+
+  // Serving Till Billing Workflow Guide Toggle
+  const [showLifecycleGuide, setShowLifecycleGuide] = useState(false);
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const sections = ['All', 'Main Dining Hall', 'Private Lounge', 'Outdoor Terrace'];
-
   const tables = restaurantTables || [];
+
+  // Extract distinct sections from tables + default options
+  const defaultSections = ['All', 'Main Dining Hall', 'Private Lounge', 'Outdoor Terrace'];
+  const customSections = Array.from(new Set(tables.map(t => t.section || 'Main Dining Hall')));
+  const sections = Array.from(new Set([...defaultSections, ...customSections]));
 
   const filteredTables = tables.filter(
     (t) => filterSection === 'All' || t.section === filterSection || (filterSection === 'Main Dining Hall' && t.section?.includes('Main'))
@@ -63,6 +81,20 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
     const ready = items.filter(i => i.status === 'Ready').length;
     const served = items.filter(i => i.status === 'Served').length;
     return { cooking, ready, served, total: items.length };
+  };
+
+  const handleCreateNewTable = (e) => {
+    e.preventDefault();
+    if (!newTableName.trim()) return;
+
+    addTable({
+      name: newTableName,
+      section: newTableSection,
+      capacity: parseInt(newTableCapacity) || 4
+    });
+
+    setNewTableName('');
+    setShowAddTableModal(false);
   };
 
   return (
@@ -95,8 +127,124 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
           </span>
         </div>
 
-        {/* Legend */}
-        <div style={{ display: 'flex', gap: '12px', fontSize: '12px', fontWeight: '700', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            onClick={() => setShowLifecycleGuide(!showLifecycleGuide)}
+            className="btn btn-secondary"
+            style={{ padding: '8px 12px', fontSize: '12px', fontWeight: '600', gap: '5px' }}
+          >
+            <HelpCircle size={14} color="#3b82f6" /> {showLifecycleGuide ? 'Hide Guide' : 'How Dine-In Works'}
+          </button>
+
+          <button
+            onClick={() => setShowAddTableModal(true)}
+            className="btn btn-primary"
+            style={{ padding: '8px 16px', fontSize: '12.5px', fontWeight: '700', gap: '5px' }}
+          >
+            <Plus size={15} /> + Add New Table
+          </button>
+        </div>
+      </div>
+
+      {/* DINE-IN SERVING TILL BILLING LIFECYCLE GUIDE */}
+      {showLifecycleGuide && (
+        <div className="glass-panel" style={{
+          padding: '16px 20px',
+          backgroundColor: 'var(--bg-card)',
+          border: '1.5px solid var(--instamart-green)',
+          borderRadius: 'var(--radius-md)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkles size={16} color="var(--instamart-green)" />
+              <h3 style={{ fontSize: '14.5px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                Dine-In Lifecycle: From Seating & Serving Till Billing
+              </h3>
+            </div>
+            <button onClick={() => setShowLifecycleGuide(false)} className="btn-icon" style={{ padding: '3px' }}>
+              <X size={15} />
+            </button>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(5, 1fr)',
+            gap: '10px',
+            marginTop: '4px'
+          }}>
+            <div style={{ padding: '10px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-xs)' }}>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: '#0c831f' }}>1. Seat Table</span>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                Tap <b>Seat & Take Order</b> on any vacant table to open the POS menu with that table selected.
+              </p>
+            </div>
+
+            <div style={{ padding: '10px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-xs)' }}>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: '#f59e0b' }}>2. Fire KOT</span>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                Select food dishes and click <b>🔥 Send KOT</b>. The ticket instantly goes to the kitchen & the table stays occupied!
+              </p>
+            </div>
+
+            <div style={{ padding: '10px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-xs)' }}>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: '#3b82f6' }}>3. Track Timing</span>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                When customers ask <i>"How much time for our pizza?"</i>, click <b>⏱️ Check Timing</b> to view live elapsed time & cooking status.
+              </p>
+            </div>
+
+            <div style={{ padding: '10px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-xs)' }}>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: '#8b5cf6' }}>4. Multi-Rounds</span>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                If guests want extra drinks or desserts while dining, click <b>+ Add Dishes</b> to fire Round 2 into the same table tab.
+              </p>
+            </div>
+
+            <div style={{ padding: '10px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-xs)' }}>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: '#0c831f' }}>5. Settle & Pay</span>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                After eating, click <b>💳 Settle Bill</b>. Collect UPI QR/Cash/Card payment, print receipt, and table auto-clears to Vacant!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Section Filter Chips & Live Counts */}
+      <div style={{
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        justifyContent: 'space-between',
+        alignItems: isMobile ? 'stretch' : 'center',
+        gap: '10px'
+      }}>
+        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
+          {sections.map((sec) => (
+            <button
+              key={sec}
+              onClick={() => setFilterSection(sec)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid',
+                borderColor: filterSection === sec ? '#0c831f' : 'var(--border-color)',
+                backgroundColor: filterSection === sec ? 'var(--instamart-green-light)' : 'var(--bg-card)',
+                color: filterSection === sec ? '#0c831f' : 'var(--text-muted)',
+                fontSize: '12px',
+                fontWeight: filterSection === sec ? '700' : '500',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {sec}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', fontSize: '12px', fontWeight: '700' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0c831f' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#0c831f' }}></span>
             Vacant ({availableCount})
@@ -106,30 +254,6 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
             Dining & Occupied ({occupiedCount})
           </div>
         </div>
-      </div>
-
-      {/* Section Filter Chips */}
-      <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
-        {sections.map((sec) => (
-          <button
-            key={sec}
-            onClick={() => setFilterSection(sec)}
-            style={{
-              padding: '6px 14px',
-              borderRadius: 'var(--radius-full)',
-              border: '1px solid',
-              borderColor: filterSection === sec ? '#0c831f' : 'var(--border-color)',
-              backgroundColor: filterSection === sec ? 'var(--instamart-green-light)' : 'var(--bg-card)',
-              color: filterSection === sec ? '#0c831f' : 'var(--text-muted)',
-              fontSize: '12px',
-              fontWeight: filterSection === sec ? '700' : '500',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {sec}
-          </button>
-        ))}
       </div>
 
       {/* Table Floorplan Grid */}
@@ -160,7 +284,8 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
                 gap: '10px',
                 border: `1.5px solid ${statusColor}`,
                 backgroundColor: statusBg,
-                borderRadius: 'var(--radius-md)'
+                borderRadius: 'var(--radius-md)',
+                position: 'relative'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -173,16 +298,33 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
                   </span>
                 </div>
 
-                <span className="badge" style={{ backgroundColor: statusBg, color: statusColor, border: `1px solid ${statusColor}`, fontSize: '10px', padding: '2px 6px', fontWeight: '700' }}>
-                  {isOcc ? 'OCCUPIED' : 'VACANT'}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span className="badge" style={{ backgroundColor: statusBg, color: statusColor, border: `1px solid ${statusColor}`, fontSize: '10px', padding: '2px 6px', fontWeight: '700' }}>
+                    {isOcc ? 'DINING' : 'VACANT'}
+                  </span>
+
+                  {/* Delete Table button (if vacant) */}
+                  {isAvail && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`Delete ${t.name}?`)) deleteTable(t.id);
+                      }}
+                      className="btn-icon"
+                      style={{ padding: '3px', color: 'var(--text-dim)' }}
+                      title="Delete Table"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Status details */}
               {isOcc ? (
                 <div style={{ padding: '8px 10px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)' }}>
-                    <span>Running Total:</span>
+                    <span>Running Tab:</span>
                     <span className="mono" style={{ fontWeight: '800', color: '#0c831f' }}>
                       {settings.currency}{runningBill.toLocaleString()}
                     </span>
@@ -273,6 +415,81 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
           );
         })}
       </div>
+
+      {/* ADD NEW TABLE MODAL */}
+      {showAddTableModal && (
+        <div className="modal-overlay" style={{ padding: '16px' }}>
+          <div className="modal-container" style={{ maxWidth: '420px', padding: '22px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Utensils color="var(--instamart-green)" size={18} />
+                <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                  Add New Dining Table
+                </h3>
+              </div>
+              <button onClick={() => setShowAddTableModal(false)} className="btn-icon" style={{ padding: '4px' }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateNewTable} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label className="form-label" style={{ fontSize: '12px' }}>Table Name / Number *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Table 5, VIP Suite 2, Rooftop Table 3"
+                  value={newTableName}
+                  onChange={(e) => setNewTableName(e.target.value)}
+                  className="form-input"
+                  style={{ height: '36px', minHeight: '36px', fontSize: '13px' }}
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontSize: '12px' }}>Dining Section / Area</label>
+                <select
+                  className="form-select"
+                  value={newTableSection}
+                  onChange={(e) => setNewTableSection(e.target.value)}
+                  style={{ height: '36px', minHeight: '36px', fontSize: '13px' }}
+                >
+                  <option value="Main Dining Hall">Main Dining Hall</option>
+                  <option value="Private Lounge">Private Lounge / VIP</option>
+                  <option value="Outdoor Terrace">Outdoor Terrace / Patio</option>
+                  <option value="AC Family Hall">AC Family Hall</option>
+                  <option value="Rooftop Lounge">Rooftop Lounge</option>
+                  <option value="Garden Deck">Garden Deck</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontSize: '12px' }}>Seating Capacity (Guests)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  required
+                  value={newTableCapacity}
+                  onChange={(e) => setNewTableCapacity(e.target.value)}
+                  className="form-input"
+                  style={{ height: '36px', minHeight: '36px', fontSize: '13px' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' }}>
+                <button type="button" onClick={() => setShowAddTableModal(false)} className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '12.5px', fontWeight: '700' }}>
+                  Create Table
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* LIVE TABLE TIMING & STATUS TRACKER MODAL */}
       {activeTimingTable && (
