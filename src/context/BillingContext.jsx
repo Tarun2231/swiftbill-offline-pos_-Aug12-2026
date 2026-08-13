@@ -182,14 +182,45 @@ export const BillingProvider = ({ children }) => {
         openedAt: new Date().toISOString(),
         cashPayouts: []
       },
+      restaurantTables: [
+        { id: 'T1', name: 'Table 1', section: 'Main Hall', capacity: 2, status: 'available', seatedAt: null, currentItems: [] },
+        { 
+          id: 'T2', 
+          name: 'Table 2', 
+          section: 'Main Hall', 
+          capacity: 4, 
+          status: 'occupied', 
+          seatedAt: new Date(Date.now() - 15 * 60000).toISOString(), 
+          currentItems: [
+            { id: 'r1', name: 'Woodfired Margherita Pizza', price: 449, qty: 1, kotId: 'KOT-101', status: 'Cooking', orderedAt: new Date(Date.now() - 15 * 60000).toISOString(), estMins: 15 },
+            { id: 'r3', name: 'Iced Hazelnut Cappuccino', price: 210, qty: 2, kotId: 'KOT-101', status: 'Served', orderedAt: new Date(Date.now() - 15 * 60000).toISOString(), estMins: 8 }
+          ] 
+        },
+        { id: 'T3', name: 'Table 3', section: 'Main Hall', capacity: 4, status: 'available', seatedAt: null, currentItems: [] },
+        { id: 'T4', name: 'Table 4', section: 'Main Hall', capacity: 6, status: 'available', seatedAt: null, currentItems: [] },
+        { 
+          id: 'VIP1', 
+          name: 'VIP Booth', 
+          section: 'Lounge', 
+          capacity: 8, 
+          status: 'occupied', 
+          seatedAt: new Date(Date.now() - 28 * 60000).toISOString(), 
+          currentItems: [
+            { id: 'r2', name: 'Creamy Alfredo Penne Pasta', price: 389, qty: 2, kotId: 'KOT-102', status: 'Served', orderedAt: new Date(Date.now() - 28 * 60000).toISOString(), estMins: 20 },
+            { id: 'r5', name: 'Triple Chocolate Lava Cake', price: 240, qty: 2, kotId: 'KOT-103', status: 'Cooking', orderedAt: new Date(Date.now() - 10 * 60000).toISOString(), estMins: 12 }
+          ] 
+        },
+        { id: 'P1', name: 'Patio 1', section: 'Terrace', capacity: 4, status: 'available', seatedAt: null, currentItems: [] },
+        { id: 'P2', name: 'Patio 2', section: 'Terrace', capacity: 4, status: 'available', seatedAt: null, currentItems: [] }
+      ],
       kitchenOrders: [
         {
           id: 'KOT-101',
           tableNo: 'Table 2',
           orderType: 'Dine-In',
-          time: new Date(Date.now() - 600000).toISOString(),
+          time: new Date(Date.now() - 15 * 60000).toISOString(),
           items: [
-            { name: 'Woodfired Margherita Pizza', qty: 1, notes: 'Extra crispy crust' },
+            { name: 'Woodfired Margherita Pizza', qty: 1, notes: 'Crispy' },
             { name: 'Iced Hazelnut Cappuccino', qty: 2, notes: 'Less sugar' }
           ],
           status: 'Preparing'
@@ -508,6 +539,89 @@ export const BillingProvider = ({ children }) => {
     }));
   };
 
+  // RESTAURANT DINE-IN TABLE ORDERING & KOT
+  const fireKOT = (tableNo, items, chefNotes = '') => {
+    const kotNum = Math.floor(100 + Math.random() * 900);
+    const kotId = `KOT-${kotNum}`;
+    const now = new Date().toISOString();
+
+    const newKOT = {
+      id: kotId,
+      tableNo: tableNo,
+      orderType: 'Dine-In',
+      time: now,
+      items: items.map((i) => ({ name: i.name, qty: i.qty, notes: chefNotes })),
+      status: 'Preparing'
+    };
+
+    // Prepare table items with live cooking status & timing
+    const tableItems = items.map((i) => ({
+      id: i.id,
+      name: i.name,
+      price: i.price,
+      qty: i.qty,
+      taxRate: i.taxRate || 5,
+      unit: i.unit || 'plate',
+      kotId: kotId,
+      status: 'Cooking',
+      orderedAt: now,
+      estMins: i.category?.includes('Pizza') ? 15 : i.category?.includes('Beverage') ? 5 : 12
+    }));
+
+    setData((prev) => {
+      const currentTables = prev.restaurantTables || [];
+      const updatedTables = currentTables.map((t) => {
+        if (t.name === tableNo || t.id === tableNo) {
+          return {
+            ...t,
+            status: 'occupied',
+            seatedAt: t.seatedAt || now,
+            currentItems: [...(t.currentItems || []), ...tableItems]
+          };
+        }
+        return t;
+      });
+
+      return {
+        ...prev,
+        restaurantTables: updatedTables,
+        kitchenOrders: [newKOT, ...(prev.kitchenOrders || [])]
+      };
+    });
+
+    return newKOT;
+  };
+
+  const updateItemCookingStatus = (tableNo, itemIndex, newStatus) => {
+    setData((prev) => {
+      const currentTables = prev.restaurantTables || [];
+      const updatedTables = currentTables.map((t) => {
+        if (t.name === tableNo || t.id === tableNo) {
+          const updatedItems = [...(t.currentItems || [])];
+          if (updatedItems[itemIndex]) {
+            updatedItems[itemIndex] = { ...updatedItems[itemIndex], status: newStatus };
+          }
+          return { ...t, currentItems: updatedItems };
+        }
+        return t;
+      });
+      return { ...prev, restaurantTables: updatedTables };
+    });
+  };
+
+  const clearTable = (tableNo) => {
+    setData((prev) => {
+      const currentTables = prev.restaurantTables || [];
+      const updatedTables = currentTables.map((t) => {
+        if (t.name === tableNo || t.id === tableNo) {
+          return { ...t, status: 'available', seatedAt: null, currentItems: [] };
+        }
+        return t;
+      });
+      return { ...prev, restaurantTables: updatedTables };
+    });
+  };
+
   // Automotive Service Job Status Update
   const updateJobStatus = (jobId, newStatus) => {
     setData((prev) => ({
@@ -725,6 +839,7 @@ export const BillingProvider = ({ children }) => {
         returns: data.returns.filter((r) => !r.businessId || r.businessId === data.activeBusinessId),
         expenses: data.expenses.filter((e) => !e.businessId || e.businessId === data.activeBusinessId),
         kitchenOrders: data.kitchenOrders || [],
+        restaurantTables: data.restaurantTables || [],
         serviceJobs: data.serviceJobs || [],
         shiftRegister: data.shiftRegister || { isOpen: true, openingCash: 2000, cashPayouts: [] },
         addProduct,
@@ -743,6 +858,9 @@ export const BillingProvider = ({ children }) => {
         updateSettings,
         updateKOTStatus,
         updateJobStatus,
+        fireKOT,
+        updateItemCookingStatus,
+        clearTable,
         recordCashPayout,
         exportDataJSON,
         importDataJSON,
