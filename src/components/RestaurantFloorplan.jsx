@@ -874,125 +874,151 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
       )}
 
       {/* LIVE TABLE TIMING & STATUS TRACKER MODAL */}
-      {activeTimingTable && (
-        <div className="modal-overlay" style={{ padding: '12px' }}>
-          <div className="modal-container" style={{ maxWidth: '460px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Timer color="#3b82f6" size={18} />
+      {(() => {
+        const liveTimingTable = activeTimingTable ? tables.find(t => t.name === activeTimingTable.name || t.id === activeTimingTable.id) : null;
+        if (!liveTimingTable) return null;
+
+        const liveItems = liveTimingTable.currentItems || [];
+        const isAllServed = liveItems.length > 0 && liveItems.every(i => i.status === 'Served');
+        const anyReady = liveItems.some(i => i.status === 'Ready');
+
+        return (
+          <div className="modal-overlay" style={{ padding: '12px' }}>
+            <div className="modal-container" style={{ maxWidth: '480px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Timer color="#3b82f6" size={18} />
+                  <div>
+                    <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                      {liveTimingTable.name} • Status & Timing Tracker
+                    </h3>
+                    <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
+                      Seated {getElapsedTime(liveTimingTable.seatedAt)}
+                    </span>
+                  </div>
+                </div>
+
+                <button onClick={() => setActiveTimingTable(null)} className="btn-icon" style={{ padding: '5px' }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Overall ETA Strip */}
+              <div style={{
+                padding: '10px 12px',
+                backgroundColor: 'var(--bg-input)',
+                borderRadius: 'var(--radius-sm)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
                 <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-                    {activeTimingTable.name} • Status & Timing Tracker
-                  </h3>
-                  <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
-                    Seated {getElapsedTime(activeTimingTable.seatedAt)}
-                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Running Total:</span>
+                  <div className="mono" style={{ fontSize: '17px', fontWeight: '800', color: '#0c831f' }}>
+                    {settings.currency}{getTableRunningTotal(liveItems).toLocaleString()}
+                  </div>
+                </div>
+
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Overall Kitchen Status:</span>
+                  <div style={{ fontSize: '12.5px', fontWeight: '700', color: isAllServed ? '#0c831f' : anyReady ? '#3b82f6' : '#f59e0b' }}>
+                    {isAllServed ? '🍽️ All Dishes Served' : anyReady ? '🔔 Ready to Serve' : '🔥 Food Cooking in Kitchen'}
+                  </div>
                 </div>
               </div>
 
-              <button onClick={() => setActiveTimingTable(null)} className="btn-icon" style={{ padding: '5px' }}>
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Overall ETA Strip */}
-            <div style={{
-              padding: '10px 12px',
-              backgroundColor: 'var(--bg-input)',
-              borderRadius: 'var(--radius-sm)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Running Total:</span>
-                <div className="mono" style={{ fontSize: '17px', fontWeight: '800', color: '#0c831f' }}>
-                  {settings.currency}{getTableRunningTotal(activeTimingTable.currentItems || []).toLocaleString()}
-                </div>
-              </div>
-
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Kitchen Status:</span>
-                <div style={{ fontSize: '12.5px', fontWeight: '700', color: '#f59e0b' }}>
-                  🔥 Food in Preparation
-                </div>
-              </div>
-            </div>
-
-            {/* Item-by-item tracker */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '320px', overflowY: 'auto' }}>
-              {(activeTimingTable.currentItems || []).length === 0 ? (
-                <p style={{ fontSize: '12.5px', color: 'var(--text-dim)', textAlign: 'center', padding: '20px' }}>
-                  No dishes ordered yet for this table.
-                </p>
-              ) : (
-                (activeTimingTable.currentItems || []).map((item, idx) => {
-                  const isCooking = item.status === 'Cooking';
-
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        padding: '10px 12px',
-                        backgroundColor: 'var(--bg-input)',
-                        borderRadius: 'var(--radius-xs)',
-                        border: '1px solid var(--border-color)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '8px'
-                      }}
-                    >
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
-                          {item.name} <span style={{ color: '#0c831f' }}>x{item.qty}</span>
-                        </div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
-                          {isCooking ? `Est. Cooking Time: ${item.estMins || 12} mins` : 'Served at table'}
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <button
-                          onClick={() => updateItemCookingStatus(activeTimingTable.name, idx, isCooking ? 'Served' : 'Cooking')}
-                          className={`badge badge-${isCooking ? 'warning' : 'success'}`}
-                          style={{ cursor: 'pointer', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '700' }}
-                          title="Click to toggle status"
-                        >
-                          {isCooking ? '🔥 Cooking' : '🍽️ Served'}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
+              {/* Quick 1-Click Mark All As Served */}
+              {liveItems.length > 0 && !isAllServed && (
+                <button
+                  onClick={() => {
+                    liveItems.forEach((_, idx) => updateItemCookingStatus(liveTimingTable.name, idx, 'Served'));
+                  }}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '11.5px', padding: '6px', color: '#0c831f', borderColor: '#0c831f', fontWeight: '700' }}
+                >
+                  <CheckCircle2 size={13} /> Mark All {liveItems.length} Dishes as Served
+                </button>
               )}
-            </div>
 
-            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-              <button
-                onClick={() => {
-                  onSelectTableOrder(activeTimingTable.name);
-                  setActiveTimingTable(null);
-                }}
-                className="btn btn-secondary"
-                style={{ flex: 1, padding: '8px', fontSize: '12px', fontWeight: '600' }}
-              >
-                + Add More Food
-              </button>
-              <button
-                onClick={() => {
-                  onSelectTableOrder(activeTimingTable.name);
-                  setActiveTimingTable(null);
-                }}
-                className="btn btn-primary"
-                style={{ flex: 1, padding: '8px', fontSize: '12px', fontWeight: '700' }}
-              >
-                Settle & Print Bill
-              </button>
+              {/* Item-by-item tracker with 3-state cycling */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '320px', overflowY: 'auto' }}>
+                {liveItems.length === 0 ? (
+                  <p style={{ fontSize: '12.5px', color: 'var(--text-dim)', textAlign: 'center', padding: '20px' }}>
+                    No dishes ordered yet for this table.
+                  </p>
+                ) : (
+                  liveItems.map((item, idx) => {
+                    const status = item.status || 'Cooking';
+
+                    const nextStatus = status === 'Cooking' ? 'Ready' : status === 'Ready' ? 'Served' : 'Cooking';
+                    const badgeClass = status === 'Served' ? 'badge-success' : status === 'Ready' ? 'badge-info' : 'badge-warning';
+                    const label = status === 'Served' ? '🍽️ Served' : status === 'Ready' ? '🔔 Ready' : '🔥 Cooking';
+
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          padding: '10px 12px',
+                          backgroundColor: 'var(--bg-input)',
+                          borderRadius: 'var(--radius-xs)',
+                          border: '1px solid var(--border-color)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '8px'
+                        }}
+                      >
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
+                            {item.name} <span style={{ color: '#0c831f' }}>x{item.qty}</span>
+                          </div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
+                            {status === 'Cooking' ? `Est. Prep Time: ${item.estMins || 12} mins` : status === 'Ready' ? 'Hot & ready on kitchen counter' : 'Served at dining table'}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <button
+                            onClick={() => updateItemCookingStatus(liveTimingTable.name, idx, nextStatus)}
+                            className={`badge ${badgeClass}`}
+                            style={{ cursor: 'pointer', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '700' }}
+                            title="Click to advance status: Cooking ➔ Ready ➔ Served"
+                          >
+                            {label}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <button
+                  onClick={() => {
+                    onSelectTableOrder(liveTimingTable.name);
+                    setActiveTimingTable(null);
+                  }}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '8px', fontSize: '12px', fontWeight: '600' }}
+                >
+                  + Add More Food
+                </button>
+                <button
+                  onClick={() => {
+                    onSelectTableOrder(liveTimingTable.name);
+                    setActiveTimingTable(null);
+                  }}
+                  className="btn btn-primary"
+                  style={{ flex: 1, padding: '8px', fontSize: '12px', fontWeight: '700' }}
+                >
+                  Settle & Print Bill
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

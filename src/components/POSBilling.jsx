@@ -1362,10 +1362,26 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               </div>
             </div>
 
+            {/* Quick 1-Click Mark All As Served */}
+            {runningTableItems.length > 0 && !runningTableItems.every(i => i.status === 'Served') && (
+              <button
+                onClick={() => {
+                  runningTableItems.forEach((_, idx) => updateItemCookingStatus(tableNo, idx, 'Served'));
+                }}
+                className="btn btn-secondary"
+                style={{ fontSize: '11.5px', padding: '6px', color: '#0c831f', borderColor: '#0c831f', fontWeight: '700' }}
+              >
+                <CheckCircle2 size={13} /> Mark All {runningTableItems.length} Dishes as Served
+              </button>
+            )}
+
             {/* Dish-by-dish progress */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
               {runningTableItems.map((item, idx) => {
-                const isCooking = item.status === 'Cooking';
+                const status = item.status || 'Cooking';
+                const nextStatus = status === 'Cooking' ? 'Ready' : status === 'Ready' ? 'Served' : 'Cooking';
+                const badgeClass = status === 'Served' ? 'badge-success' : status === 'Ready' ? 'badge-info' : 'badge-warning';
+                const label = status === 'Served' ? '🍽️ Served' : status === 'Ready' ? '🔔 Ready' : '🔥 Cooking';
 
                 return (
                   <div
@@ -1386,17 +1402,17 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                         {item.name} <span style={{ color: '#0c831f' }}>x{item.qty}</span>
                       </div>
                       <div style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>
-                        {isCooking ? `Est. Cooking Time: ${item.estMins || 12} mins` : 'Served to table'}
+                        {status === 'Cooking' ? `Est. Cooking Time: ${item.estMins || 12} mins` : status === 'Ready' ? 'Ready on kitchen counter' : 'Served at dining table'}
                       </div>
                     </div>
 
                     <button
-                      onClick={() => updateItemCookingStatus(tableNo, idx, isCooking ? 'Served' : 'Cooking')}
-                      className={`badge badge-${isCooking ? 'warning' : 'success'}`}
+                      onClick={() => updateItemCookingStatus(tableNo, idx, nextStatus)}
+                      className={`badge ${badgeClass}`}
                       style={{ cursor: 'pointer', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '700' }}
-                      title="Click to toggle status"
+                      title="Click to cycle status: Cooking ➔ Ready ➔ Served"
                     >
-                      {isCooking ? '🔥 Cooking' : '🍽️ Served'}
+                      {label}
                     </button>
                   </div>
                 );

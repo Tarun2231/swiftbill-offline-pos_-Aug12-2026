@@ -529,18 +529,92 @@ export const BillingProvider = ({ children }) => {
     }));
   };
 
-  // Kitchen Order Ticket Status Update
+  // WEB AUDIO SYNTHESIZER SOUND NOTIFICATIONS (100% Offline)
+  const playSoundEffect = (type = 'chime') => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+
+      if (type === 'kot_fired') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      } else if (type === 'order_ready') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
+        osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.12); // C6
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      } else if (type === 'bill_settled') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+        osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08); // G5
+        osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.16); // C6
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.6);
+      }
+    } catch (e) {
+      // Audio autoplay policy fallback
+    }
+  };
+
+  // Kitchen Order Ticket Status Update with 2-Way Sync to Tables
   const updateKOTStatus = (kotId, newStatus) => {
-    setData((prev) => ({
-      ...prev,
-      kitchenOrders: (prev.kitchenOrders || []).map((k) =>
+    playSoundEffect(newStatus === 'Ready to Serve' ? 'order_ready' : 'chime');
+
+    const itemTargetStatus = newStatus === 'Ready to Serve' ? 'Ready' : newStatus === 'Served' ? 'Served' : 'Cooking';
+
+    setData((prev) => {
+      // 1. Update kitchen orders
+      const updatedOrders = (prev.kitchenOrders || []).map((k) =>
         k.id === kotId ? { ...k, status: newStatus } : k
-      )
-    }));
+      );
+
+      // 2. Update table dishes that belong to this KOT
+      const updatedTables = (prev.restaurantTables || []).map((t) => {
+        const hasKOTItems = (t.currentItems || []).some(i => i.kotId === kotId);
+        if (!hasKOTItems) return t;
+
+        const updatedItems = (t.currentItems || []).map(i =>
+          i.kotId === kotId ? { ...i, status: itemTargetStatus } : i
+        );
+
+        return { ...t, currentItems: updatedItems };
+      });
+
+      return {
+        ...prev,
+        kitchenOrders: updatedOrders,
+        restaurantTables: updatedTables
+      };
+    });
   };
 
   // RESTAURANT DINE-IN TABLE ORDERING & KOT
   const fireKOT = (tableNo, items, chefNotes = '') => {
+    playSoundEffect('kot_fired');
+
     const kotNum = Math.floor(100 + Math.random() * 900);
     const kotId = `KOT-${kotNum}`;
     const now = new Date().toISOString();
@@ -550,6 +624,7 @@ export const BillingProvider = ({ children }) => {
       tableNo: tableNo,
       orderType: 'Dine-In',
       time: now,
+      chefNotes: chefNotes,
       items: items.map((i) => ({ name: i.name, qty: i.qty, notes: chefNotes })),
       status: 'Preparing'
     };
@@ -565,7 +640,7 @@ export const BillingProvider = ({ children }) => {
       kotId: kotId,
       status: 'Cooking',
       orderedAt: now,
-      estMins: i.category?.includes('Pizza') ? 15 : i.category?.includes('Beverage') ? 5 : 12
+      estMins: (i.category || '').toLowerCase().includes('pizza') ? 15 : (i.category || '').toLowerCase().includes('beverage') ? 5 : 12
     }));
 
     setData((prev) => {
@@ -592,29 +667,82 @@ export const BillingProvider = ({ children }) => {
     return newKOT;
   };
 
+  // Update Individual Item Status (Cooking ➔ Ready ➔ Served) with 2-Way Sync
   const updateItemCookingStatus = (tableNo, itemIndex, newStatus) => {
+    playSoundEffect(newStatus === 'Ready' ? 'order_ready' : newStatus === 'Served' ? 'chime' : 'chime');
+
     setData((prev) => {
       const currentTables = prev.restaurantTables || [];
+      let affectedKotId = null;
+
       const updatedTables = currentTables.map((t) => {
         if (t.name === tableNo || t.id === tableNo) {
           const updatedItems = [...(t.currentItems || [])];
           if (updatedItems[itemIndex]) {
+            affectedKotId = updatedItems[itemIndex].kotId;
             updatedItems[itemIndex] = { ...updatedItems[itemIndex], status: newStatus };
           }
           return { ...t, currentItems: updatedItems };
         }
         return t;
       });
-      return { ...prev, restaurantTables: updatedTables };
+
+      // Synchronize KDS ticket status if all items are served
+      let updatedKitchenOrders = prev.kitchenOrders || [];
+      if (affectedKotId) {
+        // Collect all items across tables with this kotId
+        const allKOTItems = updatedTables.flatMap(t => (t.currentItems || []).filter(i => i.kotId === affectedKotId));
+        if (allKOTItems.length > 0) {
+          const allServed = allKOTItems.every(i => i.status === 'Served');
+          const anyReady = allKOTItems.some(i => i.status === 'Ready');
+
+          const newKOTStatus = allServed ? 'Served' : anyReady ? 'Ready to Serve' : 'Preparing';
+
+          updatedKitchenOrders = (prev.kitchenOrders || []).map(k =>
+            k.id === affectedKotId ? { ...k, status: newKOTStatus } : k
+          );
+        }
+      }
+
+      return {
+        ...prev,
+        restaurantTables: updatedTables,
+        kitchenOrders: updatedKitchenOrders
+      };
     });
   };
 
+  // Table Waiter Call / Buzzer
+  const setTableBuzzer = (tableNo, reason = 'Water / Service Assistance') => {
+    playSoundEffect('order_ready');
+    setData((prev) => ({
+      ...prev,
+      restaurantTables: (prev.restaurantTables || []).map((t) =>
+        t.name === tableNo || t.id === tableNo
+          ? { ...t, buzzer: { active: true, reason, time: new Date().toISOString() } }
+          : t
+      )
+    }));
+  };
+
+  const clearTableBuzzer = (tableNo) => {
+    setData((prev) => ({
+      ...prev,
+      restaurantTables: (prev.restaurantTables || []).map((t) =>
+        t.name === tableNo || t.id === tableNo
+          ? { ...t, buzzer: null }
+          : t
+      )
+    }));
+  };
+
   const clearTable = (tableNo) => {
+    playSoundEffect('bill_settled');
     setData((prev) => {
       const currentTables = prev.restaurantTables || [];
       const updatedTables = currentTables.map((t) => {
         if (t.name === tableNo || t.id === tableNo) {
-          return { ...t, status: 'available', seatedAt: null, currentItems: [] };
+          return { ...t, status: 'available', seatedAt: null, currentItems: [], buzzer: null, reservation: null };
         }
         return t;
       });
@@ -948,6 +1076,9 @@ export const BillingProvider = ({ children }) => {
         updateJobStatus,
         fireKOT,
         updateItemCookingStatus,
+        setTableBuzzer,
+        clearTableBuzzer,
+        playSoundEffect,
         clearTable,
         addTable,
         deleteTable,
