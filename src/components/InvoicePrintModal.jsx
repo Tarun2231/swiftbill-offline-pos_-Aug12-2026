@@ -87,7 +87,7 @@ export default function InvoicePrintModal({ invoice, onClose }) {
             <div style={{
               display: 'flex',
               backgroundColor: 'var(--bg-input)',
-              borderRadius: 'var(--radius-sm)',
+              borderRadius: 'var(--radius-xs)',
               padding: '2px',
               flex: isMobile ? 1 : 'none'
             }}>
@@ -95,34 +95,34 @@ export default function InvoicePrintModal({ invoice, onClose }) {
                 onClick={() => setPrintFormat('thermal')}
                 style={{
                   flex: isMobile ? 1 : 'none',
-                  padding: '6px 12px',
-                  borderRadius: 'var(--radius-sm)',
+                  padding: '4px 10px',
+                  borderRadius: 'var(--radius-xs)',
                   border: 'none',
-                  backgroundColor: printFormat === 'thermal' ? '#10b981' : 'transparent',
+                  backgroundColor: printFormat === 'thermal' ? 'var(--instamart-green)' : 'transparent',
                   color: printFormat === 'thermal' ? '#ffffff' : 'var(--text-muted)',
-                  fontSize: '12px',
-                  fontWeight: '700',
+                  fontSize: '11px',
+                  fontWeight: '600',
                   cursor: 'pointer'
                 }}
               >
-                Thermal Slip
+                Slip
               </button>
 
               <button
                 onClick={() => setPrintFormat('a4')}
                 style={{
                   flex: isMobile ? 1 : 'none',
-                  padding: '6px 12px',
-                  borderRadius: 'var(--radius-sm)',
+                  padding: '4px 10px',
+                  borderRadius: 'var(--radius-xs)',
                   border: 'none',
-                  backgroundColor: printFormat === 'a4' ? '#10b981' : 'transparent',
+                  backgroundColor: printFormat === 'a4' ? 'var(--instamart-green)' : 'transparent',
                   color: printFormat === 'a4' ? '#ffffff' : 'var(--text-muted)',
-                  fontSize: '12px',
-                  fontWeight: '700',
+                  fontSize: '11px',
+                  fontWeight: '600',
                   cursor: 'pointer'
                 }}
               >
-                Standard A4
+                A4
               </button>
             </div>
 
@@ -130,18 +130,18 @@ export default function InvoicePrintModal({ invoice, onClose }) {
               onClick={handlePrint}
               className="btn btn-primary"
               style={{
-                padding: isMobile ? '8px 16px' : '10px 18px',
-                fontSize: '13px',
+                padding: '6px 12px',
+                fontSize: '12px',
                 flex: isMobile ? 1 : 'none'
               }}
             >
-              <Printer size={16} />
-              Print Bill
+              <Printer size={13} />
+              Print
             </button>
 
             {!isMobile && (
-              <button onClick={onClose} className="btn-icon">
-                <X size={20} />
+              <button onClick={onClose} className="btn-icon" style={{ padding: '4px' }}>
+                <X size={16} />
               </button>
             )}
           </div>
