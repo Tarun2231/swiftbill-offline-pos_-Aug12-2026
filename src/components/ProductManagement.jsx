@@ -131,10 +131,10 @@ export default function ProductManagement() {
 
   return (
     <div style={{
-      padding: isMobile ? '12px' : '20px 28px',
+      padding: isMobile ? '14px' : '24px 32px',
       display: 'flex',
       flexDirection: 'column',
-      gap: isMobile ? '10px' : '16px',
+      gap: isMobile ? '14px' : '20px',
       flex: 1,
       overflowY: 'auto'
     }}>
@@ -145,23 +145,23 @@ export default function ProductManagement() {
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'stretch' : 'center',
         justifyContent: 'space-between',
-        gap: '10px'
+        gap: '12px'
       }}>
         <div>
-          <h2 style={{ fontSize: isMobile ? '18px' : '20px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
-            Items
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Inventory & Catalog
           </h2>
-          <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
-            Catalog & stock
+          <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
+            Manage stock levels, prices, barcode SKUs, and weighted items.
           </span>
         </div>
 
         <button
           onClick={handleOpenAdd}
           className="btn btn-primary"
-          style={{ padding: '7px 14px', fontSize: '12.5px', alignSelf: isMobile ? 'stretch' : 'center' }}
+          style={{ padding: '9px 18px', fontSize: '13px', alignSelf: isMobile ? 'stretch' : 'center', fontWeight: '700' }}
         >
-          <Plus size={14} /> + Item
+          <Plus size={16} /> + Add New Item / Service
         </button>
       </div>
 
@@ -169,49 +169,49 @@ export default function ProductManagement() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)',
-        gap: '8px'
+        gap: '12px'
       }}>
         <div className="glass-panel" style={{
-          padding: '10px 14px',
+          padding: '14px 18px',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          borderLeft: '3px solid #0c831f'
+          gap: '12px',
+          borderLeft: '4px solid #0c831f'
         }}>
           <div>
-            <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>SKUs</span>
-            <h3 className="mono" style={{ fontSize: '17px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Total SKUs</span>
+            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
               {totalItemsCount}
             </h3>
           </div>
         </div>
 
         <div className="glass-panel" style={{
-          padding: '10px 14px',
+          padding: '14px 18px',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          borderLeft: '3px solid #f59e0b'
+          gap: '12px',
+          borderLeft: '4px solid #f59e0b'
         }}>
           <div>
-            <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Low Stock</span>
-            <h3 className="mono" style={{ fontSize: '17px', fontWeight: '700', color: '#f59e0b', margin: 0 }}>
+            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Low Stock Items</span>
+            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#f59e0b', margin: 0 }}>
               {lowStockItems.length}
             </h3>
           </div>
         </div>
 
         <div className="glass-panel" style={{
-          padding: '10px 14px',
+          padding: '14px 18px',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          borderLeft: '3px solid #3b82f6',
+          gap: '12px',
+          borderLeft: '4px solid #3b82f6',
           gridColumn: isMobile ? 'span 2' : 'auto'
         }}>
           <div>
-            <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Valuation</span>
-            <h3 className="mono" style={{ fontSize: '17px', fontWeight: '700', color: '#3b82f6', margin: 0 }}>
+            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Total Inventory Valuation</span>
+            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#3b82f6', margin: 0 }}>
               {settings.currency}{Math.round(totalValuation).toLocaleString()}
             </h3>
           </div>
@@ -222,40 +222,40 @@ export default function ProductManagement() {
       <div style={{
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
-        gap: '8px',
+        gap: '10px',
         alignItems: isMobile ? 'stretch' : 'center'
       }}>
         <div style={{ position: 'relative', flex: 1 }}>
-          <Search size={14} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+          <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '10px' }} />
           <input
             type="text"
-            placeholder="Search items or SKU..."
+            placeholder="Search items by name or SKU code..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="form-input"
-            style={{ paddingLeft: '32px', fontSize: '12px', height: '32px', minHeight: '32px' }}
+            style={{ paddingLeft: '36px', fontSize: '13px', height: '36px', minHeight: '36px' }}
           />
         </div>
 
         {/* Stock status filter pills */}
-        <div style={{ display: 'flex', gap: '4px' }}>
+        <div style={{ display: 'flex', gap: '6px' }}>
           {[
-            { id: 'all', label: 'All' },
-            { id: 'low', label: `Low (${lowStockItems.length})` },
+            { id: 'all', label: 'All Items' },
+            { id: 'low', label: `Low Stock (${lowStockItems.length})` },
             { id: 'instock', label: 'In Stock' }
           ].map((sf) => (
             <button
               key={sf.id}
               onClick={() => setStockFilter(sf.id)}
               style={{
-                padding: '4px 10px',
-                borderRadius: 'var(--radius-xs)',
+                padding: '6px 12px',
+                borderRadius: 'var(--radius-sm)',
                 border: '1px solid',
                 borderColor: stockFilter === sf.id ? '#0c831f' : 'var(--border-color)',
                 backgroundColor: stockFilter === sf.id ? 'var(--instamart-green-light)' : 'var(--bg-card)',
                 color: stockFilter === sf.id ? '#0c831f' : 'var(--text-muted)',
-                fontSize: '11px',
-                fontWeight: stockFilter === sf.id ? '600' : '400',
+                fontSize: '12px',
+                fontWeight: stockFilter === sf.id ? '700' : '500',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap'
               }}
@@ -266,20 +266,20 @@ export default function ProductManagement() {
         </div>
 
         {/* Category Pills */}
-        <div style={{ display: 'flex', gap: '4px', overflowX: 'auto', paddingBottom: '2px' }}>
+        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               style={{
-                padding: '4px 10px',
+                padding: '6px 12px',
                 borderRadius: 'var(--radius-full)',
                 border: '1px solid',
                 borderColor: selectedCategory === cat ? '#0c831f' : 'var(--border-color)',
                 backgroundColor: selectedCategory === cat ? 'var(--instamart-green-light)' : 'var(--bg-card)',
                 color: selectedCategory === cat ? '#0c831f' : 'var(--text-muted)',
-                fontSize: '11px',
-                fontWeight: selectedCategory === cat ? '600' : '400',
+                fontSize: '12px',
+                fontWeight: selectedCategory === cat ? '700' : '500',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap'
               }}
@@ -292,10 +292,10 @@ export default function ProductManagement() {
 
       {/* MOBILE VIEW */}
       {isMobile ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {filteredProducts.length === 0 ? (
-            <div className="glass-panel" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-dim)' }}>
-              <p style={{ fontSize: '12px' }}>No items found.</p>
+            <div className="glass-panel" style={{ padding: '28px', textAlign: 'center', color: 'var(--text-dim)' }}>
+              <p style={{ fontSize: '13px' }}>No items found matching your search.</p>
             </div>
           ) : (
             filteredProducts.map((p) => {
@@ -306,28 +306,28 @@ export default function ProductManagement() {
                   key={p.id}
                   className="glass-panel"
                   style={{
-                    padding: '10px',
+                    padding: '12px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '6px',
+                    gap: '8px',
                     border: '1px solid var(--border-color)'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {p.image ? (
-                      <img src={p.image} alt={p.name} style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '6px' }} />
+                      <img src={p.image} alt={p.name} style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '6px' }} />
                     ) : (
-                      <div style={{ width: '38px', height: '38px', borderRadius: '6px', backgroundColor: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
-                        <Package size={18} />
+                      <div style={{ width: '42px', height: '42px', borderRadius: '6px', backgroundColor: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
+                        <Package size={20} />
                       </div>
                     )}
 
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ fontSize: '9.5px', color: 'var(--text-dim)' }}>{p.sku}</span>
-                        <span className="badge badge-info" style={{ fontSize: '8.5px', padding: '1px 4px' }}>{p.category}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>{p.sku}</span>
+                        <span className="badge badge-info" style={{ fontSize: '9px', padding: '1px 5px' }}>{p.category}</span>
                       </div>
-                      <h4 style={{ fontSize: '12.5px', fontWeight: '600', color: 'var(--text-main)', margin: '2px 0 0 0' }}>
+                      <h4 style={{ fontSize: '13.5px', fontWeight: '700', color: 'var(--text-main)', margin: '2px 0 0 0' }}>
                         {p.name}
                       </h4>
                     </div>
@@ -337,35 +337,41 @@ export default function ProductManagement() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '6px 8px',
+                    padding: '8px 10px',
                     backgroundColor: 'var(--bg-input)',
                     borderRadius: 'var(--radius-xs)'
                   }}>
-                    <span className="mono" style={{ fontSize: '13px', fontWeight: '700', color: '#0c831f' }}>
-                      {settings.currency}{p.price}/{p.unit}
-                    </span>
+                    <div>
+                      <span style={{ fontSize: '10px', color: 'var(--text-dim)', display: 'block' }}>Selling Price</span>
+                      <span className="mono" style={{ fontSize: '14px', fontWeight: '800', color: '#0c831f' }}>
+                        {settings.currency}{p.price}/{p.unit}
+                      </span>
+                    </div>
 
-                    <span className={`badge badge-${isLow ? 'danger' : 'success'}`} style={{ fontSize: '10px', padding: '1px 5px' }}>
-                      {p.stock} {p.unit}
-                    </span>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ fontSize: '10px', color: 'var(--text-dim)', display: 'block' }}>Stock Status</span>
+                      <span className={`badge badge-${isLow ? 'danger' : 'success'}`} style={{ fontSize: '11px', padding: '2px 6px' }}>
+                        {p.stock} {p.unit}
+                      </span>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                     <button
                       onClick={() => handleOpenEdit(p)}
                       className="btn btn-secondary"
-                      style={{ padding: '4px 8px', fontSize: '11px', flex: 1, height: '26px' }}
+                      style={{ padding: '6px 12px', fontSize: '12px', flex: 1, height: '30px', fontWeight: '600' }}
                     >
-                      <Edit2 size={11} /> Edit
+                      <Edit2 size={13} /> Edit Item
                     </button>
                     <button
                       onClick={() => {
                         if (window.confirm(`Delete ${p.name}?`)) deleteProduct(p.id);
                       }}
                       className="btn btn-danger"
-                      style={{ padding: '4px 8px', fontSize: '11px', height: '26px' }}
+                      style={{ padding: '6px 12px', fontSize: '12px', height: '30px', fontWeight: '600' }}
                     >
-                      <Trash2 size={11} /> Del
+                      <Trash2 size={13} /> Delete
                     </button>
                   </div>
                 </div>
@@ -380,20 +386,20 @@ export default function ProductManagement() {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--bg-input)', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>ITEM</th>
-                  <th style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>CATEGORY</th>
-                  <th style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600', textAlign: 'right' }}>PRICE</th>
-                  <th style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600', textAlign: 'right' }}>COST</th>
-                  <th style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600', textAlign: 'center' }}>STOCK</th>
-                  <th style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600', textAlign: 'center' }}>TAX</th>
-                  <th style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600', textAlign: 'right' }}>ACTIONS</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700' }}>ITEM</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700' }}>CATEGORY</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'right' }}>SELLING PRICE</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'right' }}>COST PRICE</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'center' }}>STOCK</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'center' }}>TAX %</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'right' }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ padding: '30px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '12px' }}>
-                      No items found.
+                    <td colSpan={7} style={{ padding: '36px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '13px' }}>
+                      No inventory items found matching your search.
                     </td>
                   </tr>
                 ) : (
@@ -402,51 +408,51 @@ export default function ProductManagement() {
 
                     return (
                       <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                        <td style={{ padding: '10px 14px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <td style={{ padding: '12px 16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             {p.image ? (
-                              <img src={p.image} alt={p.name} style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px' }} />
+                              <img src={p.image} alt={p.name} style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '6px' }} />
                             ) : (
-                              <div style={{ width: '32px', height: '32px', borderRadius: '4px', backgroundColor: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
-                                <Package size={15} />
+                              <div style={{ width: '36px', height: '36px', borderRadius: '6px', backgroundColor: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
+                                <Package size={16} />
                               </div>
                             )}
                             <div>
-                              <div style={{ fontSize: '12.5px', fontWeight: '600', color: 'var(--text-main)' }}>{p.name}</div>
-                              <div style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>{p.sku}</div>
+                              <div style={{ fontSize: '13.5px', fontWeight: '700', color: 'var(--text-main)' }}>{p.name}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>SKU: {p.sku}</div>
                             </div>
                           </div>
                         </td>
 
-                        <td style={{ padding: '10px 14px', fontSize: '11.5px', color: 'var(--text-muted)' }}>
-                          <span className="badge badge-info" style={{ fontSize: '9.5px' }}>{p.category}</span>
+                        <td style={{ padding: '12px 16px', fontSize: '12.5px', color: 'var(--text-muted)' }}>
+                          <span className="badge badge-info" style={{ fontSize: '10px' }}>{p.category}</span>
                         </td>
 
-                        <td style={{ padding: '10px 14px', fontSize: '12.5px', fontWeight: '700', textAlign: 'right' }} className="mono">
+                        <td style={{ padding: '12px 16px', fontSize: '13.5px', fontWeight: '800', textAlign: 'right' }} className="mono">
                           {settings.currency}{p.price}/{p.unit}
                         </td>
 
-                        <td style={{ padding: '10px 14px', fontSize: '11.5px', color: 'var(--text-muted)', textAlign: 'right' }} className="mono">
+                        <td style={{ padding: '12px 16px', fontSize: '12.5px', color: 'var(--text-muted)', textAlign: 'right' }} className="mono">
                           {settings.currency}{p.purchaseCost || 0}
                         </td>
 
-                        <td style={{ padding: '10px 14px', textAlign: 'center' }}>
-                          <span className={`badge badge-${isLow ? 'danger' : 'success'}`} style={{ fontSize: '10.5px' }}>
+                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                          <span className={`badge badge-${isLow ? 'danger' : 'success'}`} style={{ fontSize: '11px' }}>
                             {p.stock} {p.unit}
                           </span>
                         </td>
 
-                        <td style={{ padding: '10px 14px', fontSize: '11.5px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        <td style={{ padding: '12px 16px', fontSize: '12.5px', textAlign: 'center', color: 'var(--text-muted)' }}>
                           {p.taxRate}%
                         </td>
 
-                        <td style={{ padding: '10px 14px', textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: '4px' }}>
-                            <button onClick={() => handleOpenEdit(p)} className="btn-icon" style={{ padding: '4px' }} title="Edit">
-                              <Edit2 size={13} />
+                        <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '6px' }}>
+                            <button onClick={() => handleOpenEdit(p)} className="btn-icon" style={{ padding: '6px' }} title="Edit Item">
+                              <Edit2 size={14} />
                             </button>
-                            <button onClick={() => deleteProduct(p.id)} className="btn-icon" style={{ color: '#f43f5e', padding: '4px' }} title="Delete">
-                              <Trash2 size={13} />
+                            <button onClick={() => deleteProduct(p.id)} className="btn-icon" style={{ color: '#f43f5e', padding: '6px' }} title="Delete Item">
+                              <Trash2 size={14} />
                             </button>
                           </div>
                         </td>
@@ -462,40 +468,40 @@ export default function ProductManagement() {
 
       {/* Add / Edit Product Modal */}
       {showAddModal && (
-        <div className="modal-overlay" style={{ padding: isMobile ? '8px' : '18px' }}>
-          <div className="modal-container" style={{ maxWidth: '480px', padding: isMobile ? '16px 12px' : '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
-                {editingProduct ? 'Edit Item' : 'New Item'}
+        <div className="modal-overlay" style={{ padding: isMobile ? '10px' : '20px' }}>
+          <div className="modal-container" style={{ maxWidth: '520px', padding: isMobile ? '18px 14px' : '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '17px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                {editingProduct ? 'Edit Inventory Item' : 'Add New Item / Service'}
               </h3>
-              <button onClick={() => setShowAddModal(false)} className="btn-icon" style={{ padding: '4px' }}>
-                <X size={16} />
+              <button onClick={() => setShowAddModal(false)} className="btn-icon" style={{ padding: '5px' }}>
+                <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label className="form-label">Name *</label>
+                <label className="form-label">Item / Service Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="Apples / Oil"
+                  placeholder="e.g. Organic Red Apples / Woodfired Margherita Pizza"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="form-input"
-                  style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                  style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label className="form-label">SKU</label>
+                  <label className="form-label">SKU / Barcode Code</label>
                   <input
                     type="text"
                     value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                     className="form-input"
-                    style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                    style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                   />
                 </div>
 
@@ -506,14 +512,15 @@ export default function ProductManagement() {
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="form-input"
-                    style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                    placeholder="e.g. Fruits, Pizza, Drinks"
+                    style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label className="form-label">Price ({settings.currency}) *</label>
+                  <label className="form-label">Selling Price ({settings.currency}) *</label>
                   <input
                     type="number"
                     required
@@ -521,83 +528,83 @@ export default function ProductManagement() {
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     className="form-input"
-                    style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                    style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                   />
                 </div>
 
                 <div>
-                  <label className="form-label">Cost ({settings.currency})</label>
+                  <label className="form-label">Cost Price ({settings.currency})</label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.purchaseCost}
                     onChange={(e) => setFormData({ ...formData, purchaseCost: e.target.value })}
                     className="form-input"
-                    style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                    style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                   />
                 </div>
 
                 <div>
-                  <label className="form-label">Stock</label>
+                  <label className="form-label">Initial Stock</label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                     className="form-input"
-                    style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                    style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label className="form-label">Unit</label>
+                  <label className="form-label">Measurement Unit</label>
                   <input
                     type="text"
-                    placeholder="kg, pcs"
+                    placeholder="kg, pcs, plate, cup, dozen"
                     value={formData.unit}
                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                     className="form-input"
-                    style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                    style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                   />
                 </div>
 
                 <div>
-                  <label className="form-label">Tax %</label>
+                  <label className="form-label">GST Tax Rate %</label>
                   <select
                     className="form-select"
                     value={formData.taxRate}
                     onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })}
-                    style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                    style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                   >
-                    <option value="0">0%</option>
-                    <option value="5">5%</option>
-                    <option value="12">12%</option>
-                    <option value="18">18%</option>
-                    <option value="28">28%</option>
+                    <option value="0">0% (Exempt)</option>
+                    <option value="5">5% (Essential / Food)</option>
+                    <option value="12">12% (Standard Goods)</option>
+                    <option value="18">18% (Standard Services)</option>
+                    <option value="28">28% (Luxury / Spares)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="form-label">Image URL (Optional)</label>
+                <label className="form-label">Product Image URL (Optional)</label>
                 <input
                   type="text"
-                  placeholder="https://..."
+                  placeholder="https://images.unsplash.com/..."
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   className="form-input"
-                  style={{ height: '32px', minHeight: '32px', fontSize: '12px' }}
+                  style={{ height: '34px', minHeight: '34px', fontSize: '13px' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', marginTop: '6px' }}>
-                <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '11.5px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' }}>
+                <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary" style={{ padding: '6px 14px', fontSize: '11.5px' }}>
-                  Save
+                <button type="submit" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '12.5px', fontWeight: '700' }}>
+                  {editingProduct ? 'Save Changes' : 'Create Item'}
                 </button>
               </div>
             </form>

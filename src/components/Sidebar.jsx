@@ -44,29 +44,29 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
   const activeJobsCount = (serviceJobs || []).filter(j => j.status !== 'Delivered').length;
 
   const baseNavItems = [
-    { id: 'pos', label: 'POS', icon: ShoppingBag, badge: 'F2' },
+    { id: 'pos', label: 'POS Billing', icon: ShoppingBag, badge: 'F2' },
     
     // Restaurant Specific Navigation
     ...(activeBusinessId === 'restaurant' ? [
-      { id: 'floorplan', label: 'Floor', icon: LayoutGrid },
-      { id: 'kds', label: 'KDS', icon: Flame, badge: activeKOTCount > 0 ? `${activeKOTCount}` : null }
+      { id: 'floorplan', label: 'Table Floorplan', icon: LayoutGrid },
+      { id: 'kds', label: 'Kitchen Display (KOT)', icon: Flame, badge: activeKOTCount > 0 ? `${activeKOTCount}` : null }
     ] : []),
 
     // Automotive Specific Navigation
     ...(activeBusinessId === 'automotive' ? [
-      { id: 'jobs', label: 'Service', icon: Wrench, badge: activeJobsCount > 0 ? `${activeJobsCount}` : null }
+      { id: 'jobs', label: 'Service Job Cards', icon: Wrench, badge: activeJobsCount > 0 ? `${activeJobsCount}` : null }
     ] : []),
 
-    { id: 'products', label: 'Items', icon: Package },
-    { id: 'quotations', label: 'Estimates', icon: FileCheck },
-    { id: 'invoices', label: 'Invoices', icon: FileText },
-    { id: 'returns', label: 'Returns', icon: RotateCcw },
-    { id: 'shift', label: 'Shift', icon: Banknote },
-    { id: 'expenses', label: 'Expenses', icon: DollarSign },
-    { id: 'customers', label: 'Ledger', icon: Users },
-    { id: 'barcode', label: 'Barcode', icon: Barcode },
-    { id: 'reports', label: 'Reports', icon: BarChart3 },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'products', label: 'Inventory & Items', icon: Package },
+    { id: 'quotations', label: 'Quotations & Estimates', icon: FileCheck },
+    { id: 'invoices', label: 'Invoice Records', icon: FileText },
+    { id: 'returns', label: 'Returns & Credit Notes', icon: RotateCcw },
+    { id: 'shift', label: 'Cash Shift & Z-Report', icon: Banknote },
+    { id: 'expenses', label: 'Expense Tracker', icon: DollarSign },
+    { id: 'customers', label: 'Customer Ledger', icon: Users },
+    { id: 'barcode', label: 'Barcode Generator', icon: Barcode },
+    { id: 'reports', label: 'Sales Analytics', icon: BarChart3 },
+    { id: 'settings', label: 'Store Settings', icon: Settings }
   ];
 
   const handleNavClick = (id) => {
@@ -95,67 +95,70 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
       <aside className={`sidebar-container ${isOpen ? 'open' : ''}`}>
         {/* Brand Header */}
         <div style={{
-          padding: '12px 14px',
+          padding: '14px 16px',
           borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: '8px',
+              width: '34px',
+              height: '34px',
+              borderRadius: '10px',
               background: '#0c831f',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 2px 8px rgba(12, 131, 31, 0.3)'
             }}>
-              <Receipt size={16} color="#ffffff" />
+              <Receipt size={18} color="#ffffff" />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <h1 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h1 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                   SwiftBill
                 </h1>
-                <span className="badge badge-success" style={{ fontSize: '8.5px', padding: '1px 4px' }}>
-                  v2
+                <span className="badge badge-success" style={{ fontSize: '9px', padding: '1px 5px' }}>
+                  v2.0
                 </span>
+              </div>
+              <div style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>
+                Offline POS System
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button
               onClick={toggleTheme}
               className="btn-icon"
               style={{
-                padding: '5px',
-                borderRadius: 'var(--radius-xs)',
+                padding: '6px',
+                borderRadius: 'var(--radius-sm)',
                 backgroundColor: 'var(--bg-input)',
                 border: '1px solid var(--border-color)',
                 color: theme === 'dark' ? '#fbbf24' : '#3b82f6'
               }}
-              title="Theme"
+              title="Toggle Theme"
             >
-              {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
 
             <button
               onClick={onClose}
               className="btn-icon"
-              style={{ display: isOpen ? 'flex' : 'none', padding: '5px' }}
+              style={{ display: isOpen ? 'flex' : 'none', padding: '6px' }}
             >
-              <X size={15} />
+              <X size={18} />
             </button>
           </div>
         </div>
 
         {/* ACTIVE WORKSPACE CARD */}
-        <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border-color)' }}>
+        <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{
-            padding: '8px 10px',
+            padding: '10px 12px',
             borderRadius: 'var(--radius-sm)',
             backgroundColor: 'var(--bg-input)',
             border: '1px solid var(--border-color)',
@@ -165,20 +168,20 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
             gap: '8px'
           }}>
             <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: '700' }}>
+                Active Store
+              </div>
               <h3 style={{
-                fontSize: '12px',
-                fontWeight: '600',
+                fontSize: '13px',
+                fontWeight: '700',
                 color: 'var(--text-main)',
-                margin: 0,
+                margin: '2px 0 0 0',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}>
                 {settings.storeName}
               </h3>
-              <span style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
-                {activeBusinessId}
-              </span>
             </div>
 
             <button
@@ -188,20 +191,21 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
               }}
               className="btn btn-secondary"
               style={{
-                padding: '4px 8px',
-                fontSize: '10.5px',
-                height: '24px',
+                padding: '5px 10px',
+                fontSize: '11px',
+                fontWeight: '600',
+                height: '28px',
                 gap: '4px'
               }}
-              title="Switch Store"
+              title="Switch Business Workspace"
             >
-              <ArrowRightLeft size={10} color={bizColor} /> Switch
+              <ArrowRightLeft size={12} color={bizColor} /> Switch
             </button>
           </div>
         </div>
 
         {/* Navigation List */}
-        <nav style={{ padding: '6px 6px', flex: 1, display: 'flex', flexDirection: 'column', gap: '2px', overflowY: 'auto' }}>
+        <nav style={{ padding: '8px 8px', flex: 1, display: 'flex', flexDirection: 'column', gap: '3px', overflowY: 'auto' }}>
           {baseNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -214,30 +218,30 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   width: '100%',
-                  padding: '7px 10px',
-                  borderRadius: 'var(--radius-xs)',
+                  padding: '9px 12px',
+                  borderRadius: 'var(--radius-sm)',
                   border: 'none',
                   background: isActive ? 'var(--instamart-green-light)' : 'transparent',
                   color: isActive ? 'var(--instamart-green)' : 'var(--text-muted)',
-                  fontWeight: isActive ? '600' : '400',
-                  fontSize: '12.5px',
+                  fontWeight: isActive ? '700' : '500',
+                  fontSize: '13px',
                   cursor: 'pointer',
                   borderLeft: isActive ? '3px solid var(--instamart-green)' : '3px solid transparent',
-                  transition: 'all 0.12s ease'
+                  transition: 'all 0.15s ease'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Icon size={15} color={isActive ? 'var(--instamart-green)' : 'var(--text-muted)'} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Icon size={17} color={isActive ? 'var(--instamart-green)' : 'var(--text-muted)'} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
                   <span style={{
-                    fontSize: '9.5px',
-                    padding: '1px 5px',
-                    borderRadius: '3px',
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
                     backgroundColor: isActive ? 'rgba(12,131,31,0.2)' : 'var(--bg-input)',
                     color: isActive ? 'var(--instamart-green)' : 'var(--text-dim)',
-                    fontWeight: '600'
+                    fontWeight: '700'
                   }}>
                     {item.badge}
                   </span>
@@ -249,29 +253,29 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
 
         {/* Footer Quick Backup & Admin Lock */}
         <div style={{
-          padding: '8px 10px',
+          padding: '10px 12px',
           borderTop: '1px solid var(--border-color)',
           backgroundColor: 'var(--bg-input)',
           display: 'flex',
-          gap: '6px'
+          gap: '8px'
         }}>
           <button
             onClick={exportDataJSON}
             className="btn btn-secondary"
-            style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '28px' }}
-            title="Backup data"
+            style={{ flex: 1, fontSize: '11.5px', padding: '7px 10px', height: '32px', fontWeight: '600' }}
+            title="Export JSON Backup"
           >
-            <HardDriveDownload size={12} />
-            Backup
+            <HardDriveDownload size={14} />
+            JSON Backup
           </button>
 
           <button
             onClick={logout}
             className="btn btn-danger"
-            style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '28px' }}
-            title="Lock"
+            style={{ flex: 1, fontSize: '11.5px', padding: '7px 10px', height: '32px', fontWeight: '600' }}
+            title="Lock Admin Session"
           >
-            <LogOut size={12} />
+            <LogOut size={14} />
             Lock
           </button>
         </div>

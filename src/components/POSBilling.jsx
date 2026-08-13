@@ -153,12 +153,12 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   // Categories extraction
   const categories = useMemo(() => {
     const set = new Set(products.map((p) => p.category));
-    return ['All', ...Array.from(set)];
+    return ['All Items', ...Array.from(set)];
   }, [products]);
 
   const getCategoryEmoji = (cat) => {
     const c = cat.toLowerCase();
-    if (c === 'all') return '⚡';
+    if (c.includes('all')) return '⚡';
     if (c.includes('fruit')) return '🍎';
     if (c.includes('veg')) return '🥦';
     if (c.includes('dairy') || c.includes('milk')) return '🥛';
@@ -174,7 +174,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   // Filtered Products
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const matchCat = selectedCategory === 'All' || p.category === selectedCategory;
+      const matchCat = selectedCategory === 'All Items' || p.category === selectedCategory;
       const matchSearch =
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.sku.toLowerCase().includes(searchQuery.toLowerCase());
@@ -295,7 +295,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     fireKOT(tableNo, cart, chefNotes);
     setCart([]);
     setChefNotes('');
-    alert(`🔥 KOT fired to kitchen for ${tableNo}!`);
+    alert(`🔥 Kitchen Order Ticket (KOT) sent to kitchen for ${tableNo}!`);
   };
 
   // CHECKOUT & POST-DINING SETTLEMENT ACTION (Pay after eating)
@@ -389,7 +389,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       restaurantDetails: activeBusinessId === 'restaurant' ? { tableNo, orderType, chefNotes } : null
     });
 
-    alert('Estimate saved!');
+    alert('Estimate saved successfully!');
     setCart([]);
     setDiscountPercent(0);
     if (isMobile) setMobileTab('catalog');
@@ -440,59 +440,59 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {isMobile && (
         <div style={{
           display: 'flex',
-          padding: '5px 8px',
+          padding: '6px 10px',
           backgroundColor: 'var(--bg-card)',
           borderBottom: '1px solid var(--border-color)',
-          gap: '5px',
+          gap: '6px',
           zIndex: 30
         }}>
           <button
             onClick={() => setMobileTab('catalog')}
             style={{
               flex: 1,
-              padding: '6px',
-              borderRadius: 'var(--radius-xs)',
+              padding: '8px',
+              borderRadius: 'var(--radius-sm)',
               border: 'none',
               backgroundColor: mobileTab === 'catalog' ? 'var(--instamart-green)' : 'var(--bg-input)',
               color: mobileTab === 'catalog' ? '#ffffff' : 'var(--text-muted)',
-              fontWeight: '600',
-              fontSize: '11.5px',
+              fontWeight: '700',
+              fontSize: '12px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '4px'
+              gap: '6px'
             }}
           >
-            <ShoppingBag size={13} />
-            Menu ({products.length})
+            <ShoppingBag size={14} />
+            Browse Menu ({products.length})
           </button>
           
           <button
             onClick={() => setMobileTab('cart')}
             style={{
               flex: 1,
-              padding: '6px',
-              borderRadius: 'var(--radius-xs)',
+              padding: '8px',
+              borderRadius: 'var(--radius-sm)',
               border: 'none',
               backgroundColor: mobileTab === 'cart' ? 'var(--instamart-green)' : 'var(--bg-input)',
               color: mobileTab === 'cart' ? '#ffffff' : 'var(--text-muted)',
-              fontWeight: '600',
-              fontSize: '11.5px',
+              fontWeight: '700',
+              fontSize: '12px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '4px'
+              gap: '6px'
             }}
           >
             <span>Bill ({combinedItemsForBilling.length})</span>
             <span className="badge" style={{
               backgroundColor: mobileTab === 'cart' ? '#ffffff' : 'var(--instamart-green)',
               color: mobileTab === 'cart' ? 'var(--instamart-green)' : '#ffffff',
-              fontSize: '9.5px',
-              padding: '1px 4px',
-              fontWeight: '600'
+              fontSize: '10.5px',
+              padding: '2px 6px',
+              fontWeight: '700'
             }}>
               {settings.currency}{grandTotal}
             </span>
@@ -504,25 +504,25 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {showCatalogPanel && (
         <div className="pos-catalog-panel" style={{
           flex: 1,
-          padding: isMobile ? '8px 10px' : '14px 18px',
+          padding: isMobile ? '10px 12px' : '16px 22px',
           display: 'flex',
           flexDirection: 'column',
-          gap: isMobile ? '6px' : '10px',
+          gap: isMobile ? '8px' : '12px',
           overflowY: 'auto',
           width: '100%',
           position: 'relative'
         }}>
           
           {/* Header Row */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                 <span className="time-badge">
-                  <Zap size={9} fill="var(--swiggy-orange)" /> POS
+                  <Zap size={11} fill="var(--swiggy-orange)" /> Quick POS
                 </span>
                 <h2 style={{
-                  fontSize: isMobile ? '14px' : '15px',
-                  fontWeight: '600',
+                  fontSize: isMobile ? '16px' : '18px',
+                  fontWeight: '700',
                   color: 'var(--text-main)',
                   margin: 0,
                   whiteSpace: 'nowrap',
@@ -537,33 +537,33 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 onClick={() => setShowProfitPeek(!showProfitPeek)}
                 className="btn btn-secondary"
                 style={{
-                  fontSize: '10.5px',
-                  padding: '3px 6px',
-                  height: '24px',
+                  fontSize: '11.5px',
+                  padding: '5px 10px',
+                  height: '28px',
                   flexShrink: 0,
-                  fontWeight: '500',
-                  gap: '3px'
+                  fontWeight: '600',
+                  gap: '4px'
                 }}
               >
-                {showProfitPeek ? <EyeOff size={11} /> : <Eye size={11} color="var(--instamart-green)" />}
-                {showProfitPeek ? `Margin: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Margin'}
+                {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="var(--instamart-green)" />}
+                {showProfitPeek ? `Margin: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
               </button>
             </div>
 
             {/* Search Bar */}
             <div style={{ position: 'relative' }}>
-              <Search size={14} color="var(--text-muted)" style={{ position: 'absolute', left: '10px', top: '9px' }} />
+              <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '10px' }} />
               <input
                 type="text"
-                placeholder={`Search food dishes or SKU...`}
+                placeholder={`Search catalog, food dishes, or SKU code...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="form-input"
                 style={{
-                  paddingLeft: '30px',
-                  fontSize: '12px',
-                  minHeight: '32px',
-                  height: '32px',
+                  paddingLeft: '36px',
+                  fontSize: '13px',
+                  minHeight: '36px',
+                  height: '36px',
                   borderRadius: 'var(--radius-full)'
                 }}
               />
@@ -572,21 +572,21 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   onClick={() => setSearchQuery('')}
                   style={{
                     position: 'absolute',
-                    right: '8px',
-                    top: '8px',
+                    right: '10px',
+                    top: '9px',
                     background: 'none',
                     border: 'none',
                     color: 'var(--text-muted)',
                     cursor: 'pointer'
                   }}
                 >
-                  <X size={13} />
+                  <X size={15} />
                 </button>
               )}
             </div>
 
             {/* Category Rail */}
-            <div style={{ display: 'flex', gap: '5px', overflowX: 'auto', paddingBottom: '2px', scrollbarWidth: 'none' }}>
+            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '3px', scrollbarWidth: 'none' }}>
               {categories.map((cat) => {
                 const isSelected = selectedCategory === cat;
                 const emoji = getCategoryEmoji(cat);
@@ -596,20 +596,20 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
                     style={{
-                      padding: '4px 10px',
+                      padding: '6px 14px',
                       borderRadius: 'var(--radius-full)',
                       border: '1px solid',
                       borderColor: isSelected ? 'var(--instamart-green)' : 'var(--border-color)',
                       backgroundColor: isSelected ? 'var(--instamart-green-light)' : 'var(--bg-card)',
                       color: isSelected ? 'var(--instamart-green)' : 'var(--text-muted)',
-                      fontSize: '11px',
-                      fontWeight: isSelected ? '600' : '400',
+                      fontSize: '12px',
+                      fontWeight: isSelected ? '700' : '500',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '3px',
-                      transition: 'all 0.12s ease'
+                      gap: '5px',
+                      transition: 'all 0.15s ease'
                     }}
                   >
                     <span>{emoji}</span>
@@ -623,10 +623,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           {/* Product Grid */}
           <div className="product-grid-responsive" style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(130px, 1fr))' : 'repeat(auto-fill, minmax(175px, 1fr))',
-            gap: isMobile ? '6px' : '10px',
+            gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(140px, 1fr))' : 'repeat(auto-fill, minmax(185px, 1fr))',
+            gap: isMobile ? '8px' : '12px',
             alignContent: 'start',
-            paddingBottom: isMobile && combinedItemsForBilling.length > 0 ? '60px' : '14px'
+            paddingBottom: isMobile && combinedItemsForBilling.length > 0 ? '70px' : '16px'
           }}>
             {filteredProducts.map((prod) => {
               const isOutOfStock = prod.stock <= 0;
@@ -641,97 +641,97 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   key={prod.id}
                   className="glass-panel card-hover"
                   style={{
-                    padding: isMobile ? '6px' : '8px',
+                    padding: isMobile ? '8px' : '10px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    gap: '3px',
+                    gap: '4px',
                     position: 'relative',
-                    border: inCart ? '1px solid var(--instamart-green)' : '1px solid var(--border-color)',
-                    background: inCart ? 'rgba(12,131,31,0.02)' : 'var(--bg-card)',
+                    border: inCart ? '1.5px solid var(--instamart-green)' : '1px solid var(--border-color)',
+                    background: inCart ? 'rgba(12,131,31,0.03)' : 'var(--bg-card)',
                     borderRadius: 'var(--radius-md)',
                     overflow: 'hidden'
                   }}
                 >
                   {/* Top Discount Tag */}
                   {discountPercentCalc > 5 && (
-                    <div style={{ position: 'absolute', top: '5px', left: '5px', zIndex: 2 }}>
+                    <div style={{ position: 'absolute', top: '6px', left: '6px', zIndex: 2 }}>
                       <span className="discount-badge">
-                        {discountPercentCalc}%
+                        {discountPercentCalc}% OFF
                       </span>
                     </div>
                   )}
 
                   {/* Product Image */}
-                  <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '6px', backgroundColor: 'var(--bg-input)' }}>
+                  <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '8px', backgroundColor: 'var(--bg-input)' }}>
                     {prod.image ? (
                       <img
                         src={prod.image}
                         alt={prod.name}
                         style={{
                           width: '100%',
-                          height: isMobile ? '80px' : '100px',
+                          height: isMobile ? '90px' : '110px',
                           objectFit: 'cover',
-                          borderRadius: '6px'
+                          borderRadius: '8px'
                         }}
                       />
                     ) : (
                       <div style={{
                         width: '100%',
-                        height: isMobile ? '80px' : '100px',
+                        height: isMobile ? '90px' : '110px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: 'var(--text-dim)'
                       }}>
-                        <Utensils size={24} />
+                        <Utensils size={28} />
                       </div>
                     )}
 
                     <div style={{
                       position: 'absolute',
-                      bottom: '2px',
-                      left: '2px',
-                      backgroundColor: 'rgba(0,0,0,0.6)',
+                      bottom: '4px',
+                      left: '4px',
+                      backgroundColor: 'rgba(0,0,0,0.65)',
                       color: '#ffffff',
-                      fontSize: '8.5px',
-                      fontWeight: '500',
-                      padding: '1px 4px',
-                      borderRadius: '2px',
-                      backdropFilter: 'blur(2px)'
+                      fontSize: '9.5px',
+                      fontWeight: '600',
+                      padding: '2px 5px',
+                      borderRadius: '3px',
+                      backdropFilter: 'blur(3px)'
                     }}>
-                      1 {prod.unit || 'plate'}
+                      {prod.isWeightBased ? `per ${prod.unit}` : `1 ${prod.unit || 'plate'}`}
                     </div>
                   </div>
 
                   {/* Title */}
                   <div>
                     <h3 style={{
-                      fontSize: isMobile ? '11.5px' : '12px',
-                      fontWeight: '600',
+                      fontSize: isMobile ? '12.5px' : '13px',
+                      fontWeight: '700',
                       color: 'var(--text-main)',
-                      lineHeight: '1.2',
+                      lineHeight: '1.25',
                       wordBreak: 'break-word',
-                      margin: '2px 0 0 0',
-                      minHeight: '26px'
+                      margin: '3px 0 0 0',
+                      minHeight: '30px'
                     }}>
                       {prod.name}
                     </h3>
                   </div>
 
                   {/* Price */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                    <span className="mono" style={{ fontSize: isMobile ? '12.5px' : '13.5px', fontWeight: '700', color: 'var(--text-main)' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                    <span className="mono" style={{ fontSize: isMobile ? '14px' : '15px', fontWeight: '800', color: 'var(--text-main)' }}>
                       {settings.currency}{prod.price.toLocaleString()}
                     </span>
-                    <span className="mono" style={{ fontSize: '9.5px', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
+                    <span className="mono" style={{ fontSize: '10.5px', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                       {settings.currency}{fakeMrp}
                     </span>
                   </div>
 
                   {/* Weight Quick Chips */}
                   {prod.isWeightBased && !inCart && (
-                    <div style={{ display: 'flex', gap: '2px', marginTop: '1px' }}>
+                    <div style={{ display: 'flex', gap: '3px', marginTop: '2px' }}>
                       {[
                         { label: '500g', val: 0.5 },
                         { label: '1kg', val: 1.0 }
@@ -741,13 +741,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                           onClick={() => addToCart(prod, preset.val)}
                           style={{
                             flex: 1,
-                            padding: '2px 0',
-                            borderRadius: '3px',
+                            padding: '3px 0',
+                            borderRadius: '4px',
                             border: '1px solid var(--border-color)',
                             backgroundColor: 'var(--bg-input)',
                             color: 'var(--text-muted)',
-                            fontSize: '9px',
-                            fontWeight: '500',
+                            fontSize: '9.5px',
+                            fontWeight: '600',
                             cursor: 'pointer'
                           }}
                         >
@@ -757,36 +757,36 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       <button
                         onClick={() => openWeighingModal(prod)}
                         style={{
-                          padding: '2px 5px',
-                          borderRadius: '3px',
+                          padding: '3px 6px',
+                          borderRadius: '4px',
                           border: '1px solid var(--border-color)',
                           backgroundColor: 'var(--bg-input)',
                           color: 'var(--instamart-green)',
-                          fontSize: '9px',
-                          fontWeight: '600',
+                          fontSize: '9.5px',
+                          fontWeight: '700',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '2px'
+                          gap: '3px'
                         }}
-                        title="Scale"
+                        title="Smart Weighing Scale Hub"
                       >
-                        <Scale size={8} /> Scale
+                        <Scale size={10} /> Weigh
                       </button>
                     </div>
                   )}
 
-                  {/* Button */}
-                  <div style={{ marginTop: '2px' }}>
+                  {/* Add Button */}
+                  <div style={{ marginTop: '4px' }}>
                     {inCart ? (
-                      <div className="instamart-stepper" style={{ height: '28px' }}>
-                        <button onClick={() => adjustCartQty(prod.id, -1)}>
+                      <div className="instamart-stepper" style={{ height: '32px' }}>
+                        <button onClick={() => adjustCartQty(prod.id, prod.isWeightBased ? -0.25 : -1)}>
                           -
                         </button>
-                        <span className="instamart-stepper-qty mono" style={{ fontSize: '11px' }}>
+                        <span className="instamart-stepper-qty mono" style={{ fontSize: '12px' }}>
                           {cartItem.qty} {prod.unit || 'plate'}
                         </span>
-                        <button onClick={() => adjustCartQty(prod.id, 1)}>
+                        <button onClick={() => adjustCartQty(prod.id, prod.isWeightBased ? 0.25 : 1)}>
                           +
                         </button>
                       </div>
@@ -795,9 +795,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                         onClick={() => addToCart(prod, 1)}
                         disabled={isOutOfStock}
                         className="instamart-add-btn"
-                        style={{ height: '28px', fontSize: '11.5px' }}
+                        style={{ height: '32px', fontSize: '12.5px' }}
                       >
-                        {isOutOfStock ? 'Sold out' : 'Add'}
+                        {isOutOfStock ? 'OUT OF STOCK' : '+ ADD'}
                       </button>
                     )}
                   </div>
@@ -812,29 +812,29 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               onClick={() => setMobileTab('cart')}
               style={{
                 position: 'fixed',
-                bottom: '10px',
-                left: '10px',
-                right: '10px',
+                bottom: '12px',
+                left: '12px',
+                right: '12px',
                 background: '#0c831f',
-                borderRadius: 'var(--radius-sm)',
-                padding: '8px 12px',
+                borderRadius: 'var(--radius-md)',
+                padding: '10px 14px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                boxShadow: '0 4px 14px rgba(12,131,31,0.35)',
+                boxShadow: '0 6px 18px rgba(12,131,31,0.4)',
                 zIndex: 40,
                 cursor: 'pointer'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ffffff' }}>
-                <ShoppingBag size={16} />
-                <div style={{ fontSize: '12px', fontWeight: '600' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff' }}>
+                <ShoppingBag size={18} />
+                <div style={{ fontSize: '13px', fontWeight: '700' }}>
                   {tableNo}: {combinedItemsForBilling.length} items • {settings.currency}{grandTotal.toLocaleString()}
                 </div>
               </div>
 
-              <div style={{ color: '#ffffff', fontWeight: '700', fontSize: '12px' }}>
-                Bill ➔
+              <div style={{ color: '#ffffff', fontWeight: '800', fontSize: '13px' }}>
+                View Bill ➔
               </div>
             </div>
           )}
@@ -844,7 +844,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* Right Area: Bill Summary & Dine-In Tab */}
       {showCartPanel && (
         <div className="pos-cart-panel" style={{
-          width: isMobile ? '100%' : '380px',
+          width: isMobile ? '100%' : '400px',
           backgroundColor: 'var(--bg-card)',
           borderLeft: isMobile ? 'none' : '1px solid var(--border-color)',
           display: 'flex',
@@ -854,57 +854,57 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
         }}>
           {/* Header Section */}
           <div style={{
-            padding: '10px 14px',
+            padding: '12px 16px',
             borderBottom: '1px solid var(--border-color)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '6px'
+            gap: '8px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {isMobile && (
                   <button
                     onClick={() => setMobileTab('catalog')}
                     className="btn btn-secondary"
-                    style={{ padding: '3px 6px', fontSize: '11px' }}
+                    style={{ padding: '4px 8px', fontSize: '12px' }}
                   >
-                    <ArrowLeft size={11} /> Back
+                    <ArrowLeft size={13} /> Back
                   </button>
                 )}
-                <h3 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
-                  {activeBusinessId === 'restaurant' ? `${tableNo} Tab` : 'Summary'}
+                <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+                  {activeBusinessId === 'restaurant' ? `${tableNo} Running Tab` : 'Order Summary'}
                 </h3>
               </div>
 
-              <span className="badge badge-success" style={{ fontSize: '9.5px', padding: '1px 5px' }}>
+              <span className="badge badge-success" style={{ fontSize: '10.5px', padding: '2px 7px' }}>
                 {combinedItemsForBilling.length} items
               </span>
             </div>
 
             {/* Customer Picker */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                <label className="form-label" style={{ margin: 0, fontSize: '10.5px' }}>Customer</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                <label className="form-label" style={{ margin: 0, fontSize: '11px' }}>Customer Details</label>
                 <button
                   onClick={() => setShowCustomerHistoryModal(true)}
                   style={{
                     background: 'none',
                     border: 'none',
                     color: 'var(--instamart-green)',
-                    fontSize: '10.5px',
-                    fontWeight: '600',
+                    fontSize: '11px',
+                    fontWeight: '700',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '2px'
+                    gap: '3px'
                   }}
                 >
-                  <History size={11} />
-                  History ({selectedCustomerInvoices.length})
+                  <History size={12} />
+                  Past Orders ({selectedCustomerInvoices.length})
                 </button>
               </div>
 
-              <div style={{ display: 'flex', gap: '4px' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
                 <select
                   className="form-select"
                   value={selectedCustomer.id}
@@ -912,7 +912,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     const found = customers.find((c) => c.id === e.target.value);
                     if (found) setSelectedCustomer(found);
                   }}
-                  style={{ flex: 1, fontSize: '12px', height: '32px', minHeight: '32px', padding: '4px 8px' }}
+                  style={{ flex: 1, fontSize: '12.5px', height: '34px', minHeight: '34px', padding: '4px 10px' }}
                 >
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -923,25 +923,25 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 <button
                   onClick={() => setShowAddCustomerModal(true)}
                   className="btn btn-secondary"
-                  style={{ padding: '4px 8px', height: '32px' }}
-                  title="New customer"
+                  style={{ padding: '6px 10px', height: '34px' }}
+                  title="Add New Customer"
                 >
-                  <UserPlus size={13} color="var(--instamart-green)" />
+                  <UserPlus size={15} color="var(--instamart-green)" />
                 </button>
               </div>
             </div>
 
             {/* RESTAURANT TABLE CONTROLS & TIMING BANNER */}
             {activeBusinessId === 'restaurant' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '6px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-xs)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '8px', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--radius-sm)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                   <div>
-                    <label className="form-label" style={{ fontSize: '10px' }}>Table</label>
+                    <label className="form-label" style={{ fontSize: '10.5px' }}>Dining Table</label>
                     <select
                       className="form-select"
                       value={tableNo}
                       onChange={(e) => setTableNo(e.target.value)}
-                      style={{ padding: '3px 6px', fontSize: '11px', height: '28px', minHeight: '28px' }}
+                      style={{ padding: '4px 8px', fontSize: '12px', height: '30px', minHeight: '30px' }}
                     >
                       {(restaurantTables || []).map((t) => (
                         <option key={t.id} value={t.name}>
@@ -953,12 +953,12 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   </div>
 
                   <div>
-                    <label className="form-label" style={{ fontSize: '10px' }}>Type</label>
+                    <label className="form-label" style={{ fontSize: '10.5px' }}>Order Type</label>
                     <select
                       className="form-select"
                       value={orderType}
                       onChange={(e) => setOrderType(e.target.value)}
-                      style={{ padding: '3px 6px', fontSize: '11px', height: '28px', minHeight: '28px' }}
+                      style={{ padding: '4px 8px', fontSize: '12px', height: '30px', minHeight: '30px' }}
                     >
                       <option value="Dine-In">Dine-In</option>
                       <option value="Takeaway">Takeaway</option>
@@ -971,17 +971,17 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 {isTableOccupied && (
                   <div style={{
                     marginTop: '2px',
-                    padding: '6px 8px',
+                    padding: '8px 10px',
                     backgroundColor: 'rgba(245,158,11,0.08)',
-                    borderRadius: '4px',
-                    border: '1px solid rgba(245,158,11,0.3)',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(245,158,11,0.35)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10.5px' }}>
-                      <Clock size={11} color="#f59e0b" />
-                      <span style={{ color: 'var(--text-main)', fontWeight: '600' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px' }}>
+                      <Clock size={13} color="#f59e0b" />
+                      <span style={{ color: 'var(--text-main)', fontWeight: '700' }}>
                         Dining ({getElapsedTime(activeTableData.seatedAt)})
                       </span>
                     </div>
@@ -989,9 +989,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     <button
                       onClick={() => setShowTableTimingModal(true)}
                       className="btn btn-secondary"
-                      style={{ padding: '2px 6px', fontSize: '10px', height: '22px', color: '#3b82f6', gap: '2px' }}
+                      style={{ padding: '3px 8px', fontSize: '11px', height: '24px', color: '#3b82f6', gap: '3px', fontWeight: '600' }}
                     >
-                      <Timer size={10} /> Status & Timer
+                      <Timer size={12} /> Status & Timer
                     </button>
                   </div>
                 )}
@@ -1000,17 +1000,17 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           </div>
 
           {/* Cart & Table Running Items List */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             
             {/* 1. RUNNING DISHES ALREADY ORDERED AT THIS TABLE (Cooking/Served) */}
             {runningTableItems.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '10.5px', fontWeight: '600', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>
                     Dishes at Table ({runningTableItems.length})
                   </span>
-                  <span style={{ fontSize: '9.5px', color: '#f59e0b' }}>
-                    Sent to Kitchen
+                  <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: '600' }}>
+                    In Kitchen / Cooking
                   </span>
                 </div>
 
@@ -1021,26 +1021,26 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     <div
                       key={`run_${idx}`}
                       style={{
-                        padding: '6px 8px',
+                        padding: '8px 10px',
                         backgroundColor: 'var(--bg-input)',
                         borderRadius: 'var(--radius-xs)',
                         border: '1px solid var(--border-color)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        gap: '4px'
+                        gap: '6px'
                       }}
                     >
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-main)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)' }}>
                             {item.name}
                           </span>
-                          <span style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
                             x{item.qty}
                           </span>
                         </div>
-                        <span style={{ fontSize: '9.5px', color: 'var(--text-dim)' }}>
+                        <span style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
                           {item.kotId || 'KOT'} • {settings.currency}{item.price * item.qty}
                         </span>
                       </div>
@@ -1048,8 +1048,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       <button
                         onClick={() => updateItemCookingStatus(tableNo, idx, isCooking ? 'Served' : 'Cooking')}
                         className={`badge badge-${isCooking ? 'warning' : 'success'}`}
-                        style={{ cursor: 'pointer', border: 'none', padding: '2px 5px', fontSize: '9px' }}
-                        title="Toggle cooking / served"
+                        style={{ cursor: 'pointer', border: 'none', padding: '3px 6px', fontSize: '9.5px', fontWeight: '700' }}
+                        title="Click to toggle cooking / served"
                       >
                         {isCooking ? '🔥 Cooking' : '🍽️ Served'}
                       </button>
@@ -1060,9 +1060,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             )}
 
             {/* 2. NEW CART ITEMS (Round 2 / Add-ons) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: runningTableItems.length > 0 ? '4px' : '0' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: runningTableItems.length > 0 ? '6px' : '0' }}>
               {runningTableItems.length > 0 && (
-                <div style={{ fontSize: '10.5px', fontWeight: '600', color: 'var(--text-muted)' }}>
+                <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>
                   New Dishes to Fire ({cart.length})
                 </div>
               )}
@@ -1076,63 +1076,63 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   justifyContent: 'center',
                   color: 'var(--text-dim)',
                   textAlign: 'center',
-                  gap: '6px',
-                  padding: '24px 0'
+                  gap: '8px',
+                  padding: '32px 0'
                 }}>
-                  <ShoppingBag size={30} opacity={0.3} />
-                  <p style={{ fontSize: '11.5px', lineHeight: '1.3' }}>No items.<br />Add dishes from menu.</p>
+                  <ShoppingBag size={34} opacity={0.3} />
+                  <p style={{ fontSize: '12.5px', lineHeight: '1.4' }}>Cart is currently empty.<br />Add delicious dishes from menu.</p>
                 </div>
               ) : (
                 cart.map((item) => (
                   <div
                     key={item.id}
                     style={{
-                      padding: '6px 8px',
+                      padding: '8px 10px',
                       backgroundColor: 'var(--bg-input)',
                       borderRadius: 'var(--radius-xs)',
                       border: '1px solid var(--instamart-green)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      gap: '4px'
+                      gap: '6px'
                     }}
                   >
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <h4 style={{ fontSize: '11.5px', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
+                      <h4 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
                         {item.name}
                       </h4>
-                      <span style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
+                      <span style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>
                         {settings.currency}{item.price}/{item.unit}
                       </span>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <div style={{
                         backgroundColor: 'var(--instamart-green)',
-                        borderRadius: '3px',
+                        borderRadius: '4px',
                         display: 'flex',
                         alignItems: 'center',
                         color: '#ffffff',
-                        padding: '1px 2px'
+                        padding: '2px 3px'
                       }}>
                         <button
                           onClick={() => adjustCartQty(item.id, -1)}
-                          style={{ background: 'none', border: 'none', color: '#ffffff', fontWeight: '700', fontSize: '12px', padding: '0 3px', cursor: 'pointer' }}
+                          style={{ background: 'none', border: 'none', color: '#ffffff', fontWeight: '800', fontSize: '13px', padding: '0 4px', cursor: 'pointer' }}
                         >
                           -
                         </button>
-                        <span className="mono" style={{ fontSize: '10.5px', fontWeight: '600', padding: '0 2px' }}>
+                        <span className="mono" style={{ fontSize: '11.5px', fontWeight: '700', padding: '0 3px' }}>
                           {item.qty}
                         </span>
                         <button
                           onClick={() => adjustCartQty(item.id, 1)}
-                          style={{ background: 'none', border: 'none', color: '#ffffff', fontWeight: '700', fontSize: '12px', padding: '0 3px', cursor: 'pointer' }}
+                          style={{ background: 'none', border: 'none', color: '#ffffff', fontWeight: '800', fontSize: '13px', padding: '0 4px', cursor: 'pointer' }}
                         >
                           +
                         </button>
                       </div>
 
-                      <span className="mono" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', minWidth: '45px', textAlign: 'right' }}>
+                      <span className="mono" style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-main)', minWidth: '50px', textAlign: 'right' }}>
                         {settings.currency}{(Math.round(item.price * item.qty * 100) / 100).toLocaleString()}
                       </span>
                     </div>
@@ -1144,33 +1144,33 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
           {/* Bill Summary & Actions */}
           <div style={{
-            padding: '10px 12px',
+            padding: '12px 14px',
             borderTop: '1px solid var(--border-color)',
             backgroundColor: 'var(--bg-input)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '5px'
+            gap: '6px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', color: 'var(--text-muted)' }}>
-              <span>Total Dishes ({combinedItemsForBilling.length})</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)' }}>
+              <span>Item Total ({combinedItemsForBilling.length} dishes)</span>
               <span className="mono">{settings.currency}{rawSubtotal.toFixed(2)}</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Discount:</span>
-              <div style={{ display: 'flex', gap: '2px' }}>
+              <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>Store Discount:</span>
+              <div style={{ display: 'flex', gap: '3px' }}>
                 {[0, 5, 10, 15].map((pct) => (
                   <button
                     key={pct}
                     onClick={() => setDiscountPercent(pct)}
                     style={{
-                      padding: '1px 5px',
-                      borderRadius: '2px',
+                      padding: '2px 7px',
+                      borderRadius: '3px',
                       border: '1px solid var(--border-color)',
                       backgroundColor: parseFloat(discountPercent) === pct ? 'var(--instamart-green)' : 'var(--bg-card)',
                       color: parseFloat(discountPercent) === pct ? '#ffffff' : 'var(--text-muted)',
-                      fontSize: '9.5px',
-                      fontWeight: '600',
+                      fontSize: '10.5px',
+                      fontWeight: '700',
                       cursor: 'pointer'
                     }}
                   >
@@ -1180,8 +1180,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', color: 'var(--text-muted)' }}>
-              <span>GST Tax (5%)</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)' }}>
+              <span>GST & Taxes (5%)</span>
               <span className="mono">{settings.currency}{totalTax.toFixed(2)}</span>
             </div>
 
@@ -1190,19 +1190,19 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              padding: '6px 10px',
+              padding: '8px 12px',
               backgroundColor: 'var(--bg-card)',
-              borderRadius: 'var(--radius-xs)',
-              border: '1px solid rgba(12,131,31,0.25)'
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid rgba(12,131,31,0.3)'
             }}>
-              <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-main)' }}>Total Bill</span>
-              <span className="mono" style={{ fontSize: '16px', fontWeight: '700', color: 'var(--instamart-green)' }}>
+              <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>Total Payable</span>
+              <span className="mono" style={{ fontSize: '17px', fontWeight: '800', color: 'var(--instamart-green)' }}>
                 {settings.currency}{grandTotal.toLocaleString()}
               </span>
             </div>
 
             {/* Payment Method Selector */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '3px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
               {[
                 { id: 'UPI', icon: QrCode },
                 { id: 'Cash', icon: Banknote },
@@ -1219,22 +1219,22 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       if (pm.id === 'UPI') setShowUpiModal(true);
                     }}
                     style={{
-                      padding: '4px 2px',
+                      padding: '6px 4px',
                       borderRadius: 'var(--radius-xs)',
                       border: '1px solid',
                       borderColor: isSelected ? 'var(--instamart-green)' : 'var(--border-color)',
                       backgroundColor: isSelected ? 'var(--instamart-green-light)' : 'var(--bg-card)',
                       color: isSelected ? 'var(--instamart-green)' : 'var(--text-muted)',
-                      fontSize: '10px',
-                      fontWeight: '600',
+                      fontSize: '11px',
+                      fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '1px'
+                      gap: '2px'
                     }}
                   >
-                    <Icon size={12} />
+                    <Icon size={14} />
                     {pm.id}
                   </button>
                 );
@@ -1242,7 +1242,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
+            <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
               {/* RESTAURANT: FIRE KOT TO KITCHEN FIRST */}
               {activeBusinessId === 'restaurant' && cart.length > 0 && (
                 <button
@@ -1250,15 +1250,16 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   className="btn btn-secondary"
                   style={{
                     flex: 1,
-                    fontSize: '11px',
-                    padding: '6px',
+                    fontSize: '12px',
+                    padding: '8px',
                     color: '#f59e0b',
-                    borderColor: 'rgba(245,158,11,0.4)',
-                    gap: '3px'
+                    borderColor: 'rgba(245,158,11,0.5)',
+                    gap: '4px',
+                    fontWeight: '700'
                   }}
                   title="Fire new food dishes to kitchen"
                 >
-                  <Flame size={12} /> Send KOT
+                  <Flame size={14} /> Send KOT
                 </button>
               )}
 
@@ -1268,14 +1269,14 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 className="btn btn-primary"
                 style={{
                   flex: 2,
-                  padding: '6px',
-                  fontSize: '12px',
-                  fontWeight: '600',
+                  padding: '8px',
+                  fontSize: '13px',
+                  fontWeight: '700',
                   cursor: combinedItemsForBilling.length === 0 ? 'not-allowed' : 'pointer'
                 }}
               >
-                <Printer size={13} />
-                {activeBusinessId === 'restaurant' ? 'Settle & Print' : 'Print'}
+                <Printer size={15} />
+                {activeBusinessId === 'restaurant' ? 'Settle & Print Bill' : 'Print Tax Invoice'}
               </button>
             </div>
           </div>
@@ -1284,52 +1285,52 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
       {/* TABLE LIVE TIMING & COOKING STATUS MODAL */}
       {showTableTimingModal && activeTableData && (
-        <div className="modal-overlay" style={{ padding: isMobile ? '6px' : '16px' }}>
-          <div className="modal-container" style={{ maxWidth: '420px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Timer color="#3b82f6" size={16} />
+        <div className="modal-overlay" style={{ padding: isMobile ? '8px' : '16px' }}>
+          <div className="modal-container" style={{ maxWidth: '440px', padding: '18px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Timer color="#3b82f6" size={18} />
                 <div>
-                  <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                     {tableNo} • Order Status & Timing
                   </h3>
-                  <span style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
                     Seated {getElapsedTime(activeTableData.seatedAt)}
                   </span>
                 </div>
               </div>
 
-              <button onClick={() => setShowTableTimingModal(false)} className="btn-icon" style={{ padding: '4px' }}>
-                <X size={15} />
+              <button onClick={() => setShowTableTimingModal(false)} className="btn-icon" style={{ padding: '5px' }}>
+                <X size={16} />
               </button>
             </div>
 
             {/* Running Tab Info */}
             <div style={{
-              padding: '8px 10px',
+              padding: '10px 12px',
               backgroundColor: 'var(--bg-input)',
-              borderRadius: 'var(--radius-xs)',
+              borderRadius: 'var(--radius-sm)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
               <div>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Running Total:</span>
-                <div className="mono" style={{ fontSize: '15px', fontWeight: '700', color: '#0c831f' }}>
+                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Running Total:</span>
+                <div className="mono" style={{ fontSize: '16px', fontWeight: '800', color: '#0c831f' }}>
                   {settings.currency}{rawSubtotal.toLocaleString()}
                 </div>
               </div>
 
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Status:</span>
-                <div style={{ fontSize: '11px', fontWeight: '600', color: '#f59e0b' }}>
-                  🔥 Food in Kitchen
+                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Kitchen Status:</span>
+                <div style={{ fontSize: '12px', fontWeight: '700', color: '#f59e0b' }}>
+                  🔥 Preparing in Kitchen
                 </div>
               </div>
             </div>
 
             {/* Dish-by-dish progress */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '300px', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
               {runningTableItems.map((item, idx) => {
                 const isCooking = item.status === 'Cooking';
 
@@ -1337,29 +1338,29 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   <div
                     key={idx}
                     style={{
-                      padding: '8px',
+                      padding: '10px 12px',
                       backgroundColor: 'var(--bg-input)',
                       borderRadius: 'var(--radius-xs)',
                       border: '1px solid var(--border-color)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      gap: '6px'
+                      gap: '8px'
                     }}
                   >
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-main)' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
                         {item.name} <span style={{ color: '#0c831f' }}>x{item.qty}</span>
                       </div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
-                        {isCooking ? `Est: ${item.estMins || 12} mins` : 'Served at table'}
+                      <div style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>
+                        {isCooking ? `Est. Cooking Time: ${item.estMins || 12} mins` : 'Served to table'}
                       </div>
                     </div>
 
                     <button
                       onClick={() => updateItemCookingStatus(tableNo, idx, isCooking ? 'Served' : 'Cooking')}
                       className={`badge badge-${isCooking ? 'warning' : 'success'}`}
-                      style={{ cursor: 'pointer', border: 'none', padding: '3px 6px', fontSize: '10px' }}
+                      style={{ cursor: 'pointer', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '700' }}
                       title="Click to toggle status"
                     >
                       {isCooking ? '🔥 Cooking' : '🍽️ Served'}
@@ -1372,9 +1373,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             <button
               onClick={() => setShowTableTimingModal(false)}
               className="btn btn-primary"
-              style={{ width: '100%', padding: '7px', fontSize: '11.5px', marginTop: '4px' }}
+              style={{ width: '100%', padding: '8px', fontSize: '12.5px', marginTop: '6px' }}
             >
-              Done
+              Done & Return to Billing
             </button>
           </div>
         </div>
@@ -1383,79 +1384,80 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* CUSTOMER HISTORY MODAL */}
       {showCustomerHistoryModal && (
         <div className="modal-overlay" style={{ padding: isMobile ? '6px' : '16px' }}>
-          <div className="modal-container" style={{ maxWidth: '480px', padding: isMobile ? '12px' : '16px', maxHeight: '88vh', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <History size={16} color="var(--instamart-green)" />
+          <div className="modal-container" style={{ maxWidth: '500px', padding: isMobile ? '14px' : '18px', maxHeight: '88vh', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <History size={18} color="var(--instamart-green)" />
                 <div>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
-                    {selectedCustomer.name}
+                  <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                    {selectedCustomer.name} • Past Orders
                   </h3>
                 </div>
               </div>
 
-              <button onClick={() => setShowCustomerHistoryModal(false)} className="btn-icon" style={{ padding: '4px' }}>
-                <X size={15} />
+              <button onClick={() => setShowCustomerHistoryModal(false)} className="btn-icon" style={{ padding: '5px' }}>
+                <X size={16} />
               </button>
             </div>
 
             {selectedCustomerInvoices.length === 0 ? (
-              <div style={{ padding: '18px', textAlign: 'center', color: 'var(--text-dim)' }}>
-                <p style={{ fontSize: '11.5px' }}>No records.</p>
+              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                <p style={{ fontSize: '13px' }}>No previous invoices found for this customer.</p>
               </div>
             ) : (
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {selectedCustomerInvoices.map((inv) => {
                   const formattedDate = new Date(inv.date).toLocaleDateString('en-IN', {
                     day: '2-digit',
-                    month: 'short'
+                    month: 'short',
+                    year: 'numeric'
                   });
 
                   return (
                     <div
                       key={inv.id}
                       style={{
-                        padding: '8px',
+                        padding: '10px 12px',
                         backgroundColor: 'var(--bg-input)',
                         borderRadius: 'var(--radius-xs)',
                         border: '1px solid var(--border-color)',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '4px'
+                        gap: '6px'
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="mono" style={{ fontSize: '11.5px', fontWeight: '600', color: 'var(--text-main)' }}>
+                        <span className="mono" style={{ fontSize: '12.5px', fontWeight: '700', color: 'var(--text-main)' }}>
                           {inv.id}
                         </span>
-                        <span style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
                           {formattedDate}
                         </span>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '3px 5px', backgroundColor: 'var(--bg-card)', borderRadius: '3px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', padding: '4px 6px', backgroundColor: 'var(--bg-card)', borderRadius: '4px' }}>
                         {inv.items.map((it, idx) => (
-                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11.5px' }}>
                             <span>
-                              • {it.name} <span style={{ color: 'var(--instamart-green)' }}>({it.qty} {it.unit || 'pcs'})</span>
+                              • {it.name} <span style={{ color: 'var(--instamart-green)', fontWeight: '600' }}>({it.qty} {it.unit || 'pcs'})</span>
                             </span>
                             
                             <button
                               onClick={() => handleReaddItem(it)}
                               className="btn btn-secondary"
-                              style={{ padding: '1px 4px', fontSize: '9px', height: '18px' }}
+                              style={{ padding: '2px 6px', fontSize: '10px', height: '22px' }}
                             >
-                              + Add
+                              + Reorder
                             </button>
                           </div>
                         ))}
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
                         <span style={{ color: 'var(--text-dim)' }}>
-                          {inv.status}
+                          {inv.status} • {inv.paymentMethod}
                         </span>
-                        <span className="mono" style={{ fontWeight: '600', color: 'var(--instamart-green)' }}>
+                        <span className="mono" style={{ fontWeight: '800', color: 'var(--instamart-green)' }}>
                           {settings.currency}{inv.grandTotal.toLocaleString()}
                         </span>
                       </div>
@@ -1468,9 +1470,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             <button
               onClick={() => setShowCustomerHistoryModal(false)}
               className="btn btn-primary"
-              style={{ width: '100%', padding: '6px', fontSize: '11.5px' }}
+              style={{ width: '100%', padding: '8px', fontSize: '12.5px' }}
             >
-              Done
+              Done & Return to Billing
             </button>
           </div>
         </div>
@@ -1479,26 +1481,27 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* UPI QR MODAL */}
       {showUpiModal && (
         <div className="modal-overlay">
-          <div className="modal-container" style={{ maxWidth: '340px', padding: '16px', textAlign: 'center' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Smartphone color="var(--instamart-green)" size={16} />
-                <h3 style={{ fontSize: '13.5px', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
-                  UPI QR
+          <div className="modal-container" style={{ maxWidth: '360px', padding: '20px', textAlign: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Smartphone color="var(--instamart-green)" size={18} />
+                <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                  Scan UPI QR to Pay
                 </h3>
               </div>
-              <button onClick={() => setShowUpiModal(false)} className="btn-icon" style={{ padding: '4px' }}>
-                <X size={14} />
+              <button onClick={() => setShowUpiModal(false)} className="btn-icon" style={{ padding: '5px' }}>
+                <X size={16} />
               </button>
             </div>
 
             <div style={{
-              padding: '10px',
+              padding: '12px',
               backgroundColor: '#ffffff',
-              borderRadius: '8px',
-              display: 'inline-block'
+              borderRadius: '10px',
+              display: 'inline-block',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.1)'
             }}>
-              <svg width="140" height="140" viewBox="0 0 180 180">
+              <svg width="150" height="150" viewBox="0 0 180 180">
                 <rect width="180" height="180" fill="#ffffff" />
                 <rect x="10" y="10" width="45" height="45" fill="#0f172a" rx="4" />
                 <rect x="18" y="18" width="29" height="29" fill="#ffffff" rx="2" />
@@ -1524,8 +1527,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               </svg>
             </div>
 
-            <div style={{ marginTop: '6px' }}>
-              <div className="mono" style={{ fontSize: '18px', fontWeight: '700', color: 'var(--instamart-green)' }}>
+            <div style={{ marginTop: '8px' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Scan with GPay, PhonePe, Paytm, BHIM</span>
+              <div className="mono" style={{ fontSize: '20px', fontWeight: '800', color: 'var(--instamart-green)', marginTop: '2px' }}>
                 {settings.currency}{grandTotal.toLocaleString()}
               </div>
             </div>
@@ -1533,9 +1537,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             <button
               onClick={handleCheckout}
               className="btn btn-primary"
-              style={{ width: '100%', padding: '8px', marginTop: '8px', fontSize: '12px' }}
+              style={{ width: '100%', padding: '10px', marginTop: '12px', fontSize: '13px', fontWeight: '700' }}
             >
-              Confirm & Print
+              Payment Confirmed & Print Bill
             </button>
           </div>
         </div>
@@ -1544,16 +1548,16 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* WEIGH SCALE MODAL */}
       {weighingProduct && (
         <div className="modal-overlay">
-          <div className="modal-container" style={{ maxWidth: '380px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Scale color="var(--instamart-green)" size={15} />
-                <h3 style={{ fontSize: '13.5px', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
-                  Scale
+          <div className="modal-container" style={{ maxWidth: '420px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Scale color="var(--instamart-green)" size={18} />
+                <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+                  Digital Weighing Scale Hub
                 </h3>
               </div>
-              <button onClick={() => setWeighingProduct(null)} className="btn-icon" style={{ padding: '3px' }}>
-                <X size={14} />
+              <button onClick={() => setWeighingProduct(null)} className="btn-icon" style={{ padding: '5px' }}>
+                <X size={16} />
               </button>
             </div>
 
@@ -1562,12 +1566,12 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '6px 8px',
+              padding: '8px 12px',
               backgroundColor: 'var(--bg-input)',
-              borderRadius: 'var(--radius-xs)'
+              borderRadius: 'var(--radius-sm)'
             }}>
-              <span style={{ fontSize: '12px', fontWeight: '600' }}>{weighingProduct.name}</span>
-              <span style={{ fontSize: '11px', color: 'var(--instamart-green)' }}>
+              <span style={{ fontSize: '13px', fontWeight: '700' }}>{weighingProduct.name}</span>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--instamart-green)' }}>
                 {settings.currency}{weighingProduct.price}/{weighingProduct.unit}
               </span>
             </div>
@@ -1576,69 +1580,70 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             <div style={{
               display: 'flex',
               backgroundColor: 'var(--bg-input)',
-              borderRadius: 'var(--radius-xs)',
-              padding: '2px',
-              gap: '2px'
+              borderRadius: 'var(--radius-sm)',
+              padding: '3px',
+              gap: '3px'
             }}>
               <button
                 onClick={() => setWeightMode('weight')}
                 style={{
                   flex: 1,
-                  padding: '4px',
-                  borderRadius: '2px',
+                  padding: '6px',
+                  borderRadius: 'var(--radius-xs)',
                   border: 'none',
                   backgroundColor: weightMode === 'weight' ? 'var(--instamart-green)' : 'transparent',
                   color: weightMode === 'weight' ? '#ffffff' : 'var(--text-muted)',
-                  fontSize: '10.5px',
-                  fontWeight: '600',
+                  fontSize: '12px',
+                  fontWeight: '700',
                   cursor: 'pointer'
                 }}
               >
-                Weight
+                By Weight (kg/g)
               </button>
 
               <button
                 onClick={() => setWeightMode('amount')}
                 style={{
                   flex: 1,
-                  padding: '4px',
-                  borderRadius: '2px',
+                  padding: '6px',
+                  borderRadius: 'var(--radius-xs)',
                   border: 'none',
                   backgroundColor: weightMode === 'amount' ? 'var(--instamart-green)' : 'transparent',
                   color: weightMode === 'amount' ? '#ffffff' : 'var(--text-muted)',
-                  fontSize: '10.5px',
-                  fontWeight: '600',
+                  fontSize: '12px',
+                  fontWeight: '700',
                   cursor: 'pointer'
                 }}
               >
-                Amount (₹)
+                By Amount (₹)
               </button>
             </div>
 
             {/* Amount Mode */}
             {weightMode === 'amount' && (
-              <div style={{ display: 'flex', gap: '3px' }}>
+              <div style={{ display: 'flex', gap: '5px' }}>
                 <input
                   type="number"
-                  placeholder="₹ amount"
+                  placeholder="Enter ₹ amount e.g. 50"
                   value={targetAmountInput}
                   onChange={(e) => handleAmountToWeight(e.target.value)}
                   className="form-input"
-                  style={{ flex: 1, height: '28px', minHeight: '28px', fontSize: '11.5px' }}
+                  style={{ flex: 1, height: '34px', minHeight: '34px', fontSize: '12.5px' }}
                   autoFocus
                 />
-                {[20, 50, 100].map((amt) => (
+                {[20, 50, 100, 200].map((amt) => (
                   <button
                     key={amt}
                     type="button"
                     onClick={() => handleAmountToWeight(amt.toString())}
                     style={{
-                      padding: '2px 6px',
-                      borderRadius: '2px',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
                       border: '1px solid var(--border-color)',
                       backgroundColor: 'var(--bg-card)',
                       color: 'var(--text-main)',
-                      fontSize: '10.5px',
+                      fontSize: '11.5px',
+                      fontWeight: '600',
                       cursor: 'pointer'
                     }}
                   >
@@ -1650,52 +1655,59 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
             {/* Scale Output */}
             <div style={{
-              padding: '8px',
+              padding: '12px',
               backgroundColor: '#050a14',
-              borderRadius: '6px',
-              border: '1px solid var(--instamart-green)',
+              borderRadius: '8px',
+              border: '1.5px solid var(--instamart-green)',
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center'
+              alignItems: 'center',
+              gap: '2px'
             }}>
-              <span className="mono" style={{ fontSize: '24px', fontWeight: '700', color: '#10b981' }}>
-                {netWeight} <span style={{ fontSize: '12px' }}>{weighingProduct.unit}</span>
+              <span className="mono" style={{ fontSize: '28px', fontWeight: '800', color: '#10b981' }}>
+                {netWeight} <span style={{ fontSize: '14px' }}>{weighingProduct.unit}</span>
               </span>
-              <span className="mono" style={{ fontSize: '12px', color: '#ffffff' }}>
-                {settings.currency}{calculatedWeightPrice.toLocaleString()}
+              <span className="mono" style={{ fontSize: '14px', color: '#ffffff', fontWeight: '600' }}>
+                Price: {settings.currency}{calculatedWeightPrice.toLocaleString()}
               </span>
             </div>
 
             {/* Tare */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '3px' }}>
-              {[
-                { label: '0g', val: 0 },
-                { label: 'Bag (-20g)', val: 0.02 },
-                { label: 'Tray (-50g)', val: 0.05 },
-                { label: 'Box (-100g)', val: 0.1 }
-              ].map((t) => (
-                <button
-                  key={t.label}
-                  type="button"
-                  onClick={() => setTareWeight(t.val)}
-                  style={{
-                    padding: '3px 1px',
-                    borderRadius: '2px',
-                    border: '1px solid',
-                    borderColor: tareWeight === t.val ? 'var(--instamart-green)' : 'var(--border-color)',
-                    backgroundColor: tareWeight === t.val ? 'var(--instamart-green-light)' : 'var(--bg-input)',
-                    color: tareWeight === t.val ? 'var(--instamart-green)' : 'var(--text-muted)',
-                    fontSize: '9.5px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {t.label}
-                </button>
-              ))}
+            <div>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '3px' }}>
+                Tare / Container Deduction:
+              </span>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
+                {[
+                  { label: 'None (0g)', val: 0 },
+                  { label: 'Bag (-20g)', val: 0.02 },
+                  { label: 'Tray (-50g)', val: 0.05 },
+                  { label: 'Box (-100g)', val: 0.1 }
+                ].map((t) => (
+                  <button
+                    key={t.label}
+                    type="button"
+                    onClick={() => setTareWeight(t.val)}
+                    style={{
+                      padding: '5px 2px',
+                      borderRadius: '4px',
+                      border: '1px solid',
+                      borderColor: tareWeight === t.val ? 'var(--instamart-green)' : 'var(--border-color)',
+                      backgroundColor: tareWeight === t.val ? 'var(--instamart-green-light)' : 'var(--bg-input)',
+                      color: tareWeight === t.val ? 'var(--instamart-green)' : 'var(--text-muted)',
+                      fontSize: '10.5px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Presets */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '3px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px' }}>
               {[0.25, 0.5, 0.75, 1.0, 2.0].map((w) => (
                 <button
                   key={w}
@@ -1705,13 +1717,14 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     setTargetAmountInput('');
                   }}
                   style={{
-                    padding: '3px 1px',
-                    borderRadius: '2px',
+                    padding: '5px 2px',
+                    borderRadius: '4px',
                     border: '1px solid',
                     borderColor: simulatedWeight === w ? 'var(--instamart-green)' : 'var(--border-color)',
                     backgroundColor: simulatedWeight === w ? 'var(--instamart-green)' : 'var(--bg-card)',
                     color: simulatedWeight === w ? '#ffffff' : 'var(--text-main)',
-                    fontSize: '9.5px',
+                    fontSize: '11px',
+                    fontWeight: '700',
                     cursor: 'pointer'
                   }}
                 >
@@ -1726,9 +1739,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 setWeighingProduct(null);
               }}
               className="btn btn-primary"
-              style={{ width: '100%', padding: '7px', fontSize: '11.5px' }}
+              style={{ width: '100%', padding: '9px', fontSize: '13px', fontWeight: '700' }}
             >
-              Add {netWeight}{weighingProduct.unit} ({settings.currency}{calculatedWeightPrice.toLocaleString()})
+              Add {netWeight}{weighingProduct.unit} ({settings.currency}{calculatedWeightPrice.toLocaleString()}) to Bill
             </button>
           </div>
         </div>
@@ -1737,42 +1750,42 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* QUICK ADD CUSTOMER MODAL */}
       {showAddCustomerModal && (
         <div className="modal-overlay">
-          <div className="modal-container" style={{ maxWidth: '340px', padding: '16px' }}>
-            <h3 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)', marginBottom: '8px' }}>
-              + Customer
+          <div className="modal-container" style={{ maxWidth: '360px', padding: '20px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '12px' }}>
+              Add New Customer
             </h3>
-            <form onSubmit={handleCreateCustomer} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <form onSubmit={handleCreateCustomer} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
-                <label className="form-label" style={{ fontSize: '10.5px' }}>Name *</label>
+                <label className="form-label" style={{ fontSize: '11.5px' }}>Customer Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="Rahul Sharma"
+                  placeholder="e.g. Rahul Sharma"
                   value={newCustName}
                   onChange={(e) => setNewCustName(e.target.value)}
                   className="form-input"
-                  style={{ fontSize: '12px', height: '30px', minHeight: '30px' }}
+                  style={{ fontSize: '13px', height: '34px', minHeight: '34px' }}
                 />
               </div>
 
               <div>
-                <label className="form-label" style={{ fontSize: '10.5px' }}>Phone</label>
+                <label className="form-label" style={{ fontSize: '11.5px' }}>Mobile Phone Number</label>
                 <input
                   type="text"
                   placeholder="+91 98765 43210"
                   value={newCustPhone}
                   onChange={(e) => setNewCustPhone(e.target.value)}
                   className="form-input"
-                  style={{ fontSize: '12px', height: '30px', minHeight: '30px' }}
+                  style={{ fontSize: '13px', height: '34px', minHeight: '34px' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', marginTop: '4px' }}>
-                <button type="button" onClick={() => setShowAddCustomerModal(false)} className="btn btn-secondary" style={{ padding: '5px 10px', fontSize: '11px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
+                <button type="button" onClick={() => setShowAddCustomerModal(false)} className="btn btn-secondary" style={{ padding: '6px 14px', fontSize: '12px' }}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary" style={{ padding: '5px 12px', fontSize: '11px' }}>
-                  Save
+                <button type="submit" className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '12px', fontWeight: '700' }}>
+                  Save Customer
                 </button>
               </div>
             </form>
