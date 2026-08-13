@@ -28,7 +28,10 @@ import {
   Repeat,
   Sparkles,
   Percent,
-  Receipt
+  Receipt,
+  Zap,
+  CheckCircle2,
+  ShieldCheck
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -63,7 +66,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
   const [selectedCustomer, setSelectedCustomer] = useState(customers[0] || { name: 'Walk-in Customer' });
   const [discountPercent, setDiscountPercent] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [paidAmount, setPaidAmount] = useState('');
 
   // Customer History Modal in POS
@@ -118,6 +121,22 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     const set = new Set(products.map((p) => p.category));
     return ['All', ...Array.from(set)];
   }, [products]);
+
+  // Category Icon Map for Swiggy Instamart Vibe
+  const getCategoryEmoji = (cat) => {
+    const c = cat.toLowerCase();
+    if (c === 'all') return '⚡';
+    if (c.includes('fruit')) return '🍎';
+    if (c.includes('veg')) return '🥦';
+    if (c.includes('dairy') || c.includes('milk')) return '🥛';
+    if (c.includes('meat') || c.includes('chicken') || c.includes('fish')) return '🍗';
+    if (c.includes('grain') || c.includes('rice') || c.includes('staple')) return '🍚';
+    if (c.includes('snack') || c.includes('biscuit')) return '🍪';
+    if (c.includes('drink') || c.includes('juice') || c.includes('beverage')) return '🧃';
+    if (c.includes('auto') || c.includes('service')) return '🚗';
+    if (c.includes('food') || c.includes('pizza')) return '🍕';
+    return '📦';
+  };
 
   // Filtered Products
   const filteredProducts = useMemo(() => {
@@ -357,7 +376,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               padding: '9px',
               borderRadius: 'var(--radius-sm)',
               border: 'none',
-              backgroundColor: mobileTab === 'catalog' ? '#10b981' : 'var(--bg-input)',
+              backgroundColor: mobileTab === 'catalog' ? 'var(--instamart-green)' : 'var(--bg-input)',
               color: mobileTab === 'catalog' ? '#ffffff' : 'var(--text-muted)',
               fontWeight: '700',
               fontSize: '13px',
@@ -365,12 +384,11 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px',
-              boxShadow: mobileTab === 'catalog' ? '0 2px 8px rgba(16,185,129,0.3)' : 'none'
+              gap: '6px'
             }}
           >
             <ShoppingBag size={15} />
-            Items ({products.length})
+            Instamart ({products.length})
           </button>
           
           <button
@@ -380,7 +398,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               padding: '9px',
               borderRadius: 'var(--radius-sm)',
               border: 'none',
-              backgroundColor: mobileTab === 'cart' ? '#10b981' : 'var(--bg-input)',
+              backgroundColor: mobileTab === 'cart' ? 'var(--instamart-green)' : 'var(--bg-input)',
               color: mobileTab === 'cart' ? '#ffffff' : 'var(--text-muted)',
               fontWeight: '700',
               fontSize: '13px',
@@ -388,14 +406,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px',
-              boxShadow: mobileTab === 'cart' ? '0 2px 8px rgba(16,185,129,0.3)' : 'none'
+              gap: '6px'
             }}
           >
             <span>🛒 Cart ({cart.length})</span>
             <span className="badge" style={{
-              backgroundColor: mobileTab === 'cart' ? '#ffffff' : '#10b981',
-              color: mobileTab === 'cart' ? '#10b981' : '#ffffff',
+              backgroundColor: mobileTab === 'cart' ? '#ffffff' : 'var(--instamart-green)',
+              color: mobileTab === 'cart' ? 'var(--instamart-green)' : '#ffffff',
               fontSize: '11px',
               padding: '1px 6px',
               fontWeight: '800'
@@ -406,7 +423,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
         </div>
       )}
 
-      {/* Left Area: Product / Service Catalog */}
+      {/* Left Area: Instamart Product Catalog */}
       {showCatalogPanel && (
         <div className="pos-catalog-panel" style={{
           flex: 1,
@@ -419,13 +436,16 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           position: 'relative'
         }}>
           
-          {/* Header Row with Search & Filter */}
+          {/* Instamart Header Row */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                <span className="time-badge">
+                  <Zap size={11} fill="var(--swiggy-orange)" /> INSTANT POS
+                </span>
                 <h2 style={{
                   fontSize: isMobile ? '16px' : '18px',
-                  fontWeight: '800',
+                  fontWeight: '900',
                   color: 'var(--text-main)',
                   margin: 0,
                   whiteSpace: 'nowrap',
@@ -434,9 +454,6 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 }}>
                   {settings.storeName}
                 </h2>
-                <span className="badge badge-success" style={{ fontSize: '10px', padding: '2px 7px', flexShrink: 0 }}>
-                  {activeBusiness.type.split('&')[0]}
-                </span>
               </div>
 
               <button
@@ -451,25 +468,25 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 }}
                 title="Toggle Estimated Profit Margin"
               >
-                {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="#10b981" />}
+                {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="var(--instamart-green)" />}
                 {showProfitPeek ? `Est: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
               </button>
             </div>
 
-            {/* Search Bar with Glow */}
+            {/* Instamart Search Bar with Animated Placeholder Feel */}
             <div style={{ position: 'relative' }}>
-              <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '12px' }} />
+              <Search size={17} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '12px' }} />
               <input
                 type="text"
-                placeholder={`Search ${activeBusinessId === 'automotive' ? 'services or parts' : activeBusinessId === 'restaurant' ? 'dishes & drinks' : 'produce, groceries, meat'}...`}
+                placeholder={`Search for "apples", "milk", "bread", or item SKU...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="form-input"
                 style={{
-                  paddingLeft: '40px',
-                  fontSize: '13px',
-                  minHeight: '38px',
-                  height: '38px',
+                  paddingLeft: '42px',
+                  fontSize: '13.5px',
+                  minHeight: '40px',
+                  height: '40px',
                   borderRadius: 'var(--radius-full)'
                 }}
               />
@@ -479,228 +496,225 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   style={{
                     position: 'absolute',
                     right: '12px',
-                    top: '11px',
+                    top: '12px',
                     background: 'none',
                     border: 'none',
                     color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    padding: 0
+                    cursor: 'pointer'
                   }}
                 >
-                  <X size={15} />
+                  <X size={16} />
                 </button>
               )}
             </div>
 
-            {/* Modern Category Pills */}
-            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', scrollbarWidth: 'none' }}>
+            {/* Swiggy Instamart Category Rail */}
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', scrollbarWidth: 'none' }}>
               {categories.map((cat) => {
                 const isSelected = selectedCategory === cat;
+                const emoji = getCategoryEmoji(cat);
+
                 return (
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
                     style={{
-                      padding: '6px 14px',
+                      padding: '7px 14px',
                       borderRadius: 'var(--radius-full)',
-                      border: '1px solid',
-                      borderColor: isSelected ? '#10b981' : 'var(--border-color)',
-                      backgroundColor: isSelected ? 'rgba(16,185,129,0.18)' : 'var(--bg-card)',
-                      color: isSelected ? '#10b981' : 'var(--text-muted)',
+                      border: '1.5px solid',
+                      borderColor: isSelected ? 'var(--instamart-green)' : 'var(--border-color)',
+                      backgroundColor: isSelected ? 'var(--instamart-green-light)' : 'var(--bg-card)',
+                      color: isSelected ? 'var(--instamart-green)' : 'var(--text-muted)',
                       fontSize: '12px',
-                      fontWeight: isSelected ? '700' : '500',
+                      fontWeight: isSelected ? '800' : '600',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
-                      boxShadow: isSelected ? '0 2px 10px rgba(16,185,129,0.2)' : 'none',
-                      transition: 'all 0.16s ease'
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      boxShadow: isSelected ? '0 2px 10px rgba(12,131,31,0.2)' : 'none',
+                      transition: 'all 0.15s ease'
                     }}
                   >
-                    {cat}
+                    <span>{emoji}</span>
+                    <span>{cat}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Product Cards Grid with Modern Aesthetics */}
+          {/* Swiggy Instamart Product Grid */}
           <div className="product-grid-responsive" style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(140px, 1fr))' : 'repeat(auto-fill, minmax(210px, 1fr))',
+            gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(145px, 1fr))' : 'repeat(auto-fill, minmax(200px, 1fr))',
             gap: isMobile ? '10px' : '14px',
             alignContent: 'start',
             paddingBottom: isMobile && cart.length > 0 ? '80px' : '20px'
           }}>
             {filteredProducts.map((prod) => {
               const isOutOfStock = prod.stock <= 0;
-              const inCart = cart.find((i) => i.id === prod.id);
+              const cartItem = cart.find((i) => i.id === prod.id);
+              const inCart = Boolean(cartItem);
+              
+              // Simulated MRP (15% higher) for Instamart discount badge
+              const fakeMrp = Math.round(prod.price * 1.18);
+              const discountPercentCalc = Math.round(((fakeMrp - prod.price) / fakeMrp) * 100);
 
               return (
                 <div
                   key={prod.id}
                   className="glass-panel card-hover"
                   style={{
-                    padding: isMobile ? '10px' : '14px',
+                    padding: isMobile ? '10px' : '12px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    gap: '8px',
+                    gap: '6px',
                     position: 'relative',
-                    border: inCart ? '1.5px solid #10b981' : '1px solid var(--border-color)',
-                    background: inCart ? 'rgba(16,185,129,0.04)' : 'var(--bg-card)',
+                    border: inCart ? '1.5px solid var(--instamart-green)' : '1px solid var(--border-color)',
+                    background: inCart ? 'rgba(12,131,31,0.03)' : 'var(--bg-card)',
+                    borderRadius: 'var(--radius-md)',
                     overflow: 'hidden'
                   }}
                 >
-                  {inCart && (
-                    <span style={{
-                      position: 'absolute',
-                      top: '8px',
-                      right: '8px',
-                      backgroundColor: '#10b981',
-                      color: '#ffffff',
-                      fontSize: '10.5px',
-                      fontWeight: '800',
-                      padding: '2px 8px',
-                      borderRadius: 'var(--radius-full)',
-                      boxShadow: '0 2px 8px rgba(16,185,129,0.45)',
-                      zIndex: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '3px'
-                    }}>
-                      ✓ {inCart.qty} {prod.unit}
-                    </span>
-                  )}
+                  {/* Top Badges: Savings Discount or Weight scale */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '8px',
+                    left: '8px',
+                    zIndex: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px'
+                  }}>
+                    {discountPercentCalc > 5 && (
+                      <span className="discount-badge">
+                        {discountPercentCalc}% OFF
+                      </span>
+                    )}
+                  </div>
 
-                  {prod.image ? (
-                    <div style={{ overflow: 'hidden', borderRadius: 'var(--radius-sm)' }}>
+                  {/* Product Image */}
+                  <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '10px', backgroundColor: 'var(--bg-input)' }}>
+                    {prod.image ? (
                       <img
                         src={prod.image}
                         alt={prod.name}
                         style={{
                           width: '100%',
-                          height: isMobile ? '85px' : '115px',
+                          height: isMobile ? '95px' : '120px',
                           objectFit: 'cover',
-                          borderRadius: 'var(--radius-sm)',
-                          transition: 'transform 0.3s ease'
+                          borderRadius: '10px'
                         }}
                       />
-                    </div>
-                  ) : (
+                    ) : (
+                      <div style={{
+                        width: '100%',
+                        height: isMobile ? '95px' : '120px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--text-dim)'
+                      }}>
+                        {activeBusinessId === 'automotive' ? <Car size={32} /> : activeBusinessId === 'restaurant' ? <Utensils size={32} /> : <PackageCheck size={32} />}
+                      </div>
+                    )}
+
+                    {/* Weight indicator pill */}
                     <div style={{
-                      width: '100%',
-                      height: isMobile ? '85px' : '115px',
-                      backgroundColor: 'var(--bg-input)',
-                      borderRadius: 'var(--radius-sm)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'var(--text-dim)'
+                      position: 'absolute',
+                      bottom: '4px',
+                      left: '4px',
+                      backgroundColor: 'rgba(0,0,0,0.65)',
+                      color: '#ffffff',
+                      fontSize: '10px',
+                      fontWeight: '700',
+                      padding: '1px 6px',
+                      borderRadius: '4px',
+                      backdropFilter: 'blur(4px)'
                     }}>
-                      {activeBusinessId === 'automotive' ? <Car size={30} /> : activeBusinessId === 'restaurant' ? <Utensils size={30} /> : <PackageCheck size={30} />}
+                      {prod.isWeightBased ? `1 ${prod.unit}` : `1 ${prod.unit}`}
                     </div>
-                  )}
+                  </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '10.5px', color: 'var(--text-dim)', fontWeight: '600' }}>
-                        {prod.sku}
-                      </span>
-                      {prod.isWeightBased ? (
-                        <span className="badge badge-info" style={{ fontSize: '9px', padding: '1px 5px' }}>
-                          Scale ({prod.unit})
-                        </span>
-                      ) : (
-                        <span style={{
-                          fontSize: '10px',
-                          fontWeight: '700',
-                          color: prod.stock <= 5 ? '#f43f5e' : 'var(--text-dim)'
-                        }}>
-                          {isOutOfStock ? 'Out of Stock' : `${prod.stock} ${prod.unit}`}
-                        </span>
-                      )}
-                    </div>
-
+                  {/* Product Title */}
+                  <div>
                     <h3 style={{
-                      fontSize: isMobile ? '12.5px' : '13.5px',
+                      fontSize: isMobile ? '12.5px' : '13px',
                       fontWeight: '700',
                       color: 'var(--text-main)',
                       lineHeight: '1.3',
                       wordBreak: 'break-word',
-                      minHeight: '34px'
+                      margin: '2px 0 0 0',
+                      minHeight: '32px'
                     }}>
                       {prod.name}
                     </h3>
                   </div>
 
-                  {/* Add / Modifier Action Buttons */}
-                  <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {prod.isWeightBased ? (
+                  {/* Price & MRP Row */}
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                    <span className="mono" style={{ fontSize: isMobile ? '14px' : '15px', fontWeight: '900', color: 'var(--text-main)' }}>
+                      {settings.currency}{prod.price.toLocaleString()}
+                    </span>
+                    <span className="mono" style={{ fontSize: '11px', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
+                      {settings.currency}{fakeMrp}
+                    </span>
+                  </div>
+
+                  {/* Instamart Interactive ADD / Inline Stepper Button */}
+                  <div style={{ marginTop: '4px' }}>
+                    {prod.isWeightBased && !inCart ? (
                       <div style={{ display: 'flex', gap: '4px' }}>
                         <button
                           onClick={() => {
                             setWeighingProduct(prod);
                             setSimulatedWeight(0.5);
                           }}
-                          className="btn btn-secondary"
-                          style={{
-                            flex: 1,
-                            padding: '6px 2px',
-                            fontSize: '11px',
-                            fontWeight: '700',
-                            gap: '4px',
-                            color: '#10b981'
-                          }}
+                          className="instamart-add-btn"
+                          style={{ fontSize: '11.5px', padding: '6px 4px', gap: '3px' }}
                         >
-                          <Scale size={12} /> Weigh
+                          <Scale size={12} /> WEIGH
                         </button>
                         <button
                           onClick={() => addToCart(prod, 1)}
-                          className="btn btn-secondary"
-                          style={{ padding: '6px 8px', fontSize: '11px', fontWeight: '700' }}
+                          className="instamart-add-btn"
+                          style={{ width: '45px', padding: '6px 0' }}
                         >
                           +1kg
                         </button>
                       </div>
+                    ) : inCart ? (
+                      /* Swiggy Instamart Active Stepper [ - QTY + ] */
+                      <div className="instamart-stepper">
+                        <button onClick={() => adjustCartQty(prod.id, prod.isWeightBased ? -0.25 : -1)}>
+                          -
+                        </button>
+                        <span className="instamart-stepper-qty mono">
+                          {cartItem.qty} {prod.unit}
+                        </span>
+                        <button onClick={() => adjustCartQty(prod.id, prod.isWeightBased ? 0.25 : 1)}>
+                          +
+                        </button>
+                      </div>
                     ) : (
+                      /* Swiggy Instamart Default ADD Button */
                       <button
                         onClick={() => addToCart(prod, 1)}
                         disabled={isOutOfStock}
-                        className="btn btn-secondary"
-                        style={{
-                          width: '100%',
-                          padding: '6px',
-                          fontSize: '12px',
-                          fontWeight: '700',
-                          gap: '5px'
-                        }}
+                        className="instamart-add-btn"
                       >
-                        <Plus size={13} color="#10b981" /> Add to Bill
+                        {isOutOfStock ? 'OUT OF STOCK' : 'ADD'}
                       </button>
                     )}
-
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      paddingTop: '6px',
-                      borderTop: '1px solid var(--border-color)'
-                    }}>
-                      <span className="mono" style={{ fontSize: isMobile ? '13px' : '14.5px', fontWeight: '800', color: '#10b981' }}>
-                        {settings.currency}{prod.price.toLocaleString()}
-                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'normal' }}>/{prod.unit}</span>
-                      </span>
-
-                      <span style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>
-                        Tax: {prod.taxRate}%
-                      </span>
-                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Floating Mobile Cart Action Bar */}
+          {/* Floating Mobile Instamart Cart Action Bar */}
           {isMobile && cart.length > 0 && (
             <div
               onClick={() => setMobileTab('cart')}
@@ -709,13 +723,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 bottom: '16px',
                 left: '16px',
                 right: '16px',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                background: 'linear-gradient(135deg, #0c831f 0%, #066314 100%)',
                 borderRadius: 'var(--radius-md)',
                 padding: '12px 18px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                boxShadow: '0 8px 25px rgba(16,185,129,0.55)',
+                boxShadow: '0 8px 25px rgba(12,131,31,0.55)',
                 zIndex: 40,
                 cursor: 'pointer'
               }}
@@ -724,7 +738,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 <ShoppingBag size={20} />
                 <div>
                   <div style={{ fontSize: '13.5px', fontWeight: '800' }}>
-                    {cart.length} Items in Cart
+                    {cart.length} {cart.length === 1 ? 'Item' : 'Items'} in Cart
                   </div>
                   <div style={{ fontSize: '11.5px', opacity: 0.9 }}>
                     Total: {settings.currency}{grandTotal.toLocaleString()}
@@ -732,19 +746,18 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ffffff', fontWeight: '800', fontSize: '13.5px' }}>
-                <span>Review & Pay</span>
-                <ArrowRight size={16} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ffffff', fontWeight: '900', fontSize: '13.5px' }}>
+                <span>View Bill ➔</span>
               </div>
             </div>
           )}
         </div>
       )}
 
-      {/* Right Area: Dynamic Cart & Settle Panel */}
+      {/* Right Area: Swiggy-Style Bill Summary Panel */}
       {showCartPanel && (
         <div className="pos-cart-panel" style={{
-          width: isMobile ? '100%' : '450px',
+          width: isMobile ? '100%' : '440px',
           backgroundColor: 'var(--bg-card)',
           borderLeft: isMobile ? 'none' : '1px solid var(--border-color)',
           display: 'flex',
@@ -759,7 +772,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             display: 'flex',
             flexDirection: 'column',
             gap: '10px',
-            background: 'linear-gradient(180deg, rgba(16,185,129,0.03) 0%, transparent 100%)'
+            background: 'linear-gradient(180deg, rgba(12,131,31,0.04) 0%, transparent 100%)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -772,8 +785,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     <ArrowLeft size={14} /> Back
                   </button>
                 )}
-                <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-                  Active Order Cart
+                <h3 style={{ fontSize: '16px', fontWeight: '900', color: 'var(--text-main)', margin: 0 }}>
+                  Order Summary
                 </h3>
               </div>
 
@@ -782,24 +795,24 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               </span>
             </div>
 
-            {/* Customer Selection with Purchase History Button */}
+            {/* Customer Account Picker */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <label className="form-label" style={{ margin: 0, fontSize: '11.5px' }}>Customer Account</label>
+                <label className="form-label" style={{ margin: 0, fontSize: '11.5px' }}>Customer Profile</label>
                 <button
                   onClick={() => setShowCustomerHistoryModal(true)}
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#10b981',
+                    color: 'var(--instamart-green)',
                     fontSize: '11.5px',
-                    fontWeight: '700',
+                    fontWeight: '800',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px'
                   }}
-                  title="View customer purchase history"
+                  title="View past orders"
                 >
                   <History size={13} />
                   Past Orders ({selectedCustomerInvoices.length})
@@ -828,36 +841,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   style={{ padding: '8px 12px', height: '38px' }}
                   title="Add New Customer"
                 >
-                  <UserPlus size={16} color="#10b981" />
+                  <UserPlus size={16} color="var(--instamart-green)" />
                 </button>
               </div>
-
-              {/* Customer Quick Insight Pill if has purchase history */}
-              {selectedCustomerInvoices.length > 0 && (
-                <div
-                  onClick={() => setShowCustomerHistoryModal(true)}
-                  style={{
-                    marginTop: '6px',
-                    padding: '6px 10px',
-                    backgroundColor: 'rgba(16,185,129,0.08)',
-                    borderRadius: 'var(--radius-xs)',
-                    border: '1px solid rgba(16,185,129,0.2)',
-                    fontSize: '11px',
-                    color: 'var(--text-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <span>
-                    🛍️ Last purchase: <strong style={{ color: 'var(--text-main)' }}>{new Date(selectedCustomerInvoices[0].date).toLocaleDateString()}</strong>
-                  </span>
-                  <span style={{ color: '#10b981', fontWeight: '700' }}>
-                    View Items ➔
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Automotive Garage Fields */}
@@ -952,14 +938,14 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 padding: '40px 0'
               }}>
                 <ShoppingBag size={42} opacity={0.3} />
-                <p style={{ fontSize: '13px', lineHeight: '1.4' }}>Cart is currently empty.<br />Add items from the catalog.</p>
+                <p style={{ fontSize: '13px', lineHeight: '1.4' }}>Your cart is empty.<br />Add fresh items from Instamart catalog.</p>
                 {isMobile && (
                   <button
                     onClick={() => setMobileTab('catalog')}
                     className="btn btn-primary"
                     style={{ fontSize: '12px', padding: '8px 16px' }}
                   >
-                    Browse Items Catalog
+                    Browse Instamart Catalog
                   </button>
                 )}
               </div>
@@ -973,96 +959,49 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     borderRadius: 'var(--radius-sm)',
                     border: '1px solid var(--border-color)',
                     display: 'flex',
-                    flexDirection: 'column',
-                    gap: '6px',
-                    transition: 'all 0.15s ease'
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '8px'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', wordBreak: 'break-word', margin: 0 }}>
-                        {item.name}
-                      </h4>
-                      <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
-                        {settings.currency}{item.price}/{item.unit} • Tax: {item.taxRate}%
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="btn-icon"
-                      style={{ color: '#f43f5e', padding: '4px' }}
-                      title="Remove item"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', wordBreak: 'break-word', margin: 0 }}>
+                      {item.name}
+                    </h4>
+                    <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
+                      {settings.currency}{item.price}/{item.unit}
+                    </span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
-                    {/* Quantity modifier */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {/* Quantity micro stepper */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                      backgroundColor: 'var(--instamart-green)',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: '#ffffff',
+                      padding: '2px 4px',
+                      boxShadow: '0 2px 6px rgba(12,131,31,0.3)'
+                    }}>
                       <button
                         onClick={() => adjustCartQty(item.id, item.isWeightBased ? -0.25 : -1)}
-                        style={{
-                          width: '26px',
-                          height: '26px',
-                          borderRadius: '6px',
-                          border: '1px solid var(--border-color)',
-                          backgroundColor: 'var(--bg-card)',
-                          color: 'var(--text-main)',
-                          cursor: 'pointer',
-                          fontWeight: 'bold',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
+                        style={{ background: 'none', border: 'none', color: '#ffffff', fontWeight: '900', fontSize: '14px', padding: '0 6px', cursor: 'pointer' }}
                       >
                         -
                       </button>
-
-                      <input
-                        type="number"
-                        step={item.isWeightBased ? '0.05' : '1'}
-                        min="0.05"
-                        value={item.qty}
-                        onChange={(e) => updateCartQty(item.id, e.target.value)}
-                        className="form-input"
-                        style={{
-                          width: '60px',
-                          padding: '2px 4px',
-                          textAlign: 'center',
-                          fontSize: '12.5px',
-                          fontWeight: '700',
-                          height: '28px',
-                          minHeight: '28px'
-                        }}
-                      />
-
+                      <span className="mono" style={{ fontSize: '12px', fontWeight: '800', padding: '0 4px' }}>
+                        {item.qty}
+                      </span>
                       <button
                         onClick={() => adjustCartQty(item.id, item.isWeightBased ? 0.25 : 1)}
-                        style={{
-                          width: '26px',
-                          height: '26px',
-                          borderRadius: '6px',
-                          border: '1px solid var(--border-color)',
-                          backgroundColor: 'var(--bg-card)',
-                          color: 'var(--text-main)',
-                          cursor: 'pointer',
-                          fontWeight: 'bold',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
+                        style={{ background: 'none', border: 'none', color: '#ffffff', fontWeight: '900', fontSize: '14px', padding: '0 6px', cursor: 'pointer' }}
                       >
                         +
                       </button>
-
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '2px' }}>
-                        {item.unit}
-                      </span>
                     </div>
 
-                    <span className="mono" style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>
+                    <span className="mono" style={{ fontSize: '13.5px', fontWeight: '900', color: 'var(--text-main)', minWidth: '60px', textAlign: 'right' }}>
                       {settings.currency}{(Math.round(item.price * item.qty * 100) / 100).toLocaleString()}
                     </span>
                   </div>
@@ -1071,7 +1010,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             )}
           </div>
 
-          {/* Calculation Summary & Settle Footer */}
+          {/* Swiggy "Bill Details" Breakdown Card */}
           <div style={{
             padding: '14px 18px',
             borderTop: '1px solid var(--border-color)',
@@ -1080,28 +1019,31 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             flexDirection: 'column',
             gap: '8px'
           }}>
+            <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+              Bill Details
+            </span>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', color: 'var(--text-muted)' }}>
-              <span>Subtotal</span>
+              <span>Item Total</span>
               <span className="mono">{settings.currency}{rawSubtotal.toFixed(2)}</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Discount:</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Store Discount:</span>
               <div style={{ display: 'flex', gap: '4px' }}>
                 {[0, 5, 10, 15].map((pct) => (
                   <button
                     key={pct}
                     onClick={() => setDiscountPercent(pct)}
                     style={{
-                      padding: '3px 8px',
-                      borderRadius: 'var(--radius-xs)',
+                      padding: '2px 7px',
+                      borderRadius: '4px',
                       border: '1px solid var(--border-color)',
-                      backgroundColor: parseFloat(discountPercent) === pct ? '#10b981' : 'var(--bg-card)',
+                      backgroundColor: parseFloat(discountPercent) === pct ? 'var(--instamart-green)' : 'var(--bg-card)',
                       color: parseFloat(discountPercent) === pct ? '#ffffff' : 'var(--text-muted)',
                       fontSize: '11px',
                       fontWeight: '700',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
+                      cursor: 'pointer'
                     }}
                   >
                     {pct}%
@@ -1111,10 +1053,11 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', color: 'var(--text-muted)' }}>
-              <span>GST Tax</span>
+              <span>GST & Taxes</span>
               <span className="mono">{settings.currency}{totalTax.toFixed(2)}</span>
             </div>
 
+            {/* Total To Pay */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -1122,20 +1065,20 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               padding: '10px 14px',
               backgroundColor: 'var(--bg-card)',
               borderRadius: 'var(--radius-sm)',
-              border: '1.5px solid rgba(16,185,129,0.35)',
-              boxShadow: '0 2px 10px rgba(16,185,129,0.08)'
+              border: '1.5px solid rgba(12,131,31,0.4)',
+              boxShadow: '0 2px 10px rgba(12,131,31,0.08)'
             }}>
-              <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>Total Due</span>
-              <span className="mono" style={{ fontSize: '22px', fontWeight: '900', color: '#10b981' }}>
+              <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>To Pay</span>
+              <span className="mono" style={{ fontSize: '22px', fontWeight: '900', color: 'var(--instamart-green)' }}>
                 {settings.currency}{grandTotal.toLocaleString()}
               </span>
             </div>
 
-            {/* Payment Method Selector */}
+            {/* Payment Mode Selector */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginTop: '2px' }}>
               {[
-                { id: 'Cash', icon: Banknote },
                 { id: 'UPI', icon: QrCode },
+                { id: 'Cash', icon: Banknote },
                 { id: 'Card', icon: CreditCard },
                 { id: 'Credit', icon: Clock }
               ].map((pm) => {
@@ -1152,18 +1095,16 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       padding: '8px 4px',
                       borderRadius: 'var(--radius-sm)',
                       border: '1.5px solid',
-                      borderColor: isSelected ? '#10b981' : 'var(--border-color)',
-                      backgroundColor: isSelected ? 'rgba(16,185,129,0.18)' : 'var(--bg-card)',
-                      color: isSelected ? '#10b981' : 'var(--text-muted)',
+                      borderColor: isSelected ? 'var(--instamart-green)' : 'var(--border-color)',
+                      backgroundColor: isSelected ? 'var(--instamart-green-light)' : 'var(--bg-card)',
+                      color: isSelected ? 'var(--instamart-green)' : 'var(--text-muted)',
                       fontSize: '11px',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '3px',
-                      boxShadow: isSelected ? '0 2px 8px rgba(16,185,129,0.2)' : 'none',
-                      transition: 'all 0.15s ease'
+                      gap: '3px'
                     }}
                   >
                     <Icon size={15} />
@@ -1180,7 +1121,6 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 disabled={cart.length === 0}
                 className="btn btn-secondary"
                 style={{ flex: 1, fontSize: '12.5px', padding: '10px', opacity: cart.length === 0 ? 0.5 : 1 }}
-                title="Save as quotation"
               >
                 <FileCheck size={15} />
                 Quotation
@@ -1196,8 +1136,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   fontSize: '14.5px',
                   fontWeight: '800',
                   opacity: cart.length === 0 ? 0.5 : 1,
-                  cursor: cart.length === 0 ? 'not-allowed' : 'pointer',
-                  gap: '6px'
+                  cursor: cart.length === 0 ? 'not-allowed' : 'pointer'
                 }}
               >
                 <Printer size={16} />
@@ -1214,7 +1153,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           <div className="modal-container" style={{ maxWidth: '600px', padding: isMobile ? '16px' : '24px', maxHeight: '88vh', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <History size={20} color="#10b981" />
+                <History size={20} color="var(--instamart-green)" />
                 <div>
                   <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                     {selectedCustomer.name}'s Past Orders
@@ -1279,7 +1218,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                         {inv.items.map((it, idx) => (
                           <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
                             <span>
-                              • {it.name} <strong style={{ color: '#10b981' }}>({it.qty} {it.unit || 'pcs'})</strong>
+                              • {it.name} <strong style={{ color: 'var(--instamart-green)' }}>({it.qty} {it.unit || 'pcs'})</strong>
                             </span>
                             
                             <button
@@ -1290,7 +1229,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                               style={{ padding: '2px 6px', fontSize: '10px', height: '22px' }}
                               title="Add this item to current cart"
                             >
-                              <Plus size={10} color="#10b981" /> Add to Cart
+                              <Plus size={10} color="var(--instamart-green)" /> Add to Cart
                             </button>
                           </div>
                         ))}
@@ -1298,10 +1237,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
-                          Status: <strong style={{ color: inv.status === 'Paid' ? '#10b981' : '#f59e0b' }}>{inv.status}</strong>
+                          Status: <strong style={{ color: inv.status === 'Paid' ? 'var(--instamart-green)' : '#f59e0b' }}>{inv.status}</strong>
                         </span>
 
-                        <div className="mono" style={{ fontSize: '13.5px', fontWeight: '800', color: '#10b981' }}>
+                        <div className="mono" style={{ fontSize: '13.5px', fontWeight: '800', color: 'var(--instamart-green)' }}>
                           Total: {settings.currency}{inv.grandTotal.toLocaleString()}
                         </div>
                       </div>
@@ -1328,7 +1267,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           <div className="modal-container" style={{ maxWidth: '400px', padding: '24px', textAlign: 'center' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Smartphone color="#10b981" size={22} />
+                <Smartphone color="var(--instamart-green)" size={22} />
                 <h3 style={{ fontSize: '17px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                   Scan UPI QR to Pay
                 </h3>
@@ -1353,20 +1292,20 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 <rect width="180" height="180" fill="#ffffff" />
                 <rect x="10" y="10" width="45" height="45" fill="#0f172a" rx="4" />
                 <rect x="18" y="18" width="29" height="29" fill="#ffffff" rx="2" />
-                <rect x="25" y="25" width="15" height="15" fill="#10b981" rx="2" />
+                <rect x="25" y="25" width="15" height="15" fill="#0c831f" rx="2" />
 
                 <rect x="125" y="10" width="45" height="45" fill="#0f172a" rx="4" />
                 <rect x="133" y="18" width="29" height="29" fill="#ffffff" rx="2" />
-                <rect x="140" y="25" width="15" height="15" fill="#10b981" rx="2" />
+                <rect x="140" y="25" width="15" height="15" fill="#0c831f" rx="2" />
 
                 <rect x="10" y="125" width="45" height="45" fill="#0f172a" rx="4" />
                 <rect x="18" y="133" width="29" height="29" fill="#ffffff" rx="2" />
-                <rect x="25" y="140" width="15" height="15" fill="#10b981" rx="2" />
+                <rect x="25" y="140" width="15" height="15" fill="#0c831f" rx="2" />
 
                 <rect x="65" y="20" width="15" height="15" fill="#0f172a" />
                 <rect x="90" y="30" width="20" height="15" fill="#0f172a" />
                 <rect x="65" y="65" width="50" height="50" fill="#0f172a" rx="4" />
-                <rect x="75" y="75" width="30" height="30" fill="#10b981" rx="2" />
+                <rect x="75" y="75" width="30" height="30" fill="#0c831f" rx="2" />
 
                 <rect x="20" y="70" width="15" height="25" fill="#0f172a" />
                 <rect x="135" y="70" width="20" height="35" fill="#0f172a" />
@@ -1377,7 +1316,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
             <div style={{ marginTop: '14px' }}>
               <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Total Amount Due</span>
-              <div className="mono" style={{ fontSize: '26px', fontWeight: '900', color: '#10b981' }}>
+              <div className="mono" style={{ fontSize: '26px', fontWeight: '900', color: 'var(--instamart-green)' }}>
                 {settings.currency}{grandTotal.toLocaleString()}
               </div>
             </div>
@@ -1399,7 +1338,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           <div className="modal-container" style={{ maxWidth: '420px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Scale color="#10b981" size={20} />
+                <Scale color="var(--instamart-green)" size={20} />
                 <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                   Digital Weighing Scale
                 </h3>
@@ -1422,11 +1361,11 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 padding: '12px',
                 backgroundColor: '#050a14',
                 borderRadius: '10px',
-                border: '2px solid #10b981',
-                boxShadow: '0 0 20px rgba(16,185,129,0.3)',
+                border: '2px solid var(--instamart-green)',
+                boxShadow: '0 0 20px rgba(12,131,31,0.3)',
                 maxWidth: '220px'
               }}>
-                <span className="mono" style={{ fontSize: '32px', fontWeight: '900', color: '#10b981', letterSpacing: '2px' }}>
+                <span className="mono" style={{ fontSize: '32px', fontWeight: '900', color: 'var(--instamart-green)', letterSpacing: '2px' }}>
                   {simulatedWeight} <span style={{ fontSize: '16px' }}>{weighingProduct.unit}</span>
                 </span>
               </div>
@@ -1441,7 +1380,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       padding: '6px 4px',
                       borderRadius: 'var(--radius-xs)',
                       border: '1px solid var(--border-color)',
-                      backgroundColor: simulatedWeight === w ? '#10b981' : 'var(--bg-card)',
+                      backgroundColor: simulatedWeight === w ? 'var(--instamart-green)' : 'var(--bg-card)',
                       color: simulatedWeight === w ? '#ffffff' : 'var(--text-main)',
                       fontSize: '11px',
                       fontWeight: '700',
@@ -1456,7 +1395,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Calculated Price:</span>
-              <span className="mono" style={{ fontSize: '18px', fontWeight: '800', color: '#10b981' }}>
+              <span className="mono" style={{ fontSize: '18px', fontWeight: '800', color: 'var(--instamart-green)' }}>
                 {settings.currency}{(Math.round(weighingProduct.price * simulatedWeight * 100) / 100).toLocaleString()}
               </span>
             </div>
@@ -1530,7 +1469,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     type="checkbox"
                     checked={inspectionData[item.id]}
                     onChange={(e) => setInspectionData({ ...inspectionData, [item.id]: e.target.checked })}
-                    style={{ width: '16px', height: '16px', accentColor: '#10b981' }}
+                    style={{ width: '16px', height: '16px', accentColor: 'var(--instamart-green)' }}
                   />
                   <span style={{ color: 'var(--text-main)', fontWeight: '600' }}>{item.label}</span>
                 </label>
