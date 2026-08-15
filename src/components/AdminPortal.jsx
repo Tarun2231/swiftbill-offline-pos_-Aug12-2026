@@ -167,17 +167,7 @@ export default function AdminPortal({ onOpenStaff }) {
   const currentPin = loginMode === 'admin' ? pinInput : staffPinInput;
   const pinDigitsCount = currentPin.length;
 
-  const keypadButtons = [
-    { num: '1', sub: ' ' },
-    { num: '2', sub: 'ABC' },
-    { num: '3', sub: 'DEF' },
-    { num: '4', sub: 'GHI' },
-    { num: '5', sub: 'JKL' },
-    { num: '6', sub: 'MNO' },
-    { num: '7', sub: 'PQRS' },
-    { num: '8', sub: 'TUV' },
-    { num: '9', sub: 'WXYZ' }
-  ];
+  const keypadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
     <div style={{
@@ -440,30 +430,29 @@ export default function AdminPortal({ onOpenStaff }) {
                   </div>
                 )}
 
-                {/* Tactile Keypad */}
+                {/* Clean Numeric Keypad (No Alphabets) */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
-                  {keypadButtons.map((btn) => (
+                  {keypadNumbers.map((num) => (
                     <button
-                      key={btn.num}
+                      key={num}
                       type="button"
-                      onClick={() => handleKeypadPress(btn.num)}
+                      onClick={() => handleKeypadPress(num)}
                       className="login-keypad-btn"
                       style={{
-                        padding: '10px 0 8px 0',
+                        padding: '12px 0',
+                        fontSize: '20px',
+                        fontWeight: '700',
                         backgroundColor: 'var(--bg-input)',
                         color: 'var(--text-main)',
                         border: '1px solid var(--border-color)',
                         borderRadius: '12px',
                         cursor: 'pointer',
                         display: 'flex',
-                        flexDirection: 'column',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '1px'
+                        justifyContent: 'center'
                       }}
                     >
-                      <span style={{ fontSize: '18px', fontWeight: '700', lineHeight: '1' }}>{btn.num}</span>
-                      <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '600', letterSpacing: '1px' }}>{btn.sub}</span>
+                      {num}
                     </button>
                   ))}
                   
@@ -473,8 +462,8 @@ export default function AdminPortal({ onOpenStaff }) {
                     onClick={handleCancel}
                     className="login-keypad-btn"
                     style={{
-                      padding: '10px 0',
-                      fontSize: '12px',
+                      padding: '12px 0',
+                      fontSize: '12.5px',
                       fontWeight: '700',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-muted)',
@@ -495,21 +484,20 @@ export default function AdminPortal({ onOpenStaff }) {
                     onClick={() => handleKeypadPress('0')}
                     className="login-keypad-btn"
                     style={{
-                      padding: '10px 0 8px 0',
+                      padding: '12px 0',
+                      fontSize: '20px',
+                      fontWeight: '700',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
                       borderRadius: '12px',
                       cursor: 'pointer',
                       display: 'flex',
-                      flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '1px'
+                      justifyContent: 'center'
                     }}
                   >
-                    <span style={{ fontSize: '18px', fontWeight: '700', lineHeight: '1' }}>0</span>
-                    <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '600' }}>+</span>
+                    0
                   </button>
 
                   <button
@@ -517,7 +505,7 @@ export default function AdminPortal({ onOpenStaff }) {
                     onClick={handleKeypadBackspace}
                     className="login-keypad-btn"
                     style={{
-                      padding: '10px 0',
+                      padding: '12px 0',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
@@ -705,30 +693,29 @@ export default function AdminPortal({ onOpenStaff }) {
                   </div>
                 )}
 
-                {/* Tactile Keypad */}
+                {/* Clean Numeric Keypad (No Alphabets) */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
-                  {keypadButtons.map((btn) => (
+                  {keypadNumbers.map((num) => (
                     <button
-                      key={btn.num}
+                      key={num}
                       type="button"
-                      onClick={() => handleKeypadPress(btn.num)}
+                      onClick={() => handleKeypadPress(num)}
                       className="login-keypad-btn"
                       style={{
-                        padding: '10px 0 8px 0',
+                        padding: '12px 0',
+                        fontSize: '20px',
+                        fontWeight: '700',
                         backgroundColor: 'var(--bg-input)',
                         color: 'var(--text-main)',
                         border: '1px solid var(--border-color)',
                         borderRadius: '12px',
                         cursor: 'pointer',
                         display: 'flex',
-                        flexDirection: 'column',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '1px'
+                        justifyContent: 'center'
                       }}
                     >
-                      <span style={{ fontSize: '18px', fontWeight: '700', lineHeight: '1' }}>{btn.num}</span>
-                      <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '600', letterSpacing: '1px' }}>{btn.sub}</span>
+                      {num}
                     </button>
                   ))}
                   
@@ -737,8 +724,8 @@ export default function AdminPortal({ onOpenStaff }) {
                     onClick={handleCancel}
                     className="login-keypad-btn"
                     style={{
-                      padding: '10px 0',
-                      fontSize: '12px',
+                      padding: '12px 0',
+                      fontSize: '12.5px',
                       fontWeight: '700',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-muted)',
@@ -759,21 +746,20 @@ export default function AdminPortal({ onOpenStaff }) {
                     onClick={() => handleKeypadPress('0')}
                     className="login-keypad-btn"
                     style={{
-                      padding: '10px 0 8px 0',
+                      padding: '12px 0',
+                      fontSize: '20px',
+                      fontWeight: '700',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
                       borderRadius: '12px',
                       cursor: 'pointer',
                       display: 'flex',
-                      flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '1px'
+                      justifyContent: 'center'
                     }}
                   >
-                    <span style={{ fontSize: '18px', fontWeight: '700', lineHeight: '1' }}>0</span>
-                    <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '600' }}>+</span>
+                    0
                   </button>
 
                   <button
@@ -781,7 +767,7 @@ export default function AdminPortal({ onOpenStaff }) {
                     onClick={handleKeypadBackspace}
                     className="login-keypad-btn"
                     style={{
-                      padding: '10px 0',
+                      padding: '12px 0',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
