@@ -73,7 +73,7 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
 
     // ADMIN ONLY PANELS (Hidden from regular employee view)
     ...(isAdmin ? [
-      { id: 'staff', label: 'Staff & Shift Reports', icon: UserCheck, adminOnly: true },
+      { id: 'staff', label: 'Staff Accounts & PINs', icon: Users, badge: '+ Add', adminOnly: true },
       { id: 'expenses', label: 'Expense Tracker', icon: DollarSign, adminOnly: true },
       { id: 'reports', label: 'Sales Analytics', icon: BarChart3, adminOnly: true },
       { id: 'settings', label: 'Store Settings', icon: Settings, adminOnly: true }

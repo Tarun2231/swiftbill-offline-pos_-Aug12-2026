@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
-export default function SwitchUserModal({ isOpen, onClose }) {
+export default function SwitchUserModal({ isOpen, onClose, onOpenStaff }) {
   const { 
     auth, 
     currentUser, 
@@ -388,13 +388,38 @@ export default function SwitchUserModal({ isOpen, onClose }) {
           </form>
         )}
 
-        {/* Lock Terminal Full Logout Footer */}
+        {/* Modal Footer Actions */}
         <div style={{
           marginTop: '16px',
           paddingTop: '12px',
           borderTop: '1px solid var(--border-color)',
-          textAlign: 'center'
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px'
         }}>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenStaff) onOpenStaff();
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#10b981',
+                fontSize: '12px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+            >
+              <Users size={14} /> 👥 Add / Manage Staff Accounts & Set PINs
+            </button>
+          )}
+
           <button
             type="button"
             onClick={handleFullLogout}

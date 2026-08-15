@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
-export default function AdminPortal() {
+export default function AdminPortal({ onOpenStaff }) {
   const { 
     login, 
     staffLogin, 
@@ -646,6 +646,29 @@ export default function AdminPortal() {
                 );
               })}
             </div>
+
+            {/* Quick Action: Manage Staff Credentials */}
+            <button
+              onClick={() => {
+                login(adminPin);
+                if (onOpenStaff) onOpenStaff();
+              }}
+              className="btn btn-secondary"
+              style={{
+                width: '100%',
+                padding: '11px',
+                fontSize: '13px',
+                fontWeight: '700',
+                gap: '8px',
+                color: '#10b981',
+                borderColor: 'rgba(16,185,129,0.3)',
+                backgroundColor: 'rgba(16,185,129,0.06)',
+                borderRadius: '10px'
+              }}
+              title="Add Employees, Assign Passwords & Track Shifts"
+            >
+              <Users size={16} color="#10b981" /> 👥 Manage Staff Accounts & Set PINs
+            </button>
           </div>
         )}
       </div>

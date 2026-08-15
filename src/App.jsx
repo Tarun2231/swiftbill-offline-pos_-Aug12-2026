@@ -103,7 +103,7 @@ function MainApp() {
   }, []);
 
   if (!auth.isAuthenticated) {
-    return <AdminPortal />;
+    return <AdminPortal onOpenStaff={() => setActiveTab('staff')} />;
   }
 
   const handleCreateNewBusiness = (e) => {
@@ -201,13 +201,32 @@ function MainApp() {
           </div>
 
           {isAdmin && (
-            <button
-              onClick={() => setShowSwitchBusinessModal(true)}
-              className="btn btn-secondary"
-              style={{ padding: '5px 8px', fontSize: '11px', fontWeight: '700', gap: '4px' }}
-            >
-              <ArrowRightLeft size={12} color={bizColor} /> Switch
-            </button>
+            <>
+              <button
+                onClick={() => setActiveTab('staff')}
+                className="btn btn-secondary"
+                style={{
+                  padding: '5px 8px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  gap: '4px',
+                  backgroundColor: activeTab === 'staff' ? 'rgba(16,185,129,0.15)' : 'var(--bg-input)',
+                  borderColor: activeTab === 'staff' ? '#10b981' : 'var(--border-color)',
+                  color: activeTab === 'staff' ? '#10b981' : 'var(--text-main)'
+                }}
+                title="Manage Staff Accounts & Set PINs"
+              >
+                <Users size={12} color="#10b981" /> Staff
+              </button>
+
+              <button
+                onClick={() => setShowSwitchBusinessModal(true)}
+                className="btn btn-secondary"
+                style={{ padding: '5px 8px', fontSize: '11px', fontWeight: '700', gap: '4px' }}
+              >
+                <ArrowRightLeft size={12} color={bizColor} /> Switch
+              </button>
+            </>
           )}
 
           <button
@@ -468,6 +487,10 @@ function MainApp() {
       <SwitchUserModal
         isOpen={showSwitchUserModal}
         onClose={() => setShowSwitchUserModal(false)}
+        onOpenStaff={() => {
+          setActiveTab('staff');
+          setShowSwitchUserModal(false);
+        }}
       />
     </div>
   );
