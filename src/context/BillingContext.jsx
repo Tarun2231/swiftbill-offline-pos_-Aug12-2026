@@ -56,12 +56,204 @@ const INITIAL_BUSINESS_TEMPLATES = {
       terms: '1. Fresh produce once sold cannot be returned after 24 hours.\n2. Please check weights before leaving the counter.'
     },
     products: [
-      { id: 'g1', name: 'Fresh Organic Apples (Shimla)', sku: 'FR-APP-01', category: 'Fruits', price: 180, purchaseCost: 120, stock: 45, unit: 'kg', isWeightBased: true, taxRate: 0, minStockAlert: 10, expiryDate: new Date(Date.now() + 86400000 * 5).toISOString(), image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&auto=format&fit=crop' },
-      { id: 'g2', name: 'Farm Fresh Bananas (Robust)', sku: 'FR-BAN-02', category: 'Fruits', price: 60, purchaseCost: 35, stock: 60, unit: 'dozen', isWeightBased: false, taxRate: 0, minStockAlert: 15, expiryDate: new Date(Date.now() + 86400000 * 3).toISOString(), image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&auto=format&fit=crop' },
-      { id: 'g3', name: 'Red Tomatoes (Hydroponic)', sku: 'VG-TOM-01', category: 'Vegetables', price: 40, purchaseCost: 22, stock: 80, unit: 'kg', isWeightBased: true, taxRate: 0, minStockAlert: 20, expiryDate: new Date(Date.now() + 86400000 * 4).toISOString(), image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=300&auto=format&fit=crop' },
-      { id: 'g4', name: 'Fresh Boneless Chicken Breast', sku: 'MT-CHK-01', category: 'Meat & Poultry', price: 290, purchaseCost: 200, stock: 25, unit: 'kg', isWeightBased: true, taxRate: 5, minStockAlert: 5, expiryDate: new Date(Date.now() + 86400000 * 2).toISOString(), image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&auto=format&fit=crop' },
-      { id: 'g5', name: 'Fresh Toned Cow Milk (1L Pouch)', sku: 'DY-MLK-01', category: 'Dairy & Eggs', price: 66, purchaseCost: 55, stock: 100, unit: 'pkt', isWeightBased: false, taxRate: 0, minStockAlert: 25, expiryDate: new Date(Date.now() + 86400000 * 2).toISOString(), image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&auto=format&fit=crop' },
-      { id: 'g6', name: 'Premium Basmati Rice (5kg Bag)', sku: 'GR-RCE-05', category: 'Staples & Grains', price: 450, purchaseCost: 320, stock: 30, unit: 'bag', isWeightBased: false, taxRate: 5, minStockAlert: 8, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&auto=format&fit=crop' }
+      { 
+        id: 'g1', 
+        name: 'Onion (Ulligadda)', 
+        sku: 'VG-ONN-01', 
+        category: 'Vegetables', 
+        price: 37, 
+        mrp: 54,
+        purchaseCost: 22, 
+        stock: 120, 
+        unit: 'kg', 
+        isWeightBased: true, 
+        isVeg: true,
+        eta: '16 MINS',
+        unitRate: '₹3.7/100 g',
+        variants: [
+          { label: '1 kg', weight: 1, price: 37, mrp: 54, unitRate: '₹3.7/100 g' },
+          { label: '3 kg', weight: 3, price: 105, mrp: 155, unitRate: '₹3.5/100 g' },
+          { label: '500 g', weight: 0.5, price: 20, mrp: 28, unitRate: '₹4.0/100 g' }
+        ],
+        taxRate: 0, 
+        minStockAlert: 20, 
+        image: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&auto=format&fit=crop' 
+      },
+      { 
+        id: 'g2', 
+        name: 'Drumstick (Munagakayalu)', 
+        sku: 'VG-DRM-01', 
+        category: 'Vegetables', 
+        price: 25, 
+        mrp: 36,
+        purchaseCost: 14, 
+        stock: 45, 
+        unit: 'pack', 
+        isWeightBased: false, 
+        isVeg: true,
+        eta: '16 MINS',
+        unitRate: '₹12.5/piece',
+        variants: [
+          { label: '80 - 140 g', weight: 0.1, price: 25, mrp: 36, unitRate: '₹12.5/piece' }
+        ],
+        taxRate: 0, 
+        minStockAlert: 10, 
+        image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400&auto=format&fit=crop' 
+      },
+      { 
+        id: 'g3', 
+        name: 'Potato (Alugadda / Aloo)', 
+        sku: 'VG-POT-01', 
+        category: 'Vegetables', 
+        price: 32, 
+        mrp: 45,
+        purchaseCost: 18, 
+        stock: 90, 
+        unit: 'kg', 
+        isWeightBased: true, 
+        isVeg: true,
+        eta: '14 MINS',
+        unitRate: '₹3.2/100 g',
+        variants: [
+          { label: '1 kg', weight: 1, price: 32, mrp: 45, unitRate: '₹3.2/100 g' },
+          { label: '2 kg', weight: 2, price: 60, mrp: 90, unitRate: '₹3.0/100 g' },
+          { label: '500 g', weight: 0.5, price: 18, mrp: 24, unitRate: '₹3.6/100 g' }
+        ],
+        taxRate: 0, 
+        minStockAlert: 15, 
+        image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&auto=format&fit=crop' 
+      },
+      { 
+        id: 'g4', 
+        name: 'Red Tomatoes (Hydroponic)', 
+        sku: 'VG-TOM-01', 
+        category: 'Vegetables', 
+        price: 38, 
+        mrp: 50,
+        purchaseCost: 20, 
+        stock: 80, 
+        unit: 'kg', 
+        isWeightBased: true, 
+        isVeg: true,
+        eta: '12 MINS',
+        unitRate: '₹3.8/100 g',
+        variants: [
+          { label: '1 kg', weight: 1, price: 38, mrp: 50, unitRate: '₹3.8/100 g' },
+          { label: '500 g', weight: 0.5, price: 20, mrp: 26, unitRate: '₹4.0/100 g' }
+        ],
+        taxRate: 0, 
+        minStockAlert: 20, 
+        image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&auto=format&fit=crop' 
+      },
+      { 
+        id: 'g5', 
+        name: 'Fresh Organic Apples (Shimla)', 
+        sku: 'FR-APP-01', 
+        category: 'Fruits', 
+        price: 179, 
+        mrp: 240,
+        purchaseCost: 120, 
+        stock: 45, 
+        unit: 'kg', 
+        isWeightBased: true, 
+        isVeg: true,
+        eta: '15 MINS',
+        unitRate: '₹17.9/100 g',
+        variants: [
+          { label: '500 g', weight: 0.5, price: 95, mrp: 125, unitRate: '₹19/100 g' },
+          { label: '1 kg', weight: 1, price: 179, mrp: 240, unitRate: '₹17.9/100 g' }
+        ],
+        taxRate: 0, 
+        minStockAlert: 10, 
+        image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&auto=format&fit=crop' 
+      },
+      { 
+        id: 'g6', 
+        name: 'Farm Fresh Bananas (Robusta)', 
+        sku: 'FR-BAN-02', 
+        category: 'Fruits', 
+        price: 58, 
+        mrp: 75,
+        purchaseCost: 35, 
+        stock: 60, 
+        unit: 'dozen', 
+        isWeightBased: false, 
+        isVeg: true,
+        eta: '10 MINS',
+        unitRate: '₹4.8/piece',
+        variants: [
+          { label: '1 dozen', weight: 1, price: 58, mrp: 75, unitRate: '₹4.8/piece' },
+          { label: '6 pcs', weight: 0.5, price: 32, mrp: 40, unitRate: '₹5.3/piece' }
+        ],
+        taxRate: 0, 
+        minStockAlert: 15, 
+        image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&auto=format&fit=crop' 
+      },
+      { 
+        id: 'g7', 
+        name: 'Fresh Boneless Chicken Breast', 
+        sku: 'MT-CHK-01', 
+        category: 'Meat & Poultry', 
+        price: 290, 
+        mrp: 360,
+        purchaseCost: 200, 
+        stock: 25, 
+        unit: 'kg', 
+        isWeightBased: true, 
+        isVeg: false,
+        eta: '18 MINS',
+        unitRate: '₹29/100 g',
+        variants: [
+          { label: '500 g', weight: 0.5, price: 155, mrp: 190, unitRate: '₹31/100 g' },
+          { label: '1 kg', weight: 1, price: 290, mrp: 360, unitRate: '₹29/100 g' }
+        ],
+        taxRate: 5, 
+        minStockAlert: 5, 
+        image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&auto=format&fit=crop' 
+      },
+      { 
+        id: 'g8', 
+        name: 'Fresh Toned Cow Milk (1L Pouch)', 
+        sku: 'DY-MLK-01', 
+        category: 'Dairy & Eggs', 
+        price: 66, 
+        mrp: 70,
+        purchaseCost: 55, 
+        stock: 100, 
+        unit: 'pkt', 
+        isWeightBased: false, 
+        isVeg: true,
+        eta: '8 MINS',
+        unitRate: '₹66/L',
+        variants: [
+          { label: '1 Litre', weight: 1, price: 66, mrp: 70, unitRate: '₹66/L' }
+        ],
+        taxRate: 0, 
+        minStockAlert: 25, 
+        image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop' 
+      },
+      { 
+        id: 'g9', 
+        name: 'Premium Basmati Rice (5kg Bag)', 
+        sku: 'GR-RCE-05', 
+        category: 'Staples & Grains', 
+        price: 450, 
+        mrp: 550,
+        purchaseCost: 320, 
+        stock: 30, 
+        unit: 'bag', 
+        isWeightBased: false, 
+        isVeg: true,
+        eta: '20 MINS',
+        unitRate: '₹90/kg',
+        variants: [
+          { label: '1 kg', weight: 1, price: 95, mrp: 120, unitRate: '₹9.5/100 g' },
+          { label: '5 kg', weight: 5, price: 450, mrp: 550, unitRate: '₹90/kg' }
+        ],
+        taxRate: 5, 
+        minStockAlert: 8, 
+        image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop' 
+      }
     ]
   },
   automotive: {
