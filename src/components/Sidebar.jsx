@@ -31,6 +31,7 @@ import { useBilling } from '../context/BillingContext';
 
 export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness, isOpen, onClose }) {
   const { 
+    auth,
     settings, 
     theme, 
     toggleTheme, 
@@ -43,10 +44,12 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
     logout 
   } = useBilling();
 
+  const isAdmin = auth?.role === 'admin' || currentUser?.role === 'Master Admin';
+
   const activeKOTCount = (kitchenOrders || []).filter(k => k.status !== 'Served').length;
   const activeJobsCount = (serviceJobs || []).filter(j => j.status !== 'Delivered').length;
 
-  const baseNavItems = [
+  const allNavItems = [
     { id: 'pos', label: 'POS Billing', icon: ShoppingBag, badge: 'F2' },
     
     // Restaurant Specific Navigation
@@ -65,13 +68,19 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
     { id: 'invoices', label: 'Invoice Records', icon: FileText },
     { id: 'returns', label: 'Returns & Credit Notes', icon: RotateCcw },
     { id: 'shift', label: 'Cash Shift & Z-Report', icon: Banknote },
-    { id: 'staff', label: 'Staff & Shift Reports', icon: UserCheck },
-    { id: 'expenses', label: 'Expense Tracker', icon: DollarSign },
     { id: 'customers', label: 'Customer Ledger', icon: Users },
     { id: 'barcode', label: 'Barcode Generator', icon: Barcode },
-    { id: 'reports', label: 'Sales Analytics', icon: BarChart3 },
-    { id: 'settings', label: 'Store Settings', icon: Settings }
+
+    // ADMIN ONLY PANELS (Hidden from regular employee view)
+    ...(isAdmin ? [
+      { id: 'staff', label: 'Staff & Shift Reports', icon: UserCheck, adminOnly: true },
+      { id: 'expenses', label: 'Expense Tracker', icon: DollarSign, adminOnly: true },
+      { id: 'reports', label: 'Sales Analytics', icon: BarChart3, adminOnly: true },
+      { id: 'settings', label: 'Store Settings', icon: Settings, adminOnly: true }
+    ] : [])
   ];
+
+  const baseNavItems = allNavItems;
 
   const handleNavClick = (id) => {
     setActiveTab(id);
@@ -310,7 +319,7 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
           })}
         </nav>
 
-        {/* Footer Quick PIN Change & Admin Lock */}
+        {/* Footer Actions */}
         <div style={{
           padding: '10px 12px',
           borderTop: '1px solid var(--border-color)',
@@ -319,37 +328,61 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
           flexDirection: 'column',
           gap: '6px'
         }}>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <button
-              onClick={() => handleNavClick('settings')}
-              className="btn btn-secondary"
-              style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
-              title="Change Admin PIN / Password"
-            >
-              <KeyRound size={13} color="#10b981" />
-              Change PIN
-            </button>
+          {isAdmin ? (
+            <>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => handleNavClick('settings')}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
+                  title="Change Admin PIN / Password"
+                >
+                  <KeyRound size={13} color="#10b981" />
+                  Change PIN
+                </button>
 
-            <button
-              onClick={exportDataJSON}
-              className="btn btn-secondary"
-              style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
-              title="Export JSON Backup"
-            >
-              <HardDriveDownload size={13} />
-              JSON Backup
-            </button>
-          </div>
+                <button
+                  onClick={exportDataJSON}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
+                  title="Export JSON Backup"
+                >
+                  <HardDriveDownload size={13} />
+                  JSON Backup
+                </button>
+              </div>
 
-          <button
-            onClick={logout}
-            className="btn btn-danger"
-            style={{ width: '100%', fontSize: '11.5px', padding: '6px 10px', height: '30px', fontWeight: '600', gap: '4px' }}
-            title="Lock Admin Session"
-          >
-            <LogOut size={13} />
-            Lock Admin Session
-          </button>
+              <button
+                onClick={logout}
+                className="btn btn-danger"
+                style={{ width: '100%', fontSize: '11.5px', padding: '6px 10px', height: '30px', fontWeight: '600', gap: '4px' }}
+                title="Lock Admin Session"
+              >
+                <LogOut size={13} />
+                Lock Admin Session
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={logout}
+              className="btn btn-secondary"
+              style={{
+                width: '100%',
+                fontSize: '12px',
+                padding: '7px 10px',
+                height: '34px',
+                fontWeight: '700',
+                gap: '6px',
+                color: '#f43f5e',
+                borderColor: 'rgba(244,63,94,0.3)',
+                backgroundColor: 'rgba(244,63,94,0.06)'
+              }}
+              title="End Employee Shift and Logout"
+            >
+              <LogOut size={14} />
+              End Shift & Logout
+            </button>
+          )}
         </div>
       </aside>
     </>

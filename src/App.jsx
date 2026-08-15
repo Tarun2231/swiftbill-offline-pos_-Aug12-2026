@@ -38,6 +38,7 @@ import {
 
 function MainApp() {
   const { theme, auth, currentUser, logout, activeBusinessId, activeBusiness, settings, switchBusiness, createBusiness, businesses, toggleTheme } = useBilling();
+  const isAdmin = auth?.role === 'admin' || currentUser?.role === 'Master Admin';
   const [activeTab, setActiveTab] = useState('pos');
   const [selectedInvoiceForPrint, setSelectedInvoiceForPrint] = useState(null);
   const [showSwitchBusinessModal, setShowSwitchBusinessModal] = useState(false);
@@ -160,7 +161,9 @@ function MainApp() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
           {/* User Session Pill */}
           <div
-            onClick={() => setActiveTab('staff')}
+            onClick={() => {
+              if (isAdmin) setActiveTab('staff');
+            }}
             style={{
               padding: '4px 8px',
               borderRadius: 'var(--radius-full)',
@@ -169,18 +172,18 @@ function MainApp() {
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              cursor: 'pointer',
+              cursor: isAdmin ? 'pointer' : 'default',
               fontSize: '11px',
               fontWeight: '700',
               color: 'var(--text-main)'
             }}
-            title="Click to view Staff & Shift Reports"
+            title={isAdmin ? "Click to view Staff & Shift Reports" : `Signed in as ${currentUser?.name || 'Staff'}`}
           >
             <div style={{
               width: '14px',
               height: '14px',
               borderRadius: '50%',
-              backgroundColor: currentUser?.role === 'Master Admin' ? '#10b981' : '#3b82f6',
+              backgroundColor: isAdmin ? '#10b981' : '#3b82f6',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
@@ -191,17 +194,19 @@ function MainApp() {
               {(currentUser?.name || 'A').charAt(0).toUpperCase()}
             </div>
             <span style={{ maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {currentUser?.name?.split(' ')[0] || 'Admin'}
+              {currentUser?.name?.split(' ')[0] || 'Staff'}
             </span>
           </div>
 
-          <button
-            onClick={() => setShowSwitchBusinessModal(true)}
-            className="btn btn-secondary"
-            style={{ padding: '5px 8px', fontSize: '11px', fontWeight: '700', gap: '4px' }}
-          >
-            <ArrowRightLeft size={12} color={bizColor} /> Switch
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowSwitchBusinessModal(true)}
+              className="btn btn-secondary"
+              style={{ padding: '5px 8px', fontSize: '11px', fontWeight: '700', gap: '4px' }}
+            >
+              <ArrowRightLeft size={12} color={bizColor} /> Switch
+            </button>
+          )}
 
           <button
             onClick={toggleTheme}
@@ -243,7 +248,14 @@ function MainApp() {
           <CashShiftRegister />
         )}
         {activeTab === 'staff' && (
-          <StaffManagement />
+          isAdmin ? (
+            <StaffManagement />
+          ) : (
+            <POSBilling 
+              onCompleteSale={(inv) => setSelectedInvoiceForPrint(inv)} 
+              initialTable={selectedTableForOrder}
+            />
+          )
         )}
         {activeTab === 'products' && (
           <ProductManagement />
@@ -258,7 +270,14 @@ function MainApp() {
           <ReturnsManager />
         )}
         {activeTab === 'expenses' && (
-          <ExpenseTracker />
+          isAdmin ? (
+            <ExpenseTracker />
+          ) : (
+            <POSBilling 
+              onCompleteSale={(inv) => setSelectedInvoiceForPrint(inv)} 
+              initialTable={selectedTableForOrder}
+            />
+          )
         )}
         {activeTab === 'customers' && (
           <CustomerLedger />
@@ -267,10 +286,24 @@ function MainApp() {
           <BarcodePrinter />
         )}
         {activeTab === 'reports' && (
-          <ReportsDashboard />
+          isAdmin ? (
+            <ReportsDashboard />
+          ) : (
+            <POSBilling 
+              onCompleteSale={(inv) => setSelectedInvoiceForPrint(inv)} 
+              initialTable={selectedTableForOrder}
+            />
+          )
         )}
         {activeTab === 'settings' && (
-          <SettingsBackup />
+          isAdmin ? (
+            <SettingsBackup />
+          ) : (
+            <POSBilling 
+              onCompleteSale={(inv) => setSelectedInvoiceForPrint(inv)} 
+              initialTable={selectedTableForOrder}
+            />
+          )
         )}
       </main>
 

@@ -41,6 +41,7 @@ import { useBilling } from '../context/BillingContext';
 
 export default function POSBilling({ onCompleteSale, initialTable }) {
   const { 
+    auth,
     products, 
     customers, 
     invoices,
@@ -56,6 +57,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     clearTable,
     currentUser
   } = useBilling();
+
+  const isAdmin = auth?.role === 'admin' || currentUser?.role === 'Master Admin';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -538,21 +541,23 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 </div>
               </div>
 
-              <button
-                onClick={() => setShowProfitPeek(!showProfitPeek)}
-                className="btn btn-secondary"
-                style={{
-                  fontSize: '11.5px',
-                  padding: '5px 10px',
-                  height: '28px',
-                  flexShrink: 0,
-                  fontWeight: '600',
-                  gap: '4px'
-                }}
-              >
-                {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="var(--instamart-green)" />}
-                {showProfitPeek ? `Margin: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setShowProfitPeek(!showProfitPeek)}
+                  className="btn btn-secondary"
+                  style={{
+                    fontSize: '11.5px',
+                    padding: '5px 10px',
+                    height: '28px',
+                    flexShrink: 0,
+                    fontWeight: '600',
+                    gap: '4px'
+                  }}
+                >
+                  {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="var(--instamart-green)" />}
+                  {showProfitPeek ? `Margin: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
+                </button>
+              )}
             </div>
 
             {/* Search Bar */}
