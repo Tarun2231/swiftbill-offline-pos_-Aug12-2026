@@ -444,7 +444,15 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const showCartPanel = !isMobile || mobileTab === 'cart';
 
   return (
-    <div className="pos-container" style={{ display: 'flex', height: '100%', overflow: 'hidden', position: 'relative' }}>
+    <div className="pos-container" style={{
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
+      minHeight: isMobile ? 'calc(100vh - 52px)' : '100%',
+      height: isMobile ? 'auto' : '100%',
+      overflow: isMobile ? 'visible' : 'hidden',
+      position: 'relative',
+      width: '100%'
+    }}>
       
       {/* Mobile Segmented Switcher */}
       {isMobile && (
@@ -865,8 +873,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           borderLeft: isMobile ? 'none' : '1px solid var(--border-color)',
           display: 'flex',
           flexDirection: 'column',
-          height: '100%',
-          overflowY: 'auto'
+          height: isMobile ? 'auto' : '100%',
+          minHeight: isMobile ? 'calc(100vh - 120px)' : 'auto',
+          overflowY: isMobile ? 'visible' : 'auto'
         }}>
           {/* Header Section */}
           <div style={{
