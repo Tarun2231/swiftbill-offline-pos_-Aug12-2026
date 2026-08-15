@@ -16,7 +16,8 @@ import {
   Eye, 
   EyeOff,
   Sparkles,
-  X
+  X,
+  ArrowLeft
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -24,7 +25,6 @@ export default function AdminPortal() {
   const { 
     login, 
     staffLogin, 
-    skipLogin,
     adminPin, 
     staffMembers, 
     businesses, 
@@ -237,21 +237,40 @@ export default function AdminPortal() {
             boxShadow: 'var(--shadow-lg)'
           }}>
             
-            {/* Top Bar with Cancel */}
+            {/* Top Bar with Mode Indicator & Back to Admin */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Authentication Terminal
+                {loginMode === 'admin' ? '🛡️ Master Admin Terminal' : '👤 Employee Shift Sign-In'}
               </span>
 
-              <button
-                type="button"
-                onClick={skipLogin}
-                className="btn btn-secondary"
-                style={{ padding: '3px 8px', fontSize: '11px', height: '24px', gap: '3px', fontWeight: '600' }}
-                title="Cancel and continue to POS Counter"
-              >
-                <X size={12} /> Cancel
-              </button>
+              {loginMode === 'staff' ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginMode('admin');
+                    setStaffPinInput('');
+                    setErrorMessage('');
+                  }}
+                  className="btn btn-secondary"
+                  style={{ padding: '3px 8px', fontSize: '11px', height: '24px', gap: '3px', fontWeight: '600' }}
+                  title="Cancel and return to Master Admin Login"
+                >
+                  <ArrowLeft size={12} /> Back to Admin
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPinInput('');
+                    setErrorMessage('');
+                  }}
+                  className="btn btn-secondary"
+                  style={{ padding: '3px 8px', fontSize: '11px', height: '24px', gap: '3px', fontWeight: '600' }}
+                  title="Clear PIN input"
+                >
+                  <X size={12} /> Clear
+                </button>
+              )}
             </div>
 
             {/* LOGIN MODE TABS (ADMIN vs EMPLOYEE) */}
@@ -408,7 +427,10 @@ export default function AdminPortal() {
                 <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <button
                     type="button"
-                    onClick={skipLogin}
+                    onClick={() => {
+                      setPinInput('');
+                      setErrorMessage('');
+                    }}
                     className="btn btn-secondary"
                     style={{
                       flex: 1,
@@ -417,9 +439,9 @@ export default function AdminPortal() {
                       fontWeight: '700',
                       color: 'var(--text-muted)'
                     }}
-                    title="Skip login and enter POS counter"
+                    title="Clear PIN input"
                   >
-                    <X size={14} /> Cancel
+                    <X size={14} /> Clear
                   </button>
 
                   <button
@@ -514,7 +536,11 @@ export default function AdminPortal() {
                 <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <button
                     type="button"
-                    onClick={skipLogin}
+                    onClick={() => {
+                      setLoginMode('admin');
+                      setStaffPinInput('');
+                      setErrorMessage('');
+                    }}
                     className="btn btn-secondary"
                     style={{
                       flex: 1,
@@ -523,9 +549,9 @@ export default function AdminPortal() {
                       fontWeight: '700',
                       color: 'var(--text-muted)'
                     }}
-                    title="Skip login and enter POS counter"
+                    title="Cancel and return to Master Admin page"
                   >
-                    <X size={14} /> Cancel
+                    <ArrowLeft size={14} /> Back to Admin
                   </button>
 
                   <button
