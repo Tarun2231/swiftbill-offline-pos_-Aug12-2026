@@ -13,7 +13,9 @@ import {
   UserCheck, 
   Eye, 
   EyeOff,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles,
+  Store
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -38,8 +40,15 @@ export default function AdminPortal({ onOpenStaff }) {
   const [showStaffPin, setShowStaffPin] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [unlocked, setUnlocked] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
   const staffList = (staffMembers || []).filter(s => s.active !== false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (staffList.length > 0 && !selectedStaffUser) {
@@ -59,7 +68,7 @@ export default function AdminPortal({ onOpenStaff }) {
       setUnlocked(true);
       setErrorMessage('');
     } else {
-      setErrorMessage(result.message || 'Invalid PIN');
+      setErrorMessage(result.message || 'Invalid Master PIN');
       setPinInput('');
     }
   };
@@ -68,7 +77,7 @@ export default function AdminPortal({ onOpenStaff }) {
   const handleStaffLoginSubmit = (e) => {
     if (e) e.preventDefault();
     if (!selectedStaffUser) {
-      setErrorMessage('Select an employee');
+      setErrorMessage('Select an employee account');
       return;
     }
     if (!staffPinInput.trim()) {
@@ -80,7 +89,7 @@ export default function AdminPortal({ onOpenStaff }) {
       switchBusiness(selectedBizForStaff);
       setErrorMessage('');
     } else {
-      setErrorMessage(result.message || 'Invalid PIN');
+      setErrorMessage(result.message || 'Invalid Employee PIN');
       setStaffPinInput('');
     }
   };
@@ -129,11 +138,14 @@ export default function AdminPortal({ onOpenStaff }) {
   };
 
   const businessCards = [
-    { id: 'grocery', title: 'Fresh Mart Grocery', badge: 'Produce', color: '#10b981', icon: ShoppingBag },
-    { id: 'restaurant', title: 'Bistro 99 Restaurant', badge: 'Dining', color: '#f59e0b', icon: Utensils },
-    { id: 'automotive', title: 'Apex Auto Garage', badge: 'Garage', color: '#3b82f6', icon: Car },
-    { id: 'retail', title: 'TechNova Superstore', badge: 'Retail', color: '#8b5cf6', icon: Package }
+    { id: 'grocery', title: 'Fresh Mart Grocery', badge: 'Produce', color: '#10b981', icon: ShoppingBag, desc: 'Produce, weight billing & staples' },
+    { id: 'restaurant', title: 'Bistro 99 Dining', badge: 'Dining', color: '#f59e0b', icon: Utensils, desc: 'Floorplan, tables & KDS KOT' },
+    { id: 'automotive', title: 'Apex Auto Detailing', badge: 'Garage', color: '#3b82f6', icon: Car, desc: 'Service jobs, repairs & parts' },
+    { id: 'retail', title: 'TechNova Superstore', badge: 'Retail', color: '#8b5cf6', icon: Package, desc: 'Electronics & barcode labels' }
   ];
+
+  const currentPinValue = loginMode === 'admin' ? pinInput : staffPinInput;
+  const pinLength = currentPinValue.length;
 
   return (
     <div style={{
@@ -143,69 +155,90 @@ export default function AdminPortal({ onOpenStaff }) {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
-      padding: '16px 12px',
+      justifyContent: isMobile ? 'flex-start' : 'center',
+      padding: isMobile ? '24px 14px 40px 14px' : '40px 20px',
       overflowY: 'auto',
       boxSizing: 'border-box',
       position: 'relative'
     }}>
-      {/* Theme Toggle Top Right */}
-      <button
-        onClick={toggleTheme}
-        style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          padding: '6px 10px',
-          borderRadius: 'var(--radius-full)',
-          border: '1px solid var(--border-color)',
-          backgroundColor: 'var(--bg-card)',
-          color: theme === 'dark' ? '#fbbf24' : '#3b82f6',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          fontSize: '11.5px',
-          fontWeight: '600'
-        }}
-        title="Toggle Theme"
-      >
-        {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
-        <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
-      </button>
+      {/* Top Header Controls (Theme Toggle) */}
+      <div style={{
+        position: isMobile ? 'static' : 'absolute',
+        top: '20px',
+        right: '24px',
+        marginBottom: isMobile ? '16px' : '0',
+        alignSelf: isMobile ? 'flex-end' : 'auto'
+      }}>
+        <button
+          onClick={toggleTheme}
+          style={{
+            padding: '6px 12px',
+            borderRadius: 'var(--radius-full)',
+            border: '1px solid var(--border-color)',
+            backgroundColor: 'var(--bg-card)',
+            color: theme === 'dark' ? '#fbbf24' : '#3b82f6',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12px',
+            fontWeight: '600',
+            boxShadow: 'var(--shadow-sm)',
+            transition: 'all 0.15s ease'
+          }}
+          title="Toggle Day / Night Mode"
+        >
+          {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+          <span>{theme === 'dark' ? 'Day' : 'Night'}</span>
+        </button>
+      </div>
 
-      {/* Center Container */}
-      <div style={{ width: '100%', maxWidth: unlocked ? '720px' : '340px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' }}>
+      {/* Main Container */}
+      <div style={{ width: '100%', maxWidth: unlocked ? '740px' : '360px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px' }}>
         
-        {/* Compact Logo Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
           <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '9px',
+            width: '46px',
+            height: '46px',
+            borderRadius: '14px',
             background: 'linear-gradient(135deg, #0c831f 0%, #059669 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(12, 131, 31, 0.3)'
+            boxShadow: '0 8px 24px rgba(12, 131, 31, 0.28)'
           }}>
-            <ShieldCheck size={18} color="#ffffff" />
+            <ShieldCheck size={26} color="#ffffff" />
           </div>
-          <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.3px' }}>
-            SwiftBill
-          </span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.4px', margin: 0 }}>
+              SwiftBill
+            </h1>
+            <span style={{
+              fontSize: '10px',
+              padding: '2px 6px',
+              borderRadius: '6px',
+              backgroundColor: 'rgba(12, 131, 31, 0.12)',
+              color: 'var(--instamart-green)',
+              fontWeight: '800',
+              textTransform: 'uppercase'
+            }}>
+              POS Terminal
+            </span>
+          </div>
         </div>
 
-        {/* STEP 1: MINIMAL LOGIN CARD */}
+        {/* STEP 1: AUTHENTICATION CARD */}
         {!unlocked ? (
           <div className="glass-panel" style={{
             width: '100%',
-            padding: '18px 16px',
+            padding: isMobile ? '20px 16px' : '24px 20px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '12px',
-            borderRadius: '14px',
-            boxShadow: 'var(--shadow-md)',
+            gap: '16px',
+            borderRadius: '18px',
+            boxShadow: 'var(--shadow-lg)',
             border: '1px solid var(--border-color)',
             backgroundColor: 'var(--bg-card)',
             boxSizing: 'border-box'
@@ -216,9 +249,9 @@ export default function AdminPortal({ onOpenStaff }) {
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
               backgroundColor: 'var(--bg-input)',
-              padding: '3px',
-              borderRadius: '8px',
-              gap: '3px'
+              padding: '4px',
+              borderRadius: '12px',
+              gap: '4px'
             }}>
               <button
                 type="button"
@@ -228,22 +261,23 @@ export default function AdminPortal({ onOpenStaff }) {
                   setPinInput('');
                 }}
                 style={{
-                  padding: '6px',
-                  borderRadius: '6px',
+                  padding: '8px',
+                  borderRadius: '9px',
                   border: 'none',
                   backgroundColor: loginMode === 'admin' ? 'var(--bg-card)' : 'transparent',
                   color: loginMode === 'admin' ? 'var(--text-main)' : 'var(--text-muted)',
                   fontWeight: loginMode === 'admin' ? '700' : '500',
-                  fontSize: '11.5px',
+                  fontSize: '12px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '5px',
-                  boxShadow: loginMode === 'admin' ? 'var(--shadow-sm)' : 'none'
+                  gap: '6px',
+                  boxShadow: loginMode === 'admin' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                <ShieldCheck size={13} color="#10b981" /> Admin
+                <ShieldCheck size={14} color="#10b981" /> Master Admin
               </button>
 
               <button
@@ -254,79 +288,112 @@ export default function AdminPortal({ onOpenStaff }) {
                   setStaffPinInput('');
                 }}
                 style={{
-                  padding: '6px',
-                  borderRadius: '6px',
+                  padding: '8px',
+                  borderRadius: '9px',
                   border: 'none',
                   backgroundColor: loginMode === 'staff' ? 'var(--bg-card)' : 'transparent',
                   color: loginMode === 'staff' ? 'var(--text-main)' : 'var(--text-muted)',
                   fontWeight: loginMode === 'staff' ? '700' : '500',
-                  fontSize: '11.5px',
+                  fontSize: '12px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '5px',
-                  boxShadow: loginMode === 'staff' ? 'var(--shadow-sm)' : 'none'
+                  gap: '6px',
+                  boxShadow: loginMode === 'staff' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                <Users size={13} color="#3b82f6" /> Staff
+                <Users size={14} color="#3b82f6" /> Staff Sign-In
               </button>
             </div>
 
-            {/* A. ADMIN FORM */}
+            {/* A. MASTER ADMIN FORM */}
             {loginMode === 'admin' ? (
-              <form onSubmit={handleAdminPinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showAdminPin ? "text" : "password"}
-                    maxLength={8}
-                    placeholder="Enter Master PIN"
-                    value={pinInput}
-                    onChange={(e) => setPinInput(e.target.value)}
-                    className="form-input mono"
-                    style={{
-                      fontSize: '20px',
-                      letterSpacing: showAdminPin ? '2px' : '8px',
-                      textAlign: 'center',
-                      padding: '6px 36px 6px 12px',
-                      height: '42px',
-                      fontWeight: '800',
-                      borderRadius: '8px'
-                    }}
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowAdminPin(!showAdminPin)}
-                    style={{ position: 'absolute', right: '10px', top: '12px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-                    title={showAdminPin ? "Hide PIN" : "Show PIN"}
-                  >
-                    {showAdminPin ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
+              <form onSubmit={handleAdminPinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                
+                {/* PIN Display & Input Box */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Enter Master PIN
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminPin(!showAdminPin)}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px' }}
+                    >
+                      {showAdminPin ? <EyeOff size={13} /> : <Eye size={13} />}
+                      <span>{showAdminPin ? 'Hide' : 'Show'}</span>
+                    </button>
+                  </div>
+
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showAdminPin ? "text" : "password"}
+                      maxLength={8}
+                      placeholder="••••"
+                      value={pinInput}
+                      onChange={(e) => setPinInput(e.target.value)}
+                      className="form-input mono"
+                      style={{
+                        fontSize: '22px',
+                        letterSpacing: showAdminPin ? '3px' : '10px',
+                        textAlign: 'center',
+                        padding: '8px 12px',
+                        height: '46px',
+                        fontWeight: '800',
+                        borderRadius: '12px',
+                        backgroundColor: 'var(--bg-input)'
+                      }}
+                      autoFocus
+                    />
+                  </div>
+
+                  {/* PIN Dots Indicator */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '10px' }}>
+                    {[0, 1, 2, 3].map((idx) => {
+                      const isFilled = pinLength > idx;
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            backgroundColor: isFilled ? '#10b981' : 'var(--border-color)',
+                            transform: isFilled ? 'scale(1.2)' : 'scale(1)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {errorMessage && (
-                  <div style={{ padding: '6px 8px', backgroundColor: 'rgba(244,63,94,0.12)', borderRadius: '6px', color: '#f43f5e', fontSize: '11.5px', textAlign: 'center', fontWeight: '600' }}>
+                  <div style={{ padding: '8px 10px', backgroundColor: 'rgba(244,63,94,0.12)', borderRadius: '8px', color: '#f43f5e', fontSize: '12px', textAlign: 'center', fontWeight: '600' }}>
                     {errorMessage}
                   </div>
                 )}
 
-                {/* Compact Keypad */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' }}>
+                {/* Sleek Touch Keypad */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginTop: '2px' }}>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                     <button
                       key={n}
                       type="button"
                       onClick={() => handleKeypadPress(n.toString())}
                       style={{
-                        padding: '8px 0',
-                        fontSize: '16px',
+                        padding: '12px 0',
+                        fontSize: '18px',
                         fontWeight: '600',
                         backgroundColor: 'var(--bg-input)',
                         color: 'var(--text-main)',
                         border: '1px solid var(--border-color)',
-                        borderRadius: '6px',
-                        cursor: 'pointer'
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        transition: 'transform 0.1s ease, background 0.1s ease'
                       }}
                     >
                       {n}
@@ -338,16 +405,17 @@ export default function AdminPortal({ onOpenStaff }) {
                     type="button"
                     onClick={handleCancel}
                     style={{
-                      padding: '8px 0',
-                      fontSize: '11px',
+                      padding: '12px 0',
+                      fontSize: '12px',
                       fontWeight: '700',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-muted)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      cursor: 'pointer'
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      transition: 'background 0.12s ease'
                     }}
-                    title="Cancel entry"
+                    title="Cancel and reset PIN"
                   >
                     Cancel
                   </button>
@@ -356,13 +424,13 @@ export default function AdminPortal({ onOpenStaff }) {
                     type="button"
                     onClick={() => handleKeypadPress('0')}
                     style={{
-                      padding: '8px 0',
-                      fontSize: '16px',
+                      padding: '12px 0',
+                      fontSize: '18px',
                       fontWeight: '600',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
+                      borderRadius: '10px',
                       cursor: 'pointer'
                     }}
                   >
@@ -373,11 +441,11 @@ export default function AdminPortal({ onOpenStaff }) {
                     type="button"
                     onClick={handleKeypadBackspace}
                     style={{
-                      padding: '8px 0',
+                      padding: '12px 0',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
+                      borderRadius: '10px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -385,16 +453,24 @@ export default function AdminPortal({ onOpenStaff }) {
                     }}
                     title="Backspace"
                   >
-                    <span style={{ fontSize: '15px', fontWeight: 'bold' }}>⌫</span>
+                    <span style={{ fontSize: '16px', fontWeight: 'bold' }}>⌫</span>
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <button
                     type="button"
                     onClick={handleCancel}
                     className="btn btn-secondary"
-                    style={{ flex: 1, padding: '9px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)' }}
+                    style={{
+                      flex: 1,
+                      padding: '11px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      borderRadius: '12px',
+                      color: 'var(--text-muted)'
+                    }}
                   >
                     Cancel
                   </button>
@@ -402,100 +478,136 @@ export default function AdminPortal({ onOpenStaff }) {
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    style={{ flex: 2, padding: '9px', fontSize: '12.5px', fontWeight: '700' }}
+                    style={{
+                      flex: 2,
+                      padding: '11px',
+                      fontSize: '13.5px',
+                      fontWeight: '700',
+                      borderRadius: '12px'
+                    }}
                   >
-                    <Lock size={13} /> Unlock
+                    <Lock size={15} /> Unlock Admin
                   </button>
                 </div>
               </form>
             ) : (
-              /* B. STAFF FORM */
-              <form onSubmit={handleStaffLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              /* B. STAFF LOGIN FORM */
+              <form onSubmit={handleStaffLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
-                  <label className="form-label" style={{ fontSize: '11px', marginBottom: '3px' }}>Employee</label>
+                  <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                    Select Employee Account
+                  </label>
                   <select
                     value={selectedStaffUser}
                     onChange={(e) => setSelectedStaffUser(e.target.value)}
                     className="form-select"
-                    style={{ height: '36px', minHeight: '36px', fontSize: '12.5px', borderRadius: '6px' }}
+                    style={{ height: '40px', minHeight: '40px', fontSize: '13px', borderRadius: '10px' }}
                   >
                     {staffList.map((s) => (
                       <option key={s.id} value={s.username}>
-                        👤 {s.name} ({s.role})
+                        👤 {s.name} ({s.role} - @{s.username})
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="form-label" style={{ fontSize: '11px', marginBottom: '3px' }}>Store</label>
+                  <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                    Assigned Store Workspace
+                  </label>
                   <select
                     value={selectedBizForStaff}
                     onChange={(e) => setSelectedBizForStaff(e.target.value)}
                     className="form-select"
-                    style={{ height: '36px', minHeight: '36px', fontSize: '12.5px', borderRadius: '6px' }}
+                    style={{ height: '40px', minHeight: '40px', fontSize: '13px', borderRadius: '10px' }}
                   >
-                    <option value="grocery">🛒 Fresh Mart Grocery</option>
-                    <option value="restaurant">🍕 Bistro 99 Restaurant</option>
-                    <option value="automotive">🚗 Apex Auto Garage</option>
-                    <option value="retail">📦 TechNova Superstore</option>
+                    <option value="grocery">🛒 Fresh Mart Grocery & Produce</option>
+                    <option value="restaurant">🍕 Bistro 99 Cafe & Restaurant</option>
+                    <option value="automotive">🚗 Apex Auto Detailing & Garage</option>
+                    <option value="retail">📦 TechNova Retail Superstore</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="form-label" style={{ fontSize: '11px', marginBottom: '3px' }}>PIN</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+                      Employee PIN / Password
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowStaffPin(!showStaffPin)}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px' }}
+                    >
+                      {showStaffPin ? <EyeOff size={13} /> : <Eye size={13} />}
+                      <span>{showStaffPin ? 'Hide' : 'Show'}</span>
+                    </button>
+                  </div>
+
                   <div style={{ position: 'relative' }}>
                     <input
                       type={showStaffPin ? "text" : "password"}
                       maxLength={8}
                       required
-                      placeholder="Enter PIN"
+                      placeholder="••••"
                       value={staffPinInput}
                       onChange={(e) => setStaffPinInput(e.target.value)}
                       className="form-input mono"
                       style={{
-                        fontSize: '18px',
-                        letterSpacing: showStaffPin ? '2px' : '6px',
+                        fontSize: '20px',
+                        letterSpacing: showStaffPin ? '3px' : '8px',
                         textAlign: 'center',
-                        padding: '6px 36px 6px 12px',
-                        height: '40px',
+                        padding: '8px 12px',
+                        height: '42px',
                         fontWeight: '800',
-                        borderRadius: '6px'
+                        borderRadius: '10px',
+                        backgroundColor: 'var(--bg-input)'
                       }}
                       autoFocus
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowStaffPin(!showStaffPin)}
-                      style={{ position: 'absolute', right: '10px', top: '11px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-                      title={showStaffPin ? "Hide PIN" : "Show PIN"}
-                    >
-                      {showStaffPin ? <EyeOff size={15} /> : <Eye size={15} />}
-                    </button>
+                  </div>
+
+                  {/* PIN Dots Indicator */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
+                    {[0, 1, 2, 3].map((idx) => {
+                      const isFilled = staffPinInput.length > idx;
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            width: '9px',
+                            height: '9px',
+                            borderRadius: '50%',
+                            backgroundColor: isFilled ? '#3b82f6' : 'var(--border-color)',
+                            transform: isFilled ? 'scale(1.2)' : 'scale(1)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
 
                 {errorMessage && (
-                  <div style={{ padding: '6px 8px', backgroundColor: 'rgba(244,63,94,0.12)', borderRadius: '6px', color: '#f43f5e', fontSize: '11.5px', textAlign: 'center', fontWeight: '600' }}>
+                  <div style={{ padding: '8px 10px', backgroundColor: 'rgba(244,63,94,0.12)', borderRadius: '8px', color: '#f43f5e', fontSize: '12px', textAlign: 'center', fontWeight: '600' }}>
                     {errorMessage}
                   </div>
                 )}
 
                 {/* Touch Keypad */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginTop: '2px' }}>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                     <button
                       key={n}
                       type="button"
                       onClick={() => handleKeypadPress(n.toString())}
                       style={{
-                        padding: '8px 0',
-                        fontSize: '16px',
+                        padding: '11px 0',
+                        fontSize: '18px',
                         fontWeight: '600',
                         backgroundColor: 'var(--bg-input)',
                         color: 'var(--text-main)',
                         border: '1px solid var(--border-color)',
-                        borderRadius: '6px',
+                        borderRadius: '10px',
                         cursor: 'pointer'
                       }}
                     >
@@ -507,13 +619,13 @@ export default function AdminPortal({ onOpenStaff }) {
                     type="button"
                     onClick={handleCancel}
                     style={{
-                      padding: '8px 0',
-                      fontSize: '11px',
+                      padding: '11px 0',
+                      fontSize: '12px',
                       fontWeight: '700',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-muted)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
+                      borderRadius: '10px',
                       cursor: 'pointer'
                     }}
                     title="Cancel and switch back to Admin"
@@ -525,13 +637,13 @@ export default function AdminPortal({ onOpenStaff }) {
                     type="button"
                     onClick={() => handleKeypadPress('0')}
                     style={{
-                      padding: '8px 0',
-                      fontSize: '16px',
+                      padding: '11px 0',
+                      fontSize: '18px',
                       fontWeight: '600',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
+                      borderRadius: '10px',
                       cursor: 'pointer'
                     }}
                   >
@@ -542,11 +654,11 @@ export default function AdminPortal({ onOpenStaff }) {
                     type="button"
                     onClick={handleKeypadBackspace}
                     style={{
-                      padding: '8px 0',
+                      padding: '11px 0',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
+                      borderRadius: '10px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -554,16 +666,23 @@ export default function AdminPortal({ onOpenStaff }) {
                     }}
                     title="Backspace"
                   >
-                    <span style={{ fontSize: '15px', fontWeight: 'bold' }}>⌫</span>
+                    <span style={{ fontSize: '16px', fontWeight: 'bold' }}>⌫</span>
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <button
                     type="button"
                     onClick={handleCancel}
                     className="btn btn-secondary"
-                    style={{ flex: 1, padding: '9px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)' }}
+                    style={{
+                      flex: 1,
+                      padding: '11px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      borderRadius: '12px',
+                      color: 'var(--text-muted)'
+                    }}
                   >
                     Cancel
                   </button>
@@ -571,9 +690,17 @@ export default function AdminPortal({ onOpenStaff }) {
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    style={{ flex: 2, padding: '9px', fontSize: '12.5px', fontWeight: '700', backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+                    style={{
+                      flex: 2,
+                      padding: '11px',
+                      fontSize: '13.5px',
+                      fontWeight: '700',
+                      backgroundColor: '#3b82f6',
+                      borderColor: '#3b82f6',
+                      borderRadius: '12px'
+                    }}
                   >
-                    <UserCheck size={14} /> Sign In
+                    <UserCheck size={16} /> Sign In
                   </button>
                 </div>
               </form>
@@ -581,21 +708,21 @@ export default function AdminPortal({ onOpenStaff }) {
 
           </div>
         ) : (
-          /* STEP 2: MINIMAL WORKSPACE SELECTOR */
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          /* STEP 2: STORE WORKSPACE SELECTION (FOR ADMIN) */
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#10b981', fontSize: '12px', fontWeight: '700' }}>
-                <CheckCircle2 size={14} /> Admin Unlocked
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#10b981', fontSize: '12px', fontWeight: '700' }}>
+                <CheckCircle2 size={15} /> Master Admin Verified
               </div>
-              <h2 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: '2px 0 0 0' }}>
-                Select Store
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', margin: '4px 0 0 0' }}>
+                Select Store Workspace
               </h2>
             </div>
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: '8px'
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+              gap: '12px'
             }}>
               {businessCards.map((biz) => {
                 const Icon = biz.icon;
@@ -606,41 +733,58 @@ export default function AdminPortal({ onOpenStaff }) {
                     onClick={() => handleLaunchBusiness(biz.id)}
                     className="glass-panel card-hover"
                     style={{
-                      padding: '12px',
+                      padding: '16px',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '8px',
+                      gap: '10px',
                       cursor: 'pointer',
-                      border: `1px solid var(--border-color)`,
-                      borderRadius: '10px',
-                      backgroundColor: 'var(--bg-card)'
+                      border: `1.5px solid var(--border-color)`,
+                      borderRadius: '14px',
+                      backgroundColor: 'var(--bg-card)',
+                      transition: 'all 0.15s ease'
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{
-                        width: '30px',
-                        height: '30px',
-                        borderRadius: '8px',
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
                         backgroundColor: 'var(--bg-input)',
                         color: biz.color,
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        boxShadow: 'var(--shadow-sm)'
                       }}>
-                        <Icon size={16} />
+                        <Icon size={20} />
                       </div>
-                      <span className="badge" style={{ backgroundColor: 'var(--bg-input)', color: biz.color, fontSize: '9px', padding: '1px 5px' }}>
+                      <span className="badge" style={{ backgroundColor: 'var(--bg-input)', color: biz.color, border: `1px solid ${biz.color}`, fontSize: '10px', padding: '2px 7px' }}>
                         {biz.badge}
                       </span>
                     </div>
 
-                    <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {biz.title}
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)' }}>
+                        {biz.title}
+                      </div>
+                      <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        {biz.desc}
+                      </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: biz.color, fontWeight: '700', fontSize: '11px', marginTop: 'auto' }}>
-                      <span>Launch</span>
-                      <ArrowRight size={11} />
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      color: biz.color,
+                      fontWeight: '700',
+                      fontSize: '12.5px',
+                      marginTop: 'auto',
+                      paddingTop: '6px',
+                      borderTop: '1px solid var(--border-color)'
+                    }}>
+                      <span>Launch Store Register</span>
+                      <ArrowRight size={14} />
                     </div>
                   </div>
                 );
@@ -656,14 +800,14 @@ export default function AdminPortal({ onOpenStaff }) {
               className="btn btn-secondary"
               style={{
                 width: '100%',
-                padding: '11px',
+                padding: '12px',
                 fontSize: '13px',
                 fontWeight: '700',
                 gap: '8px',
                 color: '#10b981',
                 borderColor: 'rgba(16,185,129,0.3)',
-                backgroundColor: 'rgba(16,185,129,0.06)',
-                borderRadius: '10px'
+                backgroundColor: 'rgba(16,185,129,0.08)',
+                borderRadius: '12px'
               }}
               title="Add Employees, Assign Passwords & Track Shifts"
             >
