@@ -12,7 +12,6 @@ import {
   Moon, 
   Users, 
   UserCheck, 
-  Delete, 
   Eye, 
   EyeOff,
   Sparkles,
@@ -161,12 +160,15 @@ export default function AdminPortal() {
   return (
     <div style={{
       minHeight: '100vh',
+      width: '100%',
       backgroundColor: 'var(--bg-main)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
-      padding: isMobile ? '16px 12px' : '36px 20px',
+      justifyContent: isMobile ? 'flex-start' : 'center',
+      padding: isMobile ? '20px 12px 32px 12px' : '36px 20px',
+      overflowY: 'auto',
+      boxSizing: 'border-box',
       position: 'relative'
     }}>
       {/* Day / Night Toggle Top Right */}
@@ -418,8 +420,9 @@ export default function AdminPortal() {
                       type="button"
                       onClick={handleKeypadBackspace}
                       style={{ padding: '10px', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Backspace"
                     >
-                      <Delete size={18} />
+                      <span style={{ fontSize: '18px', fontWeight: 'bold' }}>⌫</span>
                     </button>
                   </div>
                 )}

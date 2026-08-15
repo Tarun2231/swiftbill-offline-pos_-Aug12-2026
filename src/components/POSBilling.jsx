@@ -738,7 +738,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   {/* Price */}
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
                     <span className="mono" style={{ fontSize: isMobile ? '14px' : '15px', fontWeight: '800', color: 'var(--text-main)' }}>
-                      {settings.currency}{prod.price.toLocaleString()}
+                      {settings.currency}{(prod?.price || 0).toLocaleString()}
                     </span>
                     <span className="mono" style={{ fontSize: '10.5px', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                       {settings.currency}{fakeMrp}
@@ -1800,13 +1800,15 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
             <button
               onClick={() => {
-                addToCart(weighingProduct, netWeight);
-                setWeighingProduct(null);
+                if (weighingProduct) {
+                  addToCart(weighingProduct, netWeight);
+                  setWeighingProduct(null);
+                }
               }}
               className="btn btn-primary"
               style={{ width: '100%', padding: '9px', fontSize: '13px', fontWeight: '700' }}
             >
-              Add {netWeight}{weighingProduct.unit} ({settings.currency}{calculatedWeightPrice.toLocaleString()}) to Bill
+              Add {netWeight}{weighingProduct?.unit || 'kg'} ({settings.currency}{(calculatedWeightPrice || 0).toLocaleString()}) to Bill
             </button>
           </div>
         </div>
