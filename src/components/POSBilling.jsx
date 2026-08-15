@@ -61,7 +61,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const isAdmin = auth?.role === 'admin' || currentUser?.role === 'Master Admin';
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All Items');
   const [cart, setCart] = useState([]);
   
   // Mobile Screen State & Tab View
@@ -175,11 +175,17 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     return '🍽️';
   };
 
+  useEffect(() => {
+    setSelectedCategory('All Items');
+    setSearchQuery('');
+  }, [activeBusinessId]);
+
   // Filtered Products
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const matchCat = selectedCategory === 'All Items' || p.category === selectedCategory;
+      const matchCat = !selectedCategory || selectedCategory === 'All Items' || selectedCategory === 'All' || p.category === selectedCategory;
       const matchSearch =
+        !searchQuery.trim() ||
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.sku.toLowerCase().includes(searchQuery.toLowerCase());
       return matchCat && matchSearch;
