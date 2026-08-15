@@ -25,7 +25,8 @@ import {
   X,
   ArrowRightLeft,
   KeyRound,
-  UserCheck
+  UserCheck,
+  ShieldCheck
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 

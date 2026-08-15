@@ -26,16 +26,18 @@ import {
   Package, 
   Plus, 
   X, 
-  Store,
-  Menu,
-  Sun,
-  Moon,
-  Receipt,
-  ArrowRightLeft,
-  ChevronRight,
-  UserCheck,
-  LogOut,
-  User 
+  Store, 
+  Menu, 
+  Sun, 
+  Moon, 
+  Receipt, 
+  ArrowRightLeft, 
+  ChevronRight, 
+  UserCheck, 
+  LogOut, 
+  User, 
+  Users, 
+  ShieldCheck 
 } from 'lucide-react';
 
 function MainApp() {
