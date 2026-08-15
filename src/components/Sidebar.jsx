@@ -50,7 +50,7 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
   const activeKOTCount = (kitchenOrders || []).filter(k => k.status !== 'Served').length;
   const activeJobsCount = (serviceJobs || []).filter(j => j.status !== 'Delivered').length;
 
-  const allNavItems = [
+  const posNavItems = [
     { id: 'pos', label: 'POS Billing', icon: ShoppingBag, badge: 'F2' },
     
     // Restaurant Specific Navigation
@@ -70,18 +70,15 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
     { id: 'returns', label: 'Returns & Credit Notes', icon: RotateCcw },
     { id: 'shift', label: 'Cash Shift & Z-Report', icon: Banknote },
     { id: 'customers', label: 'Customer Ledger', icon: Users },
-    { id: 'barcode', label: 'Barcode Generator', icon: Barcode },
-
-    // ADMIN ONLY PANELS (Hidden from regular employee view)
-    ...(isAdmin ? [
-      { id: 'staff', label: 'Staff Accounts & PINs', icon: Users, badge: '+ Add', adminOnly: true },
-      { id: 'expenses', label: 'Expense Tracker', icon: DollarSign, adminOnly: true },
-      { id: 'reports', label: 'Sales Analytics', icon: BarChart3, adminOnly: true },
-      { id: 'settings', label: 'Store Settings', icon: Settings, adminOnly: true }
-    ] : [])
+    { id: 'barcode', label: 'Barcode Generator', icon: Barcode }
   ];
 
-  const baseNavItems = allNavItems;
+  const adminNavItems = [
+    { id: 'staff', label: 'Staff Accounts & PINs', icon: Users, badge: '+ Add' },
+    { id: 'expenses', label: 'Expense Tracker', icon: DollarSign },
+    { id: 'reports', label: 'Sales Analytics', icon: BarChart3 },
+    { id: 'settings', label: 'Store Settings', icon: Settings }
+  ];
 
   const handleNavClick = (id) => {
     setActiveTab(id);
@@ -286,49 +283,117 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
 
         {/* Navigation List */}
         <nav style={{ padding: '8px 8px', flex: 1, display: 'flex', flexDirection: 'column', gap: '3px', overflowY: 'auto' }}>
-          {baseNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  padding: '9px 12px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: 'none',
-                  background: isActive ? 'var(--instamart-green-light)' : 'transparent',
-                  color: isActive ? 'var(--instamart-green)' : 'var(--text-muted)',
-                  fontWeight: isActive ? '700' : '500',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  borderLeft: isActive ? '3px solid var(--instamart-green)' : '3px solid transparent',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Icon size={17} color={isActive ? 'var(--instamart-green)' : 'var(--text-muted)'} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge && (
-                  <span style={{
-                    fontSize: '10px',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    backgroundColor: isActive ? 'rgba(12,131,31,0.2)' : 'var(--bg-input)',
-                    color: isActive ? 'var(--instamart-green)' : 'var(--text-dim)',
-                    fontWeight: '700'
-                  }}>
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          {/* Main POS Operations */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {posNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: 'none',
+                    background: isActive ? 'var(--instamart-green-light)' : 'transparent',
+                    color: isActive ? 'var(--instamart-green)' : 'var(--text-muted)',
+                    fontWeight: isActive ? '700' : '500',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    borderLeft: isActive ? '3px solid var(--instamart-green)' : '3px solid transparent',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Icon size={17} color={isActive ? 'var(--instamart-green)' : 'var(--text-muted)'} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span style={{
+                      fontSize: '10px',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      backgroundColor: isActive ? 'rgba(12,131,31,0.2)' : 'var(--bg-input)',
+                      color: isActive ? 'var(--instamart-green)' : 'var(--text-dim)',
+                      fontWeight: '700'
+                    }}>
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* MASTER & ADMIN PANEL (Only visible when logged in as Master Admin) */}
+          {isAdmin && (
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <div style={{
+                padding: '4px 10px 4px 10px',
+                fontSize: '10px',
+                fontWeight: '800',
+                color: '#10b981',
+                textTransform: 'uppercase',
+                letterSpacing: '0.6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}>
+                <ShieldCheck size={12} color="#10b981" />
+                <span>Master & Admin Panel</span>
+              </div>
+
+              {adminNavItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                const isStaffTab = item.id === 'staff';
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      padding: '9px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: 'none',
+                      background: isActive ? 'var(--instamart-green-light)' : (isStaffTab ? 'rgba(16,185,129,0.04)' : 'transparent'),
+                      color: isActive ? 'var(--instamart-green)' : (isStaffTab ? 'var(--text-main)' : 'var(--text-muted)'),
+                      fontWeight: (isActive || isStaffTab) ? '700' : '500',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      borderLeft: isActive ? '3px solid var(--instamart-green)' : (isStaffTab ? '3px solid #10b981' : '3px solid transparent'),
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <Icon size={17} color={isActive ? 'var(--instamart-green)' : (isStaffTab ? '#10b981' : 'var(--text-muted)')} />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span style={{
+                        fontSize: '9.5px',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        backgroundColor: 'rgba(16,185,129,0.15)',
+                        color: '#10b981',
+                        fontWeight: '800'
+                      }}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </nav>
 
         {/* Footer Actions */}
@@ -344,23 +409,23 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
             <>
               <div style={{ display: 'flex', gap: '6px' }}>
                 <button
-                  onClick={() => handleNavClick('settings')}
+                  onClick={() => handleNavClick('staff')}
                   className="btn btn-secondary"
-                  style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
-                  title="Change Admin PIN / Password"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '700', gap: '4px', color: '#10b981' }}
+                  title="Add & Manage Staff Accounts & Set PINs"
                 >
-                  <KeyRound size={13} color="#10b981" />
-                  Change PIN
+                  <Users size={13} color="#10b981" />
+                  Staff & PINs
                 </button>
 
                 <button
-                  onClick={exportDataJSON}
+                  onClick={() => handleNavClick('settings')}
                   className="btn btn-secondary"
                   style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
-                  title="Export JSON Backup"
+                  title="Store Settings & Admin PIN"
                 >
-                  <HardDriveDownload size={13} />
-                  JSON Backup
+                  <Settings size={13} />
+                  Settings
                 </button>
               </div>
 
