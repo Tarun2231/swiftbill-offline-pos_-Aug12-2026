@@ -4,6 +4,37 @@ const BillingContext = createContext();
 
 const STORAGE_KEY = 'SWIFTBILL_MULTI_BUSINESS_V4';
 
+const safeStorage = {
+  getItem: (key) => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return window.localStorage.getItem(key);
+      }
+    } catch (e) {
+      console.warn('localStorage read error:', e);
+    }
+    return null;
+  },
+  setItem: (key, val) => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(key, val);
+      }
+    } catch (e) {
+      console.warn('localStorage write error:', e);
+    }
+  },
+  removeItem: (key) => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem(key);
+      }
+    } catch (e) {
+      console.warn('localStorage remove error:', e);
+    }
+  }
+};
+
 // Default Business Templates
 const INITIAL_BUSINESS_TEMPLATES = {
   grocery: {
@@ -112,7 +143,7 @@ const INITIAL_BUSINESS_TEMPLATES = {
 
 export const BillingProvider = ({ children }) => {
   const [data, setData] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = safeStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -283,8 +314,10 @@ export const BillingProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      document.documentElement.setAttribute('data-theme', data.theme || 'dark');
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (typeof document !== 'undefined') {
+        document.documentElement.setAttribute('data-theme', data.theme || 'dark');
+      }
     } catch (e) {
       console.error('Failed to save to localStorage:', e);
     }
@@ -1149,8 +1182,10 @@ export const BillingProvider = ({ children }) => {
   };
 
   const resetToDefaults = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    window.location.reload();
+    safeStorage.removeItem(STORAGE_KEY);
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
   };
 
   return (
