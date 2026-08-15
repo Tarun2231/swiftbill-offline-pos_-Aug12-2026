@@ -265,20 +265,33 @@ export default function CustomerLedger() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '8px', paddingTop: '2px' }}>
+                  <div style={{ display: 'flex', gap: '6px', paddingTop: '2px', flexWrap: 'wrap' }}>
                     <button
                       onClick={() => setSelectedCustForHistory(c)}
                       className="btn btn-secondary"
-                      style={{ flex: 1, padding: '7px 10px', fontSize: '12px' }}
+                      style={{ flex: 1, padding: '7px 10px', fontSize: '11.5px' }}
                     >
-                      <History size={14} /> Orders & Purchases ({pastInvoices.length})
+                      <History size={13} /> Orders ({pastInvoices.length})
                     </button>
+
+                    {hasDue && c.phone && c.phone !== '-' && (
+                      <a
+                        href={`https://wa.me/${c.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${c.name}, this is a gentle payment reminder from ${settings.storeName || 'our store'}. Your outstanding balance is ${settings.currency}${c.balance}. Kindly clear at your earliest convenience. Thank you!`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary"
+                        style={{ padding: '7px 10px', fontSize: '11.5px', color: '#25D366', borderColor: 'rgba(37,211,102,0.3)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        title="Send WhatsApp Payment Reminder"
+                      >
+                        📱 WhatsApp
+                      </a>
+                    )}
 
                     {hasDue && (
                       <button
                         onClick={() => setSelectedCustForPayment(c)}
                         className="btn btn-primary"
-                        style={{ padding: '7px 12px', fontSize: '12px' }}
+                        style={{ padding: '7px 10px', fontSize: '11.5px', fontWeight: '700' }}
                       >
                         <DollarSign size={13} /> Settle Due
                       </button>
@@ -346,6 +359,18 @@ export default function CustomerLedger() {
 
                         <td style={{ padding: '14px 18px', textAlign: 'right' }}>
                           <div style={{ display: 'inline-flex', gap: '6px' }}>
+                            {hasDue && c.phone && c.phone !== '-' && (
+                              <a
+                                href={`https://wa.me/${c.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${c.name}, this is a gentle payment reminder from ${settings.storeName || 'our store'}. Your outstanding balance is ${settings.currency}${c.balance}. Kindly clear at your earliest convenience. Thank you!`)}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-secondary"
+                                style={{ padding: '6px 10px', fontSize: '11.5px', color: '#25D366', borderColor: 'rgba(37,211,102,0.3)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                title="Send WhatsApp Payment Reminder"
+                              >
+                                📱 Reminder
+                              </a>
+                            )}
                             {hasDue ? (
                               <button
                                 onClick={() => setSelectedCustForPayment(c)}

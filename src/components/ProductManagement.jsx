@@ -13,7 +13,8 @@ import {
 import { useBilling } from '../context/BillingContext';
 
 export default function ProductManagement() {
-  const { products, addProduct, updateProduct, deleteProduct, settings, activeBusinessId } = useBilling();
+  const { auth, currentUser, products, addProduct, updateProduct, deleteProduct, settings, activeBusinessId } = useBilling();
+  const isAdmin = auth?.role === 'admin' || currentUser?.role === 'Master Admin';
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -210,9 +211,11 @@ export default function ProductManagement() {
           gridColumn: isMobile ? 'span 2' : 'auto'
         }}>
           <div>
-            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Total Inventory Valuation</span>
+            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>
+              {isAdmin ? 'Total Inventory Valuation' : 'Catalog In-Stock Items'}
+            </span>
             <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#3b82f6', margin: 0 }}>
-              {settings.currency}{Math.round(totalValuation).toLocaleString()}
+              {isAdmin ? `${settings.currency}${Math.round(totalValuation).toLocaleString()}` : `${products.filter(p => p.stock > 0).length} Available`}
             </h3>
           </div>
         </div>
@@ -389,7 +392,9 @@ export default function ProductManagement() {
                   <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700' }}>ITEM</th>
                   <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700' }}>CATEGORY</th>
                   <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'right' }}>SELLING PRICE</th>
-                  <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'right' }}>COST PRICE</th>
+                  {isAdmin && (
+                    <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'right' }}>COST PRICE</th>
+                  )}
                   <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'center' }}>STOCK</th>
                   <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'center' }}>TAX %</th>
                   <th style={{ padding: '12px 16px', fontSize: '12px', color: 'var(--text-muted)', fontWeight: '700', textAlign: 'right' }}>ACTIONS</th>
@@ -398,7 +403,7 @@ export default function ProductManagement() {
               <tbody>
                 {filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ padding: '36px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '13px' }}>
+                    <td colSpan={isAdmin ? 7 : 6} style={{ padding: '36px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '13px' }}>
                       No inventory items found matching your search.
                     </td>
                   </tr>
@@ -432,9 +437,11 @@ export default function ProductManagement() {
                           {settings.currency}{p.price}/{p.unit}
                         </td>
 
-                        <td style={{ padding: '12px 16px', fontSize: '12.5px', color: 'var(--text-muted)', textAlign: 'right' }} className="mono">
-                          {settings.currency}{p.purchaseCost || 0}
-                        </td>
+                        {isAdmin && (
+                          <td style={{ padding: '12px 16px', fontSize: '12.5px', color: 'var(--text-muted)', textAlign: 'right' }} className="mono">
+                            {settings.currency}{p.purchaseCost || 0}
+                          </td>
+                        )}
 
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                           <span className={`badge badge-${isLow ? 'danger' : 'success'}`} style={{ fontSize: '11px' }}>
