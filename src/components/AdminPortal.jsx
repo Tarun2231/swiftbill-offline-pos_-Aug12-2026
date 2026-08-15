@@ -15,7 +15,8 @@ import {
   Delete, 
   Eye, 
   EyeOff,
-  Sparkles
+  Sparkles,
+  X
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -23,6 +24,7 @@ export default function AdminPortal() {
   const { 
     login, 
     staffLogin, 
+    skipLogin,
     adminPin, 
     staffMembers, 
     businesses, 
@@ -235,6 +237,23 @@ export default function AdminPortal() {
             boxShadow: 'var(--shadow-lg)'
           }}>
             
+            {/* Top Bar with Cancel */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Authentication Terminal
+              </span>
+
+              <button
+                type="button"
+                onClick={skipLogin}
+                className="btn btn-secondary"
+                style={{ padding: '3px 8px', fontSize: '11px', height: '24px', gap: '3px', fontWeight: '600' }}
+                title="Cancel and continue to POS Counter"
+              >
+                <X size={12} /> Cancel
+              </button>
+            </div>
+
             {/* LOGIN MODE TABS (ADMIN vs EMPLOYEE) */}
             <div style={{
               display: 'grid',
@@ -386,13 +405,31 @@ export default function AdminPortal() {
                   </div>
                 )}
 
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ width: '100%', padding: '10px', fontSize: '13.5px', fontWeight: '700' }}
-                >
-                  <Lock size={15} /> Unlock Admin Portal
-                </button>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={skipLogin}
+                    className="btn btn-secondary"
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      color: 'var(--text-muted)'
+                    }}
+                    title="Skip login and enter POS counter"
+                  >
+                    <X size={14} /> Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ flex: 2, padding: '10px', fontSize: '13.5px', fontWeight: '700' }}
+                  >
+                    <Lock size={15} /> Unlock Admin Portal
+                  </button>
+                </div>
               </form>
             ) : (
               /* B. EMPLOYEE / CASHIER LOGIN FORM */
@@ -474,13 +511,31 @@ export default function AdminPortal() {
                   </div>
                 )}
 
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ width: '100%', padding: '10px', fontSize: '13.5px', fontWeight: '700', backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
-                >
-                  <UserCheck size={16} /> Start Employee Shift & Open POS
-                </button>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={skipLogin}
+                    className="btn btn-secondary"
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      color: 'var(--text-muted)'
+                    }}
+                    title="Skip login and enter POS counter"
+                  >
+                    <X size={14} /> Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ flex: 2, padding: '10px', fontSize: '13.5px', fontWeight: '700', backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+                  >
+                    <UserCheck size={16} /> Start Shift & Open POS
+                  </button>
+                </div>
               </form>
             )}
 

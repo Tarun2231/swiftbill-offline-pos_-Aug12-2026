@@ -341,6 +341,18 @@ export const BillingProvider = ({ children }) => {
     }));
   };
 
+  const skipLogin = () => {
+    setData((prev) => ({
+      ...prev,
+      auth: {
+        ...prev.auth,
+        isAuthenticated: true,
+        role: 'staff',
+        currentUser: { id: 'counter', name: 'Counter Staff', username: 'counter', role: 'Cashier' }
+      }
+    }));
+  };
+
   const changePin = (currentPin, newPin) => {
     const activePin = data.auth?.pin || '1234';
     if (currentPin !== activePin) {
@@ -1162,6 +1174,7 @@ export const BillingProvider = ({ children }) => {
         adminPin: data.auth?.pin || '1234',
         login,
         staffLogin,
+        skipLogin,
         logout,
         changePin,
         addStaffMember,
