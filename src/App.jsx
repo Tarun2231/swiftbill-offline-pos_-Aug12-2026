@@ -131,20 +131,44 @@ function MainApp() {
     <div className="app-container" data-theme={theme}>
       
       {/* Mobile Sticky Navigation Header (<= 900px) */}
-      <header className="mobile-topbar">
+      <header className="mobile-topbar" style={{
+        padding: '8px 14px',
+        minHeight: '48px',
+        backgroundColor: 'var(--bg-sidebar)',
+        borderBottom: '1px solid var(--border-color)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'sticky',
+        top: 0,
+        zIndex: 40,
+        backdropFilter: 'blur(10px)'
+      }}>
+        {/* Left: Menu & Store Identity */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
           <button 
             onClick={() => setIsMobileNavOpen(true)} 
             className="btn-icon" 
-            style={{ padding: '6px' }}
+            style={{
+              padding: '6px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--bg-input)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
             title="Open Menu"
           >
-            <Menu size={20} color="var(--text-main)" />
+            <Menu size={18} />
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-            <span style={{ color: bizColor }}>{getBusinessIcon(activeBusinessId, 16)}</span>
-            <div style={{ minWidth: 0 }}>
+            <span style={{ color: bizColor, display: 'flex', alignItems: 'center' }}>
+              {getBusinessIcon(activeBusinessId, 15)}
+            </span>
+            <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
               <div style={{
                 fontSize: '13px',
                 fontWeight: '800',
@@ -152,20 +176,23 @@ function MainApp() {
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                maxWidth: '140px'
+                maxWidth: '130px',
+                lineHeight: '1.2'
               }}>
                 {settings.storeName}
               </div>
-              <div style={{ fontSize: '10px', color: bizColor, fontWeight: '700', lineHeight: '1' }}>
+              <div style={{ fontSize: '9.5px', color: bizColor, fontWeight: '700', lineHeight: '1' }}>
                 {tabTitles[activeTab]?.split('&')[0]}
               </div>
             </div>
           </div>
         </div>
 
+        {/* Right: User Pill & Utility Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          {/* User Session Pill (1-Tap Switch User / Account) */}
-          <div
+          {/* User Session Pill */}
+          <button
+            type="button"
             onClick={() => setShowSwitchUserModal(true)}
             style={{
               padding: '4px 8px',
@@ -174,69 +201,66 @@ function MainApp() {
               border: '1px solid var(--border-color)',
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '5px',
               cursor: 'pointer',
               fontSize: '11px',
               fontWeight: '700',
               color: 'var(--text-main)'
             }}
-            title="Click to Switch User / Account (Cancellable anytime)"
+            title="Switch User / Account"
           >
             <div style={{
-              width: '14px',
-              height: '14px',
+              width: '16px',
+              height: '16px',
               borderRadius: '50%',
               backgroundColor: isAdmin ? '#10b981' : '#3b82f6',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '8px',
+              fontSize: '8.5px',
               fontWeight: '800'
             }}>
               {(currentUser?.name || 'A').charAt(0).toUpperCase()}
             </div>
-            <span style={{ maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {currentUser?.name?.split(' ')[0] || 'Staff'}
+            <span style={{ maxWidth: '70px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {currentUser?.name?.split(' ')[0] || 'User'}
             </span>
-            <span style={{ fontSize: '9px', color: 'var(--text-dim)' }}>▼</span>
-          </div>
+            <span style={{ fontSize: '8px', color: 'var(--text-dim)' }}>▼</span>
+          </button>
 
+          {/* Quick Store Switch Button */}
           {isAdmin && (
-            <>
-              <button
-                onClick={() => setActiveTab('staff')}
-                className="btn btn-secondary"
-                style={{
-                  padding: '5px 8px',
-                  fontSize: '11px',
-                  fontWeight: '700',
-                  gap: '4px',
-                  backgroundColor: activeTab === 'staff' ? 'rgba(16,185,129,0.15)' : 'var(--bg-input)',
-                  borderColor: activeTab === 'staff' ? '#10b981' : 'var(--border-color)',
-                  color: activeTab === 'staff' ? '#10b981' : 'var(--text-main)'
-                }}
-                title="Manage Staff Accounts & Set PINs"
-              >
-                <Users size={12} color="#10b981" /> Staff
-              </button>
-
-              <button
-                onClick={() => setShowSwitchBusinessModal(true)}
-                className="btn btn-secondary"
-                style={{ padding: '5px 8px', fontSize: '11px', fontWeight: '700', gap: '4px' }}
-              >
-                <ArrowRightLeft size={12} color={bizColor} /> Switch
-              </button>
-            </>
+            <button
+              onClick={() => setShowSwitchBusinessModal(true)}
+              className="btn-icon"
+              style={{
+                padding: '6px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--bg-input)',
+                border: '1px solid var(--border-color)',
+                color: bizColor
+              }}
+              title="Switch Store Workspace"
+            >
+              <ArrowRightLeft size={14} />
+            </button>
           )}
 
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="btn-icon"
-            style={{ padding: '5px', color: theme === 'dark' ? '#fbbf24' : '#3b82f6' }}
+            style={{
+              padding: '6px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--bg-input)',
+              border: '1px solid var(--border-color)',
+              color: theme === 'dark' ? '#fbbf24' : '#3b82f6'
+            }}
+            title="Toggle Theme"
           >
-            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
           </button>
         </div>
       </header>
