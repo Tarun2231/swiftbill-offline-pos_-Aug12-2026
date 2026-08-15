@@ -16,7 +16,7 @@ import {
 import { useBilling } from '../context/BillingContext';
 
 export default function AdminPortal() {
-  const { login, businesses, switchBusiness, theme, toggleTheme } = useBilling();
+  const { login, adminPin, businesses, switchBusiness, theme, toggleTheme } = useBilling();
 
   const [pinInput, setPinInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -42,10 +42,10 @@ export default function AdminPortal() {
   };
 
   const handleKeypadPress = (num) => {
-    if (pinInput.length < 6) {
+    if (pinInput.length < 8) {
       const nextPin = pinInput + num;
       setPinInput(nextPin);
-      if (nextPin.length === 4 && nextPin === '1234') {
+      if (nextPin.length >= 4 && nextPin === adminPin) {
         const result = login(nextPin);
         if (result.success) {
           setUnlocked(true);
@@ -61,7 +61,7 @@ export default function AdminPortal() {
 
   const handleLaunchBusiness = (businessId) => {
     switchBusiness(businessId);
-    login('1234');
+    login(adminPin);
   };
 
   const businessCards = [

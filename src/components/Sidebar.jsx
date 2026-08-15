@@ -23,7 +23,8 @@ import {
   Banknote, 
   LayoutGrid,
   X,
-  ArrowRightLeft
+  ArrowRightLeft,
+  KeyRound
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -251,32 +252,45 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
           })}
         </nav>
 
-        {/* Footer Quick Backup & Admin Lock */}
+        {/* Footer Quick PIN Change & Admin Lock */}
         <div style={{
           padding: '10px 12px',
           borderTop: '1px solid var(--border-color)',
           backgroundColor: 'var(--bg-input)',
           display: 'flex',
-          gap: '8px'
+          flexDirection: 'column',
+          gap: '6px'
         }}>
-          <button
-            onClick={exportDataJSON}
-            className="btn btn-secondary"
-            style={{ flex: 1, fontSize: '11.5px', padding: '7px 10px', height: '32px', fontWeight: '600' }}
-            title="Export JSON Backup"
-          >
-            <HardDriveDownload size={14} />
-            JSON Backup
-          </button>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button
+              onClick={() => handleNavClick('settings')}
+              className="btn btn-secondary"
+              style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
+              title="Change Admin PIN / Password"
+            >
+              <KeyRound size={13} color="#10b981" />
+              Change PIN
+            </button>
+
+            <button
+              onClick={exportDataJSON}
+              className="btn btn-secondary"
+              style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
+              title="Export JSON Backup"
+            >
+              <HardDriveDownload size={13} />
+              JSON Backup
+            </button>
+          </div>
 
           <button
             onClick={logout}
             className="btn btn-danger"
-            style={{ flex: 1, fontSize: '11.5px', padding: '7px 10px', height: '32px', fontWeight: '600' }}
+            style={{ width: '100%', fontSize: '11.5px', padding: '6px 10px', height: '30px', fontWeight: '600', gap: '4px' }}
             title="Lock Admin Session"
           >
-            <LogOut size={14} />
-            Lock
+            <LogOut size={13} />
+            Lock Admin Session
           </button>
         </div>
       </aside>

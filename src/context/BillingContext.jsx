@@ -264,14 +264,15 @@ export const BillingProvider = ({ children }) => {
 
   // Auth & Admin Actions
   const login = (inputPin) => {
-    if (inputPin === (data.auth?.pin || '1234')) {
+    const activePin = data.auth?.pin || '1234';
+    if (inputPin === activePin) {
       setData((prev) => ({
         ...prev,
         auth: { ...prev.auth, isAuthenticated: true }
       }));
       return { success: true };
     }
-    return { success: false, message: 'Invalid Admin PIN. (Default: 1234)' };
+    return { success: false, message: 'Invalid Admin PIN / Password.' };
   };
 
   const logout = () => {
@@ -279,6 +280,23 @@ export const BillingProvider = ({ children }) => {
       ...prev,
       auth: { ...prev.auth, isAuthenticated: false }
     }));
+  };
+
+  const changePin = (currentPin, newPin) => {
+    const activePin = data.auth?.pin || '1234';
+    if (currentPin !== activePin) {
+      return { success: false, message: 'Current Admin PIN / Password is incorrect.' };
+    }
+    if (!newPin || newPin.trim().length < 4) {
+      return { success: false, message: 'New PIN must be at least 4 digits/characters.' };
+    }
+
+    setData((prev) => ({
+      ...prev,
+      auth: { ...prev.auth, pin: newPin.trim() }
+    }));
+
+    return { success: true, message: 'Admin PIN / Password updated successfully!' };
   };
 
   // Switch Active Business
@@ -1038,8 +1056,10 @@ export const BillingProvider = ({ children }) => {
     <BillingContext.Provider
       value={{
         auth: data.auth || { isAuthenticated: false },
+        adminPin: data.auth?.pin || '1234',
         login,
         logout,
+        changePin,
         activeBusinessId: data.activeBusinessId,
         activeBusiness: currentBusiness,
         businesses: data.businesses,
