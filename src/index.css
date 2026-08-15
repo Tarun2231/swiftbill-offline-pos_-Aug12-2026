@@ -575,3 +575,48 @@ html, body {
     display: none !important;
   }
 }
+
+/* Login Page Ultra Polish & Interactive Keypad */
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.shake-animation {
+  animation: loginShake 0.4s ease-in-out;
+}
+
+@keyframes dotPop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1.2); }
+}
+
+.dot-filled {
+  animation: dotPop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.login-keypad-btn {
+  transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login-keypad-btn:active {
+  transform: scale(0.92);
+  background-color: var(--bg-card-hover) !important;
+}
+
+.staff-avatar-chip {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.staff-avatar-chip:active {
+  transform: scale(0.96);
+}
+

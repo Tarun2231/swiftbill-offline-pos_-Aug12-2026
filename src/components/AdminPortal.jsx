@@ -15,7 +15,8 @@ import {
   EyeOff,
   CheckCircle2,
   Sparkles,
-  Store
+  Store,
+  Zap
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -39,6 +40,7 @@ export default function AdminPortal({ onOpenStaff }) {
   const [showAdminPin, setShowAdminPin] = useState(false);
   const [showStaffPin, setShowStaffPin] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isShaking, setIsShaking] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
@@ -56,11 +58,26 @@ export default function AdminPortal({ onOpenStaff }) {
     }
   }, [staffList]);
 
+  const triggerError = (msg) => {
+    setErrorMessage(msg);
+    setIsShaking(true);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate([40, 60, 40]);
+    }
+    setTimeout(() => setIsShaking(false), 450);
+  };
+
+  const triggerHaptic = () => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(15);
+    }
+  };
+
   // Admin PIN Submit
   const handleAdminPinSubmit = (e) => {
     if (e) e.preventDefault();
     if (!pinInput.trim()) {
-      setErrorMessage('Enter Master PIN');
+      triggerError('Enter Master PIN');
       return;
     }
     const result = login(pinInput);
@@ -68,7 +85,7 @@ export default function AdminPortal({ onOpenStaff }) {
       setUnlocked(true);
       setErrorMessage('');
     } else {
-      setErrorMessage(result.message || 'Invalid Master PIN');
+      triggerError(result.message || 'Invalid Master PIN');
       setPinInput('');
     }
   };
@@ -77,11 +94,11 @@ export default function AdminPortal({ onOpenStaff }) {
   const handleStaffLoginSubmit = (e) => {
     if (e) e.preventDefault();
     if (!selectedStaffUser) {
-      setErrorMessage('Select an employee account');
+      triggerError('Select an employee account');
       return;
     }
     if (!staffPinInput.trim()) {
-      setErrorMessage('Enter employee PIN');
+      triggerError('Enter employee PIN');
       return;
     }
     const result = staffLogin(selectedStaffUser, staffPinInput);
@@ -89,12 +106,13 @@ export default function AdminPortal({ onOpenStaff }) {
       switchBusiness(selectedBizForStaff);
       setErrorMessage('');
     } else {
-      setErrorMessage(result.message || 'Invalid Employee PIN');
+      triggerError(result.message || 'Invalid Employee PIN');
       setStaffPinInput('');
     }
   };
 
   const handleKeypadPress = (num) => {
+    triggerHaptic();
     setErrorMessage('');
     if (loginMode === 'admin') {
       if (pinInput.length < 8) {
@@ -116,6 +134,7 @@ export default function AdminPortal({ onOpenStaff }) {
   };
 
   const handleKeypadBackspace = () => {
+    triggerHaptic();
     if (loginMode === 'admin') {
       setPinInput((prev) => prev.slice(0, -1));
     } else {
@@ -124,6 +143,7 @@ export default function AdminPortal({ onOpenStaff }) {
   };
 
   const handleCancel = () => {
+    triggerHaptic();
     setPinInput('');
     setStaffPinInput('');
     setErrorMessage('');
@@ -138,14 +158,26 @@ export default function AdminPortal({ onOpenStaff }) {
   };
 
   const businessCards = [
-    { id: 'grocery', title: 'Fresh Mart Grocery', badge: 'Produce', color: '#10b981', icon: ShoppingBag, desc: 'Produce, weight billing & staples' },
-    { id: 'restaurant', title: 'Bistro 99 Dining', badge: 'Dining', color: '#f59e0b', icon: Utensils, desc: 'Floorplan, tables & KDS KOT' },
-    { id: 'automotive', title: 'Apex Auto Detailing', badge: 'Garage', color: '#3b82f6', icon: Car, desc: 'Service jobs, repairs & parts' },
-    { id: 'retail', title: 'TechNova Superstore', badge: 'Retail', color: '#8b5cf6', icon: Package, desc: 'Electronics & barcode labels' }
+    { id: 'grocery', title: 'Fresh Mart Grocery', badge: 'Produce & Weighing', color: '#10b981', icon: ShoppingBag, desc: 'Fruits, veggies, staples & weight billing' },
+    { id: 'restaurant', title: 'Bistro 99 Dining', badge: 'Table Map & KDS', color: '#f59e0b', icon: Utensils, desc: 'Table floorplan, live KOT & restaurant POS' },
+    { id: 'automotive', title: 'Apex Auto Garage', badge: 'Service Jobs', color: '#3b82f6', icon: Car, desc: 'Vehicle repair cards, labor & spare parts' },
+    { id: 'retail', title: 'TechNova Superstore', badge: 'Barcode Retail', color: '#8b5cf6', icon: Package, desc: 'Electronics, barcode scanner & labels' }
   ];
 
-  const currentPinValue = loginMode === 'admin' ? pinInput : staffPinInput;
-  const pinLength = currentPinValue.length;
+  const currentPin = loginMode === 'admin' ? pinInput : staffPinInput;
+  const pinDigitsCount = currentPin.length;
+
+  const keypadButtons = [
+    { num: '1', sub: ' ' },
+    { num: '2', sub: 'ABC' },
+    { num: '3', sub: 'DEF' },
+    { num: '4', sub: 'GHI' },
+    { num: '5', sub: 'JKL' },
+    { num: '6', sub: 'MNO' },
+    { num: '7', sub: 'PQRS' },
+    { num: '8', sub: 'TUV' },
+    { num: '9', sub: 'WXYZ' }
+  ];
 
   return (
     <div style={{
@@ -156,19 +188,44 @@ export default function AdminPortal({ onOpenStaff }) {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: isMobile ? 'flex-start' : 'center',
-      padding: isMobile ? '24px 14px 40px 14px' : '40px 20px',
+      padding: isMobile ? '20px 14px 40px 14px' : '40px 20px',
       overflowY: 'auto',
       boxSizing: 'border-box',
-      position: 'relative'
+      position: 'relative',
+      backgroundImage: theme === 'dark' 
+        ? 'radial-gradient(circle at 50% 20%, rgba(12, 131, 31, 0.08) 0%, transparent 60%)'
+        : 'radial-gradient(circle at 50% 20%, rgba(12, 131, 31, 0.04) 0%, transparent 60%)'
     }}>
-      {/* Top Header Controls (Theme Toggle) */}
+      {/* Top Header Bar */}
       <div style={{
         position: isMobile ? 'static' : 'absolute',
         top: '20px',
+        left: isMobile ? 'auto' : '24px',
         right: '24px',
-        marginBottom: isMobile ? '16px' : '0',
-        alignSelf: isMobile ? 'flex-end' : 'auto'
+        width: isMobile ? '100%' : 'calc(100% - 48px)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: isMobile ? '16px' : '0'
       }}>
+        {/* Offline Badge */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px',
+          padding: '4px 10px',
+          borderRadius: 'var(--radius-full)',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          border: '1px solid rgba(16, 185, 129, 0.25)',
+          color: '#10b981',
+          fontSize: '11px',
+          fontWeight: '700'
+        }}>
+          <Zap size={12} fill="#10b981" />
+          <span>100% Offline Ready</span>
+        </div>
+
+        {/* Day / Night Toggle */}
         <button
           onClick={toggleTheme}
           style={{
@@ -193,58 +250,62 @@ export default function AdminPortal({ onOpenStaff }) {
         </button>
       </div>
 
-      {/* Main Container */}
-      <div style={{ width: '100%', maxWidth: unlocked ? '740px' : '360px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px' }}>
+      {/* Center Container */}
+      <div style={{ width: '100%', maxWidth: unlocked ? '760px' : '360px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px' }}>
         
-        {/* Brand Header */}
+        {/* Brand Mark */}
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
           <div style={{
-            width: '46px',
-            height: '46px',
+            width: '48px',
+            height: '48px',
             borderRadius: '14px',
             background: 'linear-gradient(135deg, #0c831f 0%, #059669 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(12, 131, 31, 0.28)'
+            boxShadow: '0 8px 24px rgba(12, 131, 31, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.15)'
           }}>
-            <ShieldCheck size={26} color="#ffffff" />
+            <ShieldCheck size={28} color="#ffffff" />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-            <h1 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.4px', margin: 0 }}>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.4px', margin: 0 }}>
               SwiftBill
             </h1>
             <span style={{
               fontSize: '10px',
-              padding: '2px 6px',
+              padding: '2px 7px',
               borderRadius: '6px',
               backgroundColor: 'rgba(12, 131, 31, 0.12)',
               color: 'var(--instamart-green)',
               fontWeight: '800',
               textTransform: 'uppercase'
             }}>
-              POS Terminal
+              Terminal
             </span>
           </div>
         </div>
 
         {/* STEP 1: AUTHENTICATION CARD */}
         {!unlocked ? (
-          <div className="glass-panel" style={{
-            width: '100%',
-            padding: isMobile ? '20px 16px' : '24px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            borderRadius: '18px',
-            boxShadow: 'var(--shadow-lg)',
-            border: '1px solid var(--border-color)',
-            backgroundColor: 'var(--bg-card)',
-            boxSizing: 'border-box'
-          }}>
+          <div 
+            className={`glass-panel ${isShaking ? 'shake-animation' : ''}`} 
+            style={{
+              width: '100%',
+              padding: isMobile ? '20px 16px' : '24px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              borderRadius: '20px',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-card)',
+              boxSizing: 'border-box'
+            }}
+          >
             
-            {/* Segmented Mode Switcher */}
+            {/* Smooth Segmented Switcher */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
@@ -261,7 +322,7 @@ export default function AdminPortal({ onOpenStaff }) {
                   setPinInput('');
                 }}
                 style={{
-                  padding: '8px',
+                  padding: '9px',
                   borderRadius: '9px',
                   border: 'none',
                   backgroundColor: loginMode === 'admin' ? 'var(--bg-card)' : 'transparent',
@@ -273,11 +334,11 @@ export default function AdminPortal({ onOpenStaff }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  boxShadow: loginMode === 'admin' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                  boxShadow: loginMode === 'admin' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
                   transition: 'all 0.15s ease'
                 }}
               >
-                <ShieldCheck size={14} color="#10b981" /> Master Admin
+                <ShieldCheck size={15} color="#10b981" /> Master Admin
               </button>
 
               <button
@@ -288,7 +349,7 @@ export default function AdminPortal({ onOpenStaff }) {
                   setStaffPinInput('');
                 }}
                 style={{
-                  padding: '8px',
+                  padding: '9px',
                   borderRadius: '9px',
                   border: 'none',
                   backgroundColor: loginMode === 'staff' ? 'var(--bg-card)' : 'transparent',
@@ -300,11 +361,11 @@ export default function AdminPortal({ onOpenStaff }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  boxShadow: loginMode === 'staff' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                  boxShadow: loginMode === 'staff' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
                   transition: 'all 0.15s ease'
                 }}
               >
-                <Users size={14} color="#3b82f6" /> Staff Sign-In
+                <Users size={15} color="#3b82f6" /> Staff Sign-In
               </button>
             </div>
 
@@ -312,16 +373,16 @@ export default function AdminPortal({ onOpenStaff }) {
             {loginMode === 'admin' ? (
               <form onSubmit={handleAdminPinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 
-                {/* PIN Display & Input Box */}
+                {/* Interactive PIN Display */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
                       Enter Master PIN
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowAdminPin(!showAdminPin)}
-                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11.5px' }}
                     >
                       {showAdminPin ? <EyeOff size={13} /> : <Eye size={13} />}
                       <span>{showAdminPin ? 'Hide' : 'Show'}</span>
@@ -350,19 +411,21 @@ export default function AdminPortal({ onOpenStaff }) {
                     />
                   </div>
 
-                  {/* PIN Dots Indicator */}
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '10px' }}>
+                  {/* 4-Dot Interactive Indicator */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '12px' }}>
                     {[0, 1, 2, 3].map((idx) => {
-                      const isFilled = pinLength > idx;
+                      const isFilled = pinDigitsCount > idx;
                       return (
                         <div
                           key={idx}
+                          className={isFilled ? 'dot-filled' : ''}
                           style={{
-                            width: '10px',
-                            height: '10px',
+                            width: '12px',
+                            height: '12px',
                             borderRadius: '50%',
-                            backgroundColor: isFilled ? '#10b981' : 'var(--border-color)',
-                            transform: isFilled ? 'scale(1.2)' : 'scale(1)',
+                            backgroundColor: isFilled ? '#10b981' : 'transparent',
+                            border: `2px solid ${isFilled ? '#10b981' : 'var(--border-color)'}`,
+                            boxShadow: isFilled ? '0 0 10px rgba(16, 185, 129, 0.5)' : 'none',
                             transition: 'all 0.15s ease'
                           }}
                         />
@@ -377,26 +440,30 @@ export default function AdminPortal({ onOpenStaff }) {
                   </div>
                 )}
 
-                {/* Sleek Touch Keypad */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginTop: '2px' }}>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                {/* Tactile Keypad */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                  {keypadButtons.map((btn) => (
                     <button
-                      key={n}
+                      key={btn.num}
                       type="button"
-                      onClick={() => handleKeypadPress(n.toString())}
+                      onClick={() => handleKeypadPress(btn.num)}
+                      className="login-keypad-btn"
                       style={{
-                        padding: '12px 0',
-                        fontSize: '18px',
-                        fontWeight: '600',
+                        padding: '10px 0 8px 0',
                         backgroundColor: 'var(--bg-input)',
                         color: 'var(--text-main)',
                         border: '1px solid var(--border-color)',
-                        borderRadius: '10px',
+                        borderRadius: '12px',
                         cursor: 'pointer',
-                        transition: 'transform 0.1s ease, background 0.1s ease'
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '1px'
                       }}
                     >
-                      {n}
+                      <span style={{ fontSize: '18px', fontWeight: '700', lineHeight: '1' }}>{btn.num}</span>
+                      <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '600', letterSpacing: '1px' }}>{btn.sub}</span>
                     </button>
                   ))}
                   
@@ -404,18 +471,21 @@ export default function AdminPortal({ onOpenStaff }) {
                   <button
                     type="button"
                     onClick={handleCancel}
+                    className="login-keypad-btn"
                     style={{
-                      padding: '12px 0',
+                      padding: '10px 0',
                       fontSize: '12px',
                       fontWeight: '700',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-muted)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '10px',
+                      borderRadius: '12px',
                       cursor: 'pointer',
-                      transition: 'background 0.12s ease'
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
-                    title="Cancel and reset PIN"
+                    title="Cancel and reset"
                   >
                     Cancel
                   </button>
@@ -423,29 +493,35 @@ export default function AdminPortal({ onOpenStaff }) {
                   <button
                     type="button"
                     onClick={() => handleKeypadPress('0')}
+                    className="login-keypad-btn"
                     style={{
-                      padding: '12px 0',
-                      fontSize: '18px',
-                      fontWeight: '600',
+                      padding: '10px 0 8px 0',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '10px',
-                      cursor: 'pointer'
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '1px'
                     }}
                   >
-                    0
+                    <span style={{ fontSize: '18px', fontWeight: '700', lineHeight: '1' }}>0</span>
+                    <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '600' }}>+</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleKeypadBackspace}
+                    className="login-keypad-btn"
                     style={{
-                      padding: '12px 0',
+                      padding: '10px 0',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '10px',
+                      borderRadius: '12px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -453,12 +529,12 @@ export default function AdminPortal({ onOpenStaff }) {
                     }}
                     title="Backspace"
                   >
-                    <span style={{ fontSize: '16px', fontWeight: 'bold' }}>⌫</span>
+                    <span style={{ fontSize: '17px', fontWeight: 'bold' }}>⌫</span>
                   </button>
                 </div>
 
-                {/* Action Buttons */}
-                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                {/* Primary Action Buttons */}
+                <div style={{ display: 'flex', gap: '8px', marginTop: '2px' }}>
                   <button
                     type="button"
                     onClick={handleCancel}
@@ -493,33 +569,67 @@ export default function AdminPortal({ onOpenStaff }) {
             ) : (
               /* B. STAFF LOGIN FORM */
               <form onSubmit={handleStaffLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                
+                {/* Quick Staff Selection Chips */}
                 <div>
-                  <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-                    Select Employee Account
+                  <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '6px' }}>
+                    Select Staff Member
                   </label>
-                  <select
-                    value={selectedStaffUser}
-                    onChange={(e) => setSelectedStaffUser(e.target.value)}
-                    className="form-select"
-                    style={{ height: '40px', minHeight: '40px', fontSize: '13px', borderRadius: '10px' }}
-                  >
-                    {staffList.map((s) => (
-                      <option key={s.id} value={s.username}>
-                        👤 {s.name} ({s.role} - @{s.username})
-                      </option>
-                    ))}
-                  </select>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '6px' }}>
+                    {staffList.map((s) => {
+                      const isSelected = selectedStaffUser === s.username;
+                      return (
+                        <div
+                          key={s.id}
+                          onClick={() => {
+                            triggerHaptic();
+                            setSelectedStaffUser(s.username);
+                          }}
+                          className="staff-avatar-chip"
+                          style={{
+                            padding: '8px 6px',
+                            borderRadius: '10px',
+                            border: `1.5px solid ${isSelected ? '#3b82f6' : 'var(--border-color)'}`,
+                            backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.12)' : 'var(--bg-input)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '4px',
+                            textAlign: 'center'
+                          }}
+                        >
+                          <div style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            backgroundColor: isSelected ? '#3b82f6' : 'var(--bg-card)',
+                            color: isSelected ? '#ffffff' : 'var(--text-main)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            fontWeight: '800'
+                          }}>
+                            {s.name.charAt(0).toUpperCase()}
+                          </div>
+                          <span style={{ fontSize: '11.5px', fontWeight: isSelected ? '700' : '500', color: isSelected ? '#3b82f6' : 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>
+                            {s.name.split(' ')[0]}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div>
-                  <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                  <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
                     Assigned Store Workspace
                   </label>
                   <select
                     value={selectedBizForStaff}
                     onChange={(e) => setSelectedBizForStaff(e.target.value)}
                     className="form-select"
-                    style={{ height: '40px', minHeight: '40px', fontSize: '13px', borderRadius: '10px' }}
+                    style={{ height: '38px', minHeight: '38px', fontSize: '12.5px', borderRadius: '10px' }}
                   >
                     <option value="grocery">🛒 Fresh Mart Grocery & Produce</option>
                     <option value="restaurant">🍕 Bistro 99 Cafe & Restaurant</option>
@@ -530,13 +640,13 @@ export default function AdminPortal({ onOpenStaff }) {
 
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
-                      Employee PIN / Password
+                    <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.6px', margin: 0 }}>
+                      Employee PIN
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowStaffPin(!showStaffPin)}
-                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11.5px' }}
                     >
                       {showStaffPin ? <EyeOff size={13} /> : <Eye size={13} />}
                       <span>{showStaffPin ? 'Hide' : 'Show'}</span>
@@ -566,19 +676,21 @@ export default function AdminPortal({ onOpenStaff }) {
                     />
                   </div>
 
-                  {/* PIN Dots Indicator */}
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
+                  {/* 4-Dot Interactive Indicator */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
                     {[0, 1, 2, 3].map((idx) => {
                       const isFilled = staffPinInput.length > idx;
                       return (
                         <div
                           key={idx}
+                          className={isFilled ? 'dot-filled' : ''}
                           style={{
-                            width: '9px',
-                            height: '9px',
+                            width: '11px',
+                            height: '11px',
                             borderRadius: '50%',
-                            backgroundColor: isFilled ? '#3b82f6' : 'var(--border-color)',
-                            transform: isFilled ? 'scale(1.2)' : 'scale(1)',
+                            backgroundColor: isFilled ? '#3b82f6' : 'transparent',
+                            border: `2px solid ${isFilled ? '#3b82f6' : 'var(--border-color)'}`,
+                            boxShadow: isFilled ? '0 0 10px rgba(59, 130, 246, 0.5)' : 'none',
                             transition: 'all 0.15s ease'
                           }}
                         />
@@ -593,40 +705,49 @@ export default function AdminPortal({ onOpenStaff }) {
                   </div>
                 )}
 
-                {/* Touch Keypad */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginTop: '2px' }}>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                {/* Tactile Keypad */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                  {keypadButtons.map((btn) => (
                     <button
-                      key={n}
+                      key={btn.num}
                       type="button"
-                      onClick={() => handleKeypadPress(n.toString())}
+                      onClick={() => handleKeypadPress(btn.num)}
+                      className="login-keypad-btn"
                       style={{
-                        padding: '11px 0',
-                        fontSize: '18px',
-                        fontWeight: '600',
+                        padding: '10px 0 8px 0',
                         backgroundColor: 'var(--bg-input)',
                         color: 'var(--text-main)',
                         border: '1px solid var(--border-color)',
-                        borderRadius: '10px',
-                        cursor: 'pointer'
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '1px'
                       }}
                     >
-                      {n}
+                      <span style={{ fontSize: '18px', fontWeight: '700', lineHeight: '1' }}>{btn.num}</span>
+                      <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '600', letterSpacing: '1px' }}>{btn.sub}</span>
                     </button>
                   ))}
                   
                   <button
                     type="button"
                     onClick={handleCancel}
+                    className="login-keypad-btn"
                     style={{
-                      padding: '11px 0',
+                      padding: '10px 0',
                       fontSize: '12px',
                       fontWeight: '700',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-muted)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '10px',
-                      cursor: 'pointer'
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                     title="Cancel and switch back to Admin"
                   >
@@ -636,29 +757,35 @@ export default function AdminPortal({ onOpenStaff }) {
                   <button
                     type="button"
                     onClick={() => handleKeypadPress('0')}
+                    className="login-keypad-btn"
                     style={{
-                      padding: '11px 0',
-                      fontSize: '18px',
-                      fontWeight: '600',
+                      padding: '10px 0 8px 0',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '10px',
-                      cursor: 'pointer'
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '1px'
                     }}
                   >
-                    0
+                    <span style={{ fontSize: '18px', fontWeight: '700', lineHeight: '1' }}>0</span>
+                    <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '600' }}>+</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleKeypadBackspace}
+                    className="login-keypad-btn"
                     style={{
-                      padding: '11px 0',
+                      padding: '10px 0',
                       backgroundColor: 'var(--bg-input)',
                       color: 'var(--text-main)',
                       border: '1px solid var(--border-color)',
-                      borderRadius: '10px',
+                      borderRadius: '12px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -666,11 +793,11 @@ export default function AdminPortal({ onOpenStaff }) {
                     }}
                     title="Backspace"
                   >
-                    <span style={{ fontSize: '16px', fontWeight: 'bold' }}>⌫</span>
+                    <span style={{ fontSize: '17px', fontWeight: 'bold' }}>⌫</span>
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '2px' }}>
                   <button
                     type="button"
                     onClick={handleCancel}
