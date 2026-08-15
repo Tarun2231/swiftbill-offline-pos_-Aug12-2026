@@ -18,6 +18,7 @@ import ReportsDashboard from './components/ReportsDashboard';
 import SettingsBackup from './components/SettingsBackup';
 import StaffManagement from './components/StaffManagement';
 import InvoicePrintModal from './components/InvoicePrintModal';
+import SwitchUserModal from './components/SwitchUserModal';
 import { 
   ShoppingBag, 
   Car, 
@@ -33,7 +34,8 @@ import {
   ArrowRightLeft,
   ChevronRight,
   UserCheck,
-  LogOut
+  LogOut,
+  User 
 } from 'lucide-react';
 
 function MainApp() {
@@ -42,6 +44,7 @@ function MainApp() {
   const [activeTab, setActiveTab] = useState('pos');
   const [selectedInvoiceForPrint, setSelectedInvoiceForPrint] = useState(null);
   const [showSwitchBusinessModal, setShowSwitchBusinessModal] = useState(false);
+  const [showSwitchUserModal, setShowSwitchUserModal] = useState(false);
   const [selectedTableForOrder, setSelectedTableForOrder] = useState('Table 1');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   
@@ -159,11 +162,9 @@ function MainApp() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          {/* User Session Pill */}
+          {/* User Session Pill (1-Tap Switch User / Account) */}
           <div
-            onClick={() => {
-              if (isAdmin) setActiveTab('staff');
-            }}
+            onClick={() => setShowSwitchUserModal(true)}
             style={{
               padding: '4px 8px',
               borderRadius: 'var(--radius-full)',
@@ -172,12 +173,12 @@ function MainApp() {
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              cursor: isAdmin ? 'pointer' : 'default',
+              cursor: 'pointer',
               fontSize: '11px',
               fontWeight: '700',
               color: 'var(--text-main)'
             }}
-            title={isAdmin ? "Click to view Staff & Shift Reports" : `Signed in as ${currentUser?.name || 'Staff'}`}
+            title="Click to Switch User / Account (Cancellable anytime)"
           >
             <div style={{
               width: '14px',
@@ -196,6 +197,7 @@ function MainApp() {
             <span style={{ maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {currentUser?.name?.split(' ')[0] || 'Staff'}
             </span>
+            <span style={{ fontSize: '9px', color: 'var(--text-dim)' }}>▼</span>
           </div>
 
           {isAdmin && (
@@ -223,6 +225,7 @@ function MainApp() {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onOpenSwitchBusiness={() => setShowSwitchBusinessModal(true)}
+        onOpenSwitchUser={() => setShowSwitchUserModal(true)}
         isOpen={isMobileNavOpen}
         onClose={() => setIsMobileNavOpen(false)}
       />
@@ -460,6 +463,12 @@ function MainApp() {
           </div>
         </div>
       )}
+
+      {/* Switch User Account Modal (Smooth & Cancellable) */}
+      <SwitchUserModal
+        isOpen={showSwitchUserModal}
+        onClose={() => setShowSwitchUserModal(false)}
+      />
     </div>
   );
 }

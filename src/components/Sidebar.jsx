@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
-export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness, isOpen, onClose }) {
+export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness, onOpenSwitchUser, isOpen, onClose }) {
   const { 
     auth,
     settings, 
@@ -216,17 +216,25 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
             </button>
           </div>
 
-          {/* Logged-In User / Staff Session Indicator */}
-          <div style={{
-            marginTop: '8px',
-            padding: '6px 10px',
-            borderRadius: 'var(--radius-xs)',
-            backgroundColor: currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)',
-            border: `1px solid ${currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.25)' : 'rgba(59,130,246,0.25)'}`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
+          {/* Logged-In User / Staff Session Indicator (Click to Switch Account) */}
+          <div 
+            onClick={() => {
+              if (onOpenSwitchUser) onOpenSwitchUser();
+              if (onClose) onClose();
+            }}
+            style={{
+              marginTop: '8px',
+              padding: '6px 10px',
+              borderRadius: 'var(--radius-xs)',
+              backgroundColor: currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)',
+              border: `1px solid ${currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.25)' : 'rgba(59,130,246,0.25)'}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer'
+            }}
+            title="Click to Switch User / Cashier (Cancellable anytime without losing session)"
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
               <div style={{
                 width: '20px',
@@ -253,20 +261,23 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
             </div>
 
             <button
-              onClick={logout}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onOpenSwitchUser) onOpenSwitchUser();
+                if (onClose) onClose();
+              }}
+              className="btn btn-secondary"
               style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
                 fontSize: '10px',
                 fontWeight: '700',
-                cursor: 'pointer',
-                padding: '2px 4px',
-                borderRadius: '4px',
-                textDecoration: 'underline'
+                padding: '2px 6px',
+                height: '22px',
+                gap: '3px'
               }}
-              title="End Shift / Switch Cashier"
+              title="Switch User Account"
             >
+              <UserCheck size={11} color={currentUser?.role === 'Master Admin' ? '#10b981' : '#3b82f6'} />
               Switch
             </button>
           </div>
@@ -352,36 +363,74 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
                 </button>
               </div>
 
-              <button
-                onClick={logout}
-                className="btn btn-danger"
-                style={{ width: '100%', fontSize: '11.5px', padding: '6px 10px', height: '30px', fontWeight: '600', gap: '4px' }}
-                title="Lock Admin Session"
-              >
-                <LogOut size={13} />
-                Lock Admin Session
-              </button>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => {
+                    if (onOpenSwitchUser) onOpenSwitchUser();
+                    if (onClose) onClose();
+                  }}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '700', gap: '4px' }}
+                  title="Switch to another user or cashier (cancellable with zero password)"
+                >
+                  <UserCheck size={13} color="#3b82f6" />
+                  Switch User
+                </button>
+
+                <button
+                  onClick={logout}
+                  className="btn btn-danger"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px 8px', height: '30px', fontWeight: '600', gap: '4px' }}
+                  title="Lock Admin Session"
+                >
+                  <LogOut size={13} />
+                  Lock Session
+                </button>
+              </div>
             </>
           ) : (
-            <button
-              onClick={logout}
-              className="btn btn-secondary"
-              style={{
-                width: '100%',
-                fontSize: '12px',
-                padding: '7px 10px',
-                height: '34px',
-                fontWeight: '700',
-                gap: '6px',
-                color: '#f43f5e',
-                borderColor: 'rgba(244,63,94,0.3)',
-                backgroundColor: 'rgba(244,63,94,0.06)'
-              }}
-              title="End Employee Shift and Logout"
-            >
-              <LogOut size={14} />
-              End Shift & Logout
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  if (onOpenSwitchUser) onOpenSwitchUser();
+                  if (onClose) onClose();
+                }}
+                className="btn btn-secondary"
+                style={{
+                  width: '100%',
+                  fontSize: '11.5px',
+                  padding: '6px 10px',
+                  height: '32px',
+                  fontWeight: '700',
+                  gap: '5px',
+                  color: 'var(--text-main)'
+                }}
+                title="Switch to Admin or another employee (cancellable without password)"
+              >
+                <ShieldCheck size={14} color="#10b981" />
+                Switch to Admin / User
+              </button>
+
+              <button
+                onClick={logout}
+                className="btn btn-secondary"
+                style={{
+                  width: '100%',
+                  fontSize: '11.5px',
+                  padding: '6px 10px',
+                  height: '32px',
+                  fontWeight: '700',
+                  gap: '6px',
+                  color: '#f43f5e',
+                  borderColor: 'rgba(244,63,94,0.3)',
+                  backgroundColor: 'rgba(244,63,94,0.06)'
+                }}
+                title="End Employee Shift and Logout"
+              >
+                <LogOut size={13} />
+                End Shift & Logout
+              </button>
+            </>
           )}
         </div>
       </aside>
