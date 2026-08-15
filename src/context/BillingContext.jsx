@@ -112,16 +112,44 @@ const INITIAL_BUSINESS_TEMPLATES = {
 
 export const BillingProvider = ({ children }) => {
   const [data, setData] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.businesses) {
+          if (!parsed.staffMembers || parsed.staffMembers.length === 0) {
+            parsed.staffMembers = [
+              { id: 'emp_1', name: 'Rahul Sharma', username: 'rahul', pin: '1111', role: 'Cashier', phone: '+91 98765 43210', active: true, createdAt: new Date().toISOString() },
+              { id: 'emp_2', name: 'Priya Patel', username: 'priya', pin: '2222', role: 'Store Manager', phone: '+91 98111 22334', active: true, createdAt: new Date().toISOString() },
+              { id: 'emp_3', name: 'Sameer Khan', username: 'sameer', pin: '3333', role: 'Floor Server / Waiter', phone: '+91 98222 55667', active: true, createdAt: new Date().toISOString() }
+            ];
+          }
+          if (!parsed.auth?.currentUser) {
+            parsed.auth = {
+              ...(parsed.auth || {}),
+              role: parsed.auth?.role || 'admin',
+              currentUser: parsed.auth?.currentUser || { id: 'admin', name: 'Master Admin', username: 'admin', role: 'Master Admin' },
+              pin: parsed.auth?.pin || '1234'
+            };
+          }
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Failed to parse multi-business storage:', e);
       }
-    } catch (e) {
-      console.error('Failed to parse multi-business storage:', e);
     }
     return {
-      auth: { isAuthenticated: false, pin: '1234' },
+      auth: {
+        isAuthenticated: false,
+        role: 'admin',
+        currentUser: { id: 'admin', name: 'Master Admin', username: 'admin', role: 'Master Admin' },
+        pin: '1234'
+      },
+      staffMembers: [
+        { id: 'emp_1', name: 'Rahul Sharma', username: 'rahul', pin: '1111', role: 'Cashier', phone: '+91 98765 43210', active: true, createdAt: new Date().toISOString() },
+        { id: 'emp_2', name: 'Priya Patel', username: 'priya', pin: '2222', role: 'Store Manager', phone: '+91 98111 22334', active: true, createdAt: new Date().toISOString() },
+        { id: 'emp_3', name: 'Sameer Khan', username: 'sameer', pin: '3333', role: 'Floor Server / Waiter', phone: '+91 98222 55667', active: true, createdAt: new Date().toISOString() }
+      ],
       theme: 'dark',
       activeBusinessId: 'grocery',
       businesses: INITIAL_BUSINESS_TEMPLATES,
@@ -268,17 +296,48 @@ export const BillingProvider = ({ children }) => {
     if (inputPin === activePin) {
       setData((prev) => ({
         ...prev,
-        auth: { ...prev.auth, isAuthenticated: true }
+        auth: {
+          ...prev.auth,
+          isAuthenticated: true,
+          role: 'admin',
+          currentUser: { id: 'admin', name: 'Master Admin', username: 'admin', role: 'Master Admin' }
+        }
       }));
       return { success: true };
     }
-    return { success: false, message: 'Invalid Admin PIN / Password.' };
+    return { success: false, message: 'Invalid Admin Master PIN / Password.' };
+  };
+
+  const staffLogin = (username, inputPin) => {
+    const staff = (data.staffMembers || []).find(
+      (s) => s.username?.toLowerCase() === (username || '').trim().toLowerCase() && s.active !== false
+    );
+
+    if (!staff) {
+      return { success: false, message: 'Employee username not found or account is deactivated.' };
+    }
+
+    if (staff.pin !== inputPin) {
+      return { success: false, message: 'Invalid Employee PIN / Password.' };
+    }
+
+    setData((prev) => ({
+      ...prev,
+      auth: {
+        ...prev.auth,
+        isAuthenticated: true,
+        role: 'staff',
+        currentUser: staff
+      }
+    }));
+
+    return { success: true, user: staff };
   };
 
   const logout = () => {
     setData((prev) => ({
       ...prev,
-      auth: { ...prev.auth, isAuthenticated: false }
+      auth: { ...prev.auth, isAuthenticated: false, currentUser: null }
     }));
   };
 
@@ -297,6 +356,44 @@ export const BillingProvider = ({ children }) => {
     }));
 
     return { success: true, message: 'Admin PIN / Password updated successfully!' };
+  };
+
+  // Staff Management CRUD (Admin Controlled)
+  const addStaffMember = (newStaff) => {
+    const id = 'emp_' + Date.now();
+    const formatted = {
+      id,
+      name: newStaff.name,
+      username: (newStaff.username || newStaff.name.toLowerCase().replace(/\s+/g, '')).toLowerCase(),
+      pin: newStaff.pin || '1234',
+      role: newStaff.role || 'Cashier',
+      phone: newStaff.phone || '-',
+      active: true,
+      createdAt: new Date().toISOString()
+    };
+
+    setData((prev) => ({
+      ...prev,
+      staffMembers: [...(prev.staffMembers || []), formatted]
+    }));
+
+    return formatted;
+  };
+
+  const updateStaffMember = (staffId, updatedFields) => {
+    setData((prev) => ({
+      ...prev,
+      staffMembers: (prev.staffMembers || []).map((s) =>
+        s.id === staffId ? { ...s, ...updatedFields } : s
+      )
+    }));
+  };
+
+  const deleteStaffMember = (staffId) => {
+    setData((prev) => ({
+      ...prev,
+      staffMembers: (prev.staffMembers || []).filter((s) => s.id !== staffId)
+    }));
   };
 
   // Switch Active Business
@@ -444,12 +541,16 @@ export const BillingProvider = ({ children }) => {
   const createInvoice = (invoicePayload) => {
     const invNum = settings.nextInvoiceNumber || 1000;
     const invId = `${settings.invoicePrefix}${invNum}`;
+    const currentStaff = data.auth?.currentUser || { id: 'admin', name: 'Master Admin', role: 'Master Admin' };
 
     const newInvoice = {
       ...invoicePayload,
       id: invId,
       businessId: data.activeBusinessId,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      cashierId: currentStaff.id || 'admin',
+      cashierName: currentStaff.name || 'Master Admin',
+      cashierRole: currentStaff.role || 'Cashier'
     };
 
     // Stock deduction
@@ -1056,10 +1157,16 @@ export const BillingProvider = ({ children }) => {
     <BillingContext.Provider
       value={{
         auth: data.auth || { isAuthenticated: false },
+        currentUser: data.auth?.currentUser || { id: 'admin', name: 'Master Admin', role: 'Master Admin' },
+        staffMembers: data.staffMembers || [],
         adminPin: data.auth?.pin || '1234',
         login,
+        staffLogin,
         logout,
         changePin,
+        addStaffMember,
+        updateStaffMember,
+        deleteStaffMember,
         activeBusinessId: data.activeBusinessId,
         activeBusiness: currentBusiness,
         businesses: data.businesses,

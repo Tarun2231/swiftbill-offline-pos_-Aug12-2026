@@ -16,6 +16,7 @@ import CustomerLedger from './components/CustomerLedger';
 import BarcodePrinter from './components/BarcodePrinter';
 import ReportsDashboard from './components/ReportsDashboard';
 import SettingsBackup from './components/SettingsBackup';
+import StaffManagement from './components/StaffManagement';
 import InvoicePrintModal from './components/InvoicePrintModal';
 import { 
   ShoppingBag, 
@@ -30,11 +31,13 @@ import {
   Moon,
   Receipt,
   ArrowRightLeft,
-  ChevronRight
+  ChevronRight,
+  UserCheck,
+  LogOut
 } from 'lucide-react';
 
 function MainApp() {
-  const { theme, auth, activeBusinessId, activeBusiness, settings, switchBusiness, createBusiness, businesses, toggleTheme } = useBilling();
+  const { theme, auth, currentUser, logout, activeBusinessId, activeBusiness, settings, switchBusiness, createBusiness, businesses, toggleTheme } = useBilling();
   const [activeTab, setActiveTab] = useState('pos');
   const [selectedInvoiceForPrint, setSelectedInvoiceForPrint] = useState(null);
   const [showSwitchBusinessModal, setShowSwitchBusinessModal] = useState(false);
@@ -58,6 +61,7 @@ function MainApp() {
     invoices: 'Invoice Records & History',
     returns: 'Sales Returns & Credit Notes',
     shift: 'Cash Shift & Daily Z-Report',
+    staff: 'Staff & Shift Performance',
     expenses: 'Business Expense Tracker',
     customers: 'Customer Ledger & Udhar',
     barcode: 'Barcode & Sticker Generator',
@@ -154,6 +158,43 @@ function MainApp() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          {/* User Session Pill */}
+          <div
+            onClick={() => setActiveTab('staff')}
+            style={{
+              padding: '4px 8px',
+              borderRadius: 'var(--radius-full)',
+              backgroundColor: 'var(--bg-input)',
+              border: '1px solid var(--border-color)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontWeight: '700',
+              color: 'var(--text-main)'
+            }}
+            title="Click to view Staff & Shift Reports"
+          >
+            <div style={{
+              width: '14px',
+              height: '14px',
+              borderRadius: '50%',
+              backgroundColor: currentUser?.role === 'Master Admin' ? '#10b981' : '#3b82f6',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '8px',
+              fontWeight: '800'
+            }}>
+              {(currentUser?.name || 'A').charAt(0).toUpperCase()}
+            </div>
+            <span style={{ maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {currentUser?.name?.split(' ')[0] || 'Admin'}
+            </span>
+          </div>
+
           <button
             onClick={() => setShowSwitchBusinessModal(true)}
             className="btn btn-secondary"
@@ -200,6 +241,9 @@ function MainApp() {
         )}
         {activeTab === 'shift' && (
           <CashShiftRegister />
+        )}
+        {activeTab === 'staff' && (
+          <StaffManagement />
         )}
         {activeTab === 'products' && (
           <ProductManagement />

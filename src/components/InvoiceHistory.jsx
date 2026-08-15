@@ -159,6 +159,9 @@ export default function InvoiceHistory({ onViewInvoice }) {
                       <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', marginTop: '2px' }}>
                         {inv.customer?.name}
                       </div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>
+                        👤 Cashier: <strong>{inv.cashierName || inv.cashier?.name || 'Master Admin'}</strong>
+                      </div>
                     </div>
 
                     <span className={`badge badge-${
@@ -279,6 +282,9 @@ export default function InvoiceHistory({ onViewInvoice }) {
                         <td style={{ padding: '14px 18px' }}>
                           <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)' }}>
                             {inv.customer?.name}
+                          </div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                            👤 Billed by: <strong style={{ color: 'var(--text-main)' }}>{inv.cashierName || inv.cashier?.name || 'Master Admin'}</strong>
                           </div>
                           {inv.automotiveDetails?.vehicleNo && (
                             <div style={{ fontSize: '11px', color: '#3b82f6', fontWeight: '600' }}>

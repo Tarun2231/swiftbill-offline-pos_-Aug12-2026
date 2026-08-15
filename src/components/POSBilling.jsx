@@ -53,7 +53,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     restaurantTables,
     fireKOT,
     updateItemCookingStatus,
-    clearTable
+    clearTable,
+    currentUser
   } = useBilling();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -516,21 +517,25 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           {/* Header Row */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flexWrap: 'wrap' }}>
                 <span className="time-badge">
                   <Zap size={11} fill="var(--swiggy-orange)" /> Quick POS
                 </span>
-                <h2 style={{
-                  fontSize: isMobile ? '16px' : '18px',
+                <div style={{
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-full)',
+                  backgroundColor: currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.12)' : 'rgba(59,130,246,0.12)',
+                  border: `1px solid ${currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)'}`,
+                  fontSize: '11px',
                   fontWeight: '700',
-                  color: 'var(--text-main)',
-                  margin: 0,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  color: currentUser?.role === 'Master Admin' ? '#10b981' : '#3b82f6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
                 }}>
-                  {settings.storeName}
-                </h2>
+                  <span>👤</span>
+                  <span>{currentUser?.name || 'Admin'} ({currentUser?.role || 'Cashier'})</span>
+                </div>
               </div>
 
               <button

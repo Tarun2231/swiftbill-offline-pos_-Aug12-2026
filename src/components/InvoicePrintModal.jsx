@@ -188,6 +188,7 @@ export default function InvoicePrintModal({ invoice, onClose }) {
                     <span>{formattedDate}</span>
                   </div>
                   <div>CUST: {invoice.customer?.name}</div>
+                  <div>CASHIER: {invoice.cashierName || invoice.cashier?.name || 'Master Admin'}</div>
                   {invoice.automotiveDetails?.vehicleNo && <div>VEHICLE: {invoice.automotiveDetails.vehicleNo}</div>}
                   {invoice.restaurantDetails?.tableNo && <div>TABLE: {invoice.restaurantDetails.tableNo} ({invoice.restaurantDetails.orderType})</div>}
                 </div>
@@ -356,6 +357,15 @@ export default function InvoicePrintModal({ invoice, onClose }) {
                       </p>
                     </div>
                   )}
+
+                  <div style={{ padding: '6px 10px', backgroundColor: '#f1f5f9', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '9.5px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase' }}>
+                      BILLED BY / CASHIER
+                    </span>
+                    <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#0f172a', margin: '0' }}>
+                      {invoice.cashierName || invoice.cashier?.name || 'Master Admin'}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Items Table with Horizontal Scroll for Mobile */}
