@@ -559,13 +559,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* Left Area: Product Catalog */}
       {showCatalogPanel && (
         <div className="pos-catalog-panel" style={{
-          flex: 1,
-          padding: isMobile ? '10px 12px' : '16px 22px',
+          flex: isMobile ? '1' : '1 1 0%',
+          minWidth: 0,
+          padding: isMobile ? '10px 12px' : '16px 20px',
           display: 'flex',
           flexDirection: 'column',
           gap: isMobile ? '8px' : '12px',
           overflowY: 'auto',
-          width: '100%',
           position: 'relative'
         }}>
           
@@ -1182,7 +1182,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* Right Area: Bill Summary & Dine-In Tab */}
       {showCartPanel && (
         <div className="pos-cart-panel" style={{
-          width: isMobile ? '100%' : '400px',
+          width: isMobile ? '100%' : '380px',
+          minWidth: isMobile ? '100%' : '340px',
+          maxWidth: isMobile ? '100%' : '420px',
+          flexShrink: 0,
           backgroundColor: 'var(--bg-card)',
           borderLeft: isMobile ? 'none' : '1px solid var(--border-color)',
           display: 'flex',
