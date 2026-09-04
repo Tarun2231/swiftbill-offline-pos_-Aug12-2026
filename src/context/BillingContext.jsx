@@ -825,23 +825,36 @@ export const BillingProvider = ({ children }) => {
       ];
     }
 
-    setData((prev) => ({
-      ...prev,
-      businesses: {
-        ...prev.businesses,
-        [prev.activeBusinessId]: {
-          ...prev.businesses[prev.activeBusinessId],
-          settings: {
-            ...settings,
-            nextInvoiceNumber: invNum + 1
-          },
-          products: updatedProducts
-        }
-      },
-      kitchenOrders: updatedKOT,
-      serviceJobs: updatedJobs,
-      invoices: [newInvoice, ...prev.invoices]
-    }));
+    setData((prev) => {
+      // Auto-update customer credit/due balance in real-time
+      let updatedCustomers = prev.customers;
+      if (invoicePayload.customer?.id && invoicePayload.dueAmount > 0) {
+        updatedCustomers = (prev.customers || []).map((c) =>
+          c.id === invoicePayload.customer.id
+            ? { ...c, balance: parseFloat(((c.balance || 0) + invoicePayload.dueAmount).toFixed(2)) }
+            : c
+        );
+      }
+
+      return {
+        ...prev,
+        customers: updatedCustomers,
+        businesses: {
+          ...prev.businesses,
+          [prev.activeBusinessId]: {
+            ...prev.businesses[prev.activeBusinessId],
+            settings: {
+              ...settings,
+              nextInvoiceNumber: invNum + 1
+            },
+            products: updatedProducts
+          }
+        },
+        kitchenOrders: updatedKOT,
+        serviceJobs: updatedJobs,
+        invoices: [newInvoice, ...prev.invoices]
+      };
+    });
 
     return newInvoice;
   };
@@ -858,19 +871,31 @@ export const BillingProvider = ({ children }) => {
       return prod;
     });
 
-    setData((prev) => ({
-      ...prev,
-      businesses: {
-        ...prev.businesses,
-        [prev.activeBusinessId]: {
-          ...prev.businesses[prev.activeBusinessId],
-          products: updatedProducts
-        }
-      },
-      invoices: prev.invoices.map((i) =>
-        i.id === invoiceId ? { ...i, status: 'Cancelled', dueAmount: 0 } : i
-      )
-    }));
+    setData((prev) => {
+      let updatedCustomers = prev.customers;
+      if (inv.customer?.id && inv.dueAmount > 0) {
+        updatedCustomers = (prev.customers || []).map((c) =>
+          c.id === inv.customer.id
+            ? { ...c, balance: Math.max(0, parseFloat(((c.balance || 0) - inv.dueAmount).toFixed(2))) }
+            : c
+        );
+      }
+
+      return {
+        ...prev,
+        customers: updatedCustomers,
+        businesses: {
+          ...prev.businesses,
+          [prev.activeBusinessId]: {
+            ...prev.businesses[prev.activeBusinessId],
+            products: updatedProducts
+          }
+        },
+        invoices: prev.invoices.map((i) =>
+          i.id === invoiceId ? { ...i, status: 'Cancelled', dueAmount: 0 } : i
+        )
+      };
+    });
   };
 
   // WEB AUDIO SYNTHESIZER SOUND NOTIFICATIONS (100% Offline)
