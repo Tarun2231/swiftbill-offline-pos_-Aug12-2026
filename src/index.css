@@ -499,8 +499,8 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Media Queries for Mobile Screens */
-@media screen and (max-width: 900px) {
+/* Media Queries for iPad, Tablets & Mobile Screens */
+@media screen and (max-width: 1150px) {
   html, body {
     width: 100%;
     min-height: 100vh;
@@ -530,50 +530,98 @@ html, body {
   .app-container {
     flex-direction: column !important;
     min-height: 100vh !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    overflow: hidden !important;
+  }
+
+  .main-content {
+    height: calc(100vh - 48px) !important;
+    min-height: 0 !important;
     width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .pos-container {
+    display: flex !important;
+    flex-direction: row !important;
+    height: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .pos-catalog-panel {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    padding: 12px 16px !important;
+    gap: 10px !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+
+  .pos-cart-panel {
+    width: 340px !important;
+    min-width: 310px !important;
+    max-width: 360px !important;
+    flex-shrink: 0 !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    border-left: 1px solid var(--border-color) !important;
+  }
+
+  .product-grid-responsive {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .modal-container {
+    max-width: 92vw !important;
+    padding: 16px 14px !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .app-container {
     height: auto !important;
+    min-height: 100vh !important;
     overflow-x: hidden !important;
   }
 
   .main-content {
-    min-height: calc(100vh - 52px) !important;
-    width: 100% !important;
     height: auto !important;
+    min-height: calc(100vh - 48px) !important;
     overflow-y: visible !important;
     padding-bottom: 24px !important;
   }
 
   .pos-container {
     flex-direction: column !important;
-    min-height: calc(100vh - 52px) !important;
-    width: 100% !important;
     height: auto !important;
+    min-height: calc(100vh - 48px) !important;
     overflow: visible !important;
   }
 
   .pos-catalog-panel {
+    width: 100% !important;
     padding: 10px !important;
     gap: 10px !important;
-    width: 100% !important;
-    overflow-y: visible !important;
     height: auto !important;
+    overflow-y: visible !important;
   }
 
   .pos-cart-panel {
     width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
     border-left: none !important;
     height: auto !important;
     overflow-y: visible !important;
   }
 
   .product-grid-responsive {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)) !important;
     gap: 8px !important;
-  }
-
-  .modal-container {
-    max-width: 95vw !important;
-    padding: 16px 12px !important;
   }
 }
 

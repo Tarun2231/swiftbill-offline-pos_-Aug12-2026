@@ -69,17 +69,21 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const [selectedCategory, setSelectedCategory] = useState('All Items');
   const [cart, setCart] = useState([]);
   
-  // Mobile Screen State & Tab View
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
-  const [mobileTab, setMobileTab] = useState('catalog');
+  // Screen Width Breakpoint State (Phone vs Tablet vs Desktop)
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 900);
+      setWindowWidth(window.innerWidth);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const isMobilePhone = windowWidth <= 768;
+  const isTablet = windowWidth > 768 && windowWidth <= 1150;
+  const isMobile = isMobilePhone;
+  const [mobileTab, setMobileTab] = useState('catalog');
 
   const [selectedCustomer, setSelectedCustomer] = useState(customers[0] || { name: 'Walk-in Customer' });
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -478,22 +482,22 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     }
   };
 
-  const showCatalogPanel = !isMobile || mobileTab === 'catalog';
-  const showCartPanel = !isMobile || mobileTab === 'cart';
+  const showCatalogPanel = !isMobilePhone || mobileTab === 'catalog';
+  const showCartPanel = !isMobilePhone || mobileTab === 'cart';
 
   return (
     <div className="pos-container" style={{
       display: 'flex',
-      flexDirection: isMobile ? 'column' : 'row',
-      minHeight: isMobile ? 'calc(100vh - 52px)' : '100%',
-      height: isMobile ? 'auto' : '100%',
-      overflow: isMobile ? 'visible' : 'hidden',
+      flexDirection: isMobilePhone ? 'column' : 'row',
+      minHeight: isMobilePhone ? 'calc(100vh - 52px)' : '100%',
+      height: isMobilePhone ? 'auto' : '100%',
+      overflow: isMobilePhone ? 'visible' : 'hidden',
       position: 'relative',
       width: '100%'
     }}>
       
-      {/* Mobile Segmented Switcher */}
-      {isMobile && (
+      {/* Mobile Phone Segmented Switcher (<= 768px only) */}
+      {isMobilePhone && (
         <div style={{
           display: 'flex',
           padding: '6px 10px',
@@ -559,13 +563,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* Left Area: Product Catalog */}
       {showCatalogPanel && (
         <div className="pos-catalog-panel" style={{
-          flex: isMobile ? '1' : '1 1 0%',
+          flex: isMobilePhone ? '1' : '1 1 0%',
           minWidth: 0,
-          padding: isMobile ? '10px 12px' : '16px 20px',
+          padding: isMobilePhone ? '10px 12px' : '14px 18px',
           display: 'flex',
           flexDirection: 'column',
-          gap: isMobile ? '8px' : '12px',
-          overflowY: 'auto',
+          gap: isMobilePhone ? '8px' : '12px',
+          overflowY: isMobilePhone ? 'visible' : 'auto',
           position: 'relative'
         }}>
           
@@ -1182,17 +1186,17 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {/* Right Area: Bill Summary & Dine-In Tab */}
       {showCartPanel && (
         <div className="pos-cart-panel" style={{
-          width: isMobile ? '100%' : '380px',
-          minWidth: isMobile ? '100%' : '340px',
-          maxWidth: isMobile ? '100%' : '420px',
+          width: isMobilePhone ? '100%' : (isTablet ? '340px' : '380px'),
+          minWidth: isMobilePhone ? '100%' : (isTablet ? '310px' : '340px'),
+          maxWidth: isMobilePhone ? '100%' : (isTablet ? '360px' : '420px'),
           flexShrink: 0,
           backgroundColor: 'var(--bg-card)',
-          borderLeft: isMobile ? 'none' : '1px solid var(--border-color)',
+          borderLeft: isMobilePhone ? 'none' : '1px solid var(--border-color)',
           display: 'flex',
           flexDirection: 'column',
-          height: isMobile ? 'auto' : '100%',
-          minHeight: isMobile ? 'calc(100vh - 120px)' : 'auto',
-          overflowY: isMobile ? 'visible' : 'auto'
+          height: isMobilePhone ? 'auto' : '100%',
+          minHeight: isMobilePhone ? 'calc(100vh - 120px)' : 'auto',
+          overflowY: isMobilePhone ? 'visible' : 'auto'
         }}>
           {/* Header Section */}
           <div style={{
