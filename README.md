@@ -31,9 +31,26 @@ SwiftBill operates **100% locally with zero internet dependency**, zero cloud su
 
 ---
 
-### 📱 4. Mobile & Multi-Device Responsive
-* Runs smoothly on Desktop monitors, POS touchscreens, iPad/Android Tablets, and Mobile Phones over your local Wi-Fi network.
+### 📱 4. Mobile, iPad & Multi-Device Responsive (3-Tier Breakpoint Architecture)
+* **Desktop & Laptops (`> 992px`)**: Permanent 260px left sidebar + full side-by-side POS Billing layout with zero topbar clutter.
+* **iPad & Tablets (`768px – 992px`)**: Off-canvas drawer menu (`☰`) + 2-Column POS Billing layout with 3-5 product card columns side-by-side with Order Summary cart panel (zero column squishing!).
+* **Mobile Phones (`<= 768px`)**: Single-column view with top segmented tab switcher (`Browse Menu` | `Bill (₹Total)`) and floating bottom cart bar.
 * Features a built-in **Touch Numeric Keypad** for effortless 1-finger PIN unlocking on mobile screens.
+
+---
+
+### 🛍️ 5. Swiggy Instamart / Zepto Inspired POS Catalog & Product Cards
+* **Floating `+` Add Button**: Floating on product image with live interactive `[ - ] qty [ + ]` stepper.
+* **Veg / Non-Veg Emblem (`⊡`)**: Standard Indian FSSAI green circle badge on bottom-left of product photos.
+* **Bookmark / Wishlist Ribbon (`🔖`)**: Save items to quick list with 1 tap.
+* **Interactive Weight & Variant Pills**: Select `[ 1 kg ]`, `[ 3 kg ]`, `[ 500 g ]` or `[ 80-140 g ]` to instantly update prices, unit rates (`₹3.7/100 g`), and discount tags (`31% OFF`).
+* **Quick Filters & Dropdown Sorting**: Filter by `⊶ Filters`, `Sort By` (*Recommended*, *Price: Low to High*, *Price: High to Low*, *Biggest Discount*), and `📉 Price Drop` toggle.
+
+---
+
+### 👥 6. Staff Accounts & PIN Management
+* **Master & Admin Panel**: Create staff accounts with custom PINs, employee roles, and individual shift tracking.
+* **1-Tap Switch User**: Switch between Cashier and Admin profiles on the fly without losing active billing carts.
 
 ---
 
