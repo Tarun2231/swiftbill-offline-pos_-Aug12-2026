@@ -816,10 +816,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           {/* Product Grid (Swiggy Instamart / Zepto Style) */}
           <div className="product-grid-responsive" style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(150px, 1fr))' : 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: isMobile ? '10px' : '14px',
+            gridTemplateColumns: isMobilePhone ? 'repeat(auto-fill, minmax(135px, 1fr))' : 'repeat(auto-fill, minmax(140px, 1fr))',
+            gap: isMobilePhone ? '8px' : '12px',
             alignContent: 'start',
-            paddingBottom: isMobile && combinedItemsForBilling.length > 0 ? '70px' : '16px'
+            paddingBottom: isMobilePhone && combinedItemsForBilling.length > 0 ? '70px' : '16px'
           }}>
             {filteredProducts.map((prod) => {
               const isOutOfStock = prod.stock <= 0;
