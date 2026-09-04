@@ -130,13 +130,12 @@ function MainApp() {
   return (
     <div className="app-container" data-theme={theme}>
       
-      {/* Mobile Sticky Navigation Header (<= 900px) */}
+      {/* Mobile Sticky Navigation Header (<= 1024px) */}
       <header className="mobile-topbar" style={{
         padding: '8px 14px',
         minHeight: '48px',
         backgroundColor: 'var(--bg-sidebar)',
         borderBottom: '1px solid var(--border-color)',
-        display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         position: 'sticky',
