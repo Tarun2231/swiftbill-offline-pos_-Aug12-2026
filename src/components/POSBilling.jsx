@@ -40,7 +40,11 @@ import {
   SlidersHorizontal,
   TrendingDown,
   ChevronDown,
-  Check
+  Check,
+  Pause,
+  Play,
+  Phone,
+  UserCheck
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -60,7 +64,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     fireKOT,
     updateItemCookingStatus,
     clearTable,
-    currentUser
+    currentUser,
+    heldCarts,
+    holdCart,
+    deleteHeldCart
   } = useBilling();
 
   const isAdmin = auth?.role === 'admin' || currentUser?.role === 'Master Admin';
@@ -68,6 +75,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Items');
   const [cart, setCart] = useState([]);
+
+  // Multi-Customer Sessions & Phone-First States
+  const [showPhonePromptModal, setShowPhonePromptModal] = useState(false);
+  const [promptPhoneInput, setPromptPhoneInput] = useState('');
+  const [promptNameInput, setPromptNameInput] = useState('');
+  const [phoneLookupQuery, setPhoneLookupQuery] = useState('');
+  const [pauseSuccessToast, setPauseSuccessToast] = useState(null);
   
   // Screen Width Breakpoint State (Phone vs Tablet vs Desktop)
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -350,9 +364,119 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     alert(`🔥 Kitchen Order Ticket (KOT) sent to kitchen for ${tableNo}!`);
   };
 
+  // PAUSE / HOLD CART & MULTI-CUSTOMER SESSION HANDLERS
+  const handlePauseCartClick = () => {
+    if (cart.length === 0 && runningTableItems.length === 0) {
+      alert('Your current cart is empty. Add items first before pausing!');
+      return;
+    }
+
+    if (selectedCustomer.name === 'Walk-in Customer' || !selectedCustomer.phone || selectedCustomer.phone === '-') {
+      setPromptPhoneInput('');
+      setPromptNameInput('');
+      setShowPhonePromptModal(true);
+      return;
+    }
+
+    executePauseCart(selectedCustomer);
+  };
+
+  const executePauseCart = (custToUse) => {
+    const heldItem = holdCart({
+      customer: custToUse,
+      cart: cart,
+      discountPercent: discountPercent,
+      paymentMethod: paymentMethod,
+      vehicleDetails: activeBusinessId === 'automotive' ? { vehicleNo, vehicleModel, odometerKm, technicianName } : null,
+      restaurantDetails: activeBusinessId === 'restaurant' ? { tableNo, orderType, chefNotes } : null,
+      grandTotal: grandTotal
+    });
+
+    setCart([]);
+    setDiscountPercent(0);
+    setVehicleNo('');
+    setVehicleModel('');
+    setSelectedCustomer(customers[0] || { name: 'Walk-in Customer', phone: '-' });
+    setPhoneLookupQuery('');
+    setPauseSuccessToast(`⏸️ Paused cart for ${custToUse.name} (${custToUse.phone || 'Walk-in'}). Ready for next customer!`);
+    setTimeout(() => setPauseSuccessToast(null), 6000);
+  };
+
+  const handleResumeCart = (heldItem) => {
+    if (cart.length > 0) {
+      if (!window.confirm(`You have active items in your cart. Pause current cart and load ${heldItem.customer?.name}'s cart?`)) {
+        return;
+      }
+      executePauseCart(selectedCustomer);
+    }
+
+    setCart(heldItem.cart || []);
+    setSelectedCustomer(heldItem.customer || customers[0] || { name: 'Walk-in Customer', phone: '-' });
+    setDiscountPercent(heldItem.discountPercent || 0);
+    setPaymentMethod(heldItem.paymentMethod || 'UPI');
+    deleteHeldCart(heldItem.id);
+
+    if (isMobile) setMobileTab('cart');
+    setPauseSuccessToast(`▶️ Resumed paused cart for ${heldItem.customer?.name} (${heldItem.customer?.phone || 'Customer'})!`);
+    setTimeout(() => setPauseSuccessToast(null), 5000);
+  };
+
+  const handleConfirmPhoneAndCheckout = () => {
+    let custToUse = selectedCustomer;
+    if (promptPhoneInput.trim()) {
+      const match = customers.find((c) => c.phone && c.phone.trim() === promptPhoneInput.trim());
+      if (match) {
+        custToUse = match;
+        setSelectedCustomer(match);
+      } else {
+        const created = addCustomer({
+          name: promptNameInput.trim() || `Customer (${promptPhoneInput.trim()})`,
+          phone: promptPhoneInput.trim()
+        });
+        custToUse = created;
+        setSelectedCustomer(created);
+      }
+    }
+    setShowPhonePromptModal(false);
+    handleCheckout(true);
+  };
+
+  const handleConfirmPhoneAndPause = () => {
+    let custToUse = selectedCustomer;
+    if (promptPhoneInput.trim()) {
+      const match = customers.find((c) => c.phone && c.phone.trim() === promptPhoneInput.trim());
+      if (match) {
+        custToUse = match;
+      } else {
+        const created = addCustomer({
+          name: promptNameInput.trim() || `Customer (${promptPhoneInput.trim()})`,
+          phone: promptPhoneInput.trim()
+        });
+        custToUse = created;
+      }
+    } else {
+      custToUse = { name: promptNameInput.trim() || 'Paused Customer', phone: '-' };
+    }
+    setShowPhonePromptModal(false);
+    executePauseCart(custToUse);
+  };
+
+  const handleSkipPhoneCheckout = () => {
+    setShowPhonePromptModal(false);
+    handleCheckout(true);
+  };
+
   // CHECKOUT & POST-DINING SETTLEMENT ACTION (Pay after eating)
-  const handleCheckout = () => {
+  const handleCheckout = (skipPhoneCheck = false) => {
     if (combinedItemsForBilling.length === 0) return;
+
+    // PHONE NUMBER FIRST PROMPT BEFORE PAYMENT
+    if (!skipPhoneCheck && (selectedCustomer.name === 'Walk-in Customer' || !selectedCustomer.phone || selectedCustomer.phone === '-')) {
+      setPromptPhoneInput('');
+      setPromptNameInput('');
+      setShowPhonePromptModal(true);
+      return;
+    }
 
     if (paymentMethod === 'UPI' && !showUpiModal) {
       setShowUpiModal(true);
@@ -413,6 +537,16 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     setVehicleNo('');
     setVehicleModel('');
     setShowUpiModal(false);
+    setSelectedCustomer(customers[0] || { name: 'Walk-in Customer', phone: '-' });
+
+    if (heldCarts && heldCarts.length > 0) {
+      const remainingHeld = heldCarts.filter(h => h.id !== created.id);
+      if (remainingHeld.length > 0) {
+        setPauseSuccessToast(`✅ Sale complete! ⏸️ Customer ${remainingHeld[0].customer?.name} (${remainingHeld[0].customer?.phone}) cart is waiting.`);
+        setTimeout(() => setPauseSuccessToast(null), 7000);
+      }
+    }
+
     if (isMobile) setMobileTab('catalog');
     onCompleteSale(created);
   };
@@ -573,6 +707,109 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
           position: 'relative'
         }}>
           
+          {/* TOAST / PAUSE SUCCESS BANNER */}
+          {pauseSuccessToast && (
+            <div style={{
+              padding: '10px 14px',
+              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+              border: '1.5px solid rgba(16, 185, 129, 0.4)',
+              color: '#10b981',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '13px',
+              fontWeight: '700',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
+            }}>
+              <span>{pauseSuccessToast}</span>
+              <button
+                onClick={() => setPauseSuccessToast(null)}
+                style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* HELD CARTS (PAUSED CUSTOMER ORDERS) BANNER */}
+          {heldCarts && heldCarts.length > 0 && (
+            <div style={{
+              padding: '10px 14px',
+              backgroundColor: 'rgba(245, 158, 11, 0.12)',
+              border: '1.5px solid rgba(245, 158, 11, 0.4)',
+              borderRadius: 'var(--radius-md)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.1)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Pause size={16} color="#f59e0b" />
+                  <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-main)' }}>
+                    ⏸️ Paused Customer Orders ({heldCarts.length})
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    (Switch/Resume customer carts anytime)
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'thin' }}>
+                {heldCarts.map((item) => (
+                  <div key={item.id} style={{
+                    padding: '8px 12px',
+                    backgroundColor: 'var(--bg-card)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-sm)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    minWidth: '250px',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '12.5px', fontWeight: '800', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        👤 {item.customer?.name || 'Customer'}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: '700' }}>
+                        📱 {item.customer?.phone !== '-' ? item.customer.phone : 'No Phone'} • {item.itemCount} items
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        {settings.currency}{item.grandTotal} • {item.timestamp}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <button
+                        onClick={() => handleResumeCart(item)}
+                        className="btn btn-primary"
+                        style={{
+                          padding: '4px 10px',
+                          fontSize: '11.5px',
+                          fontWeight: '700',
+                          height: '28px',
+                          backgroundColor: '#f59e0b',
+                          borderColor: '#f59e0b',
+                          gap: '4px'
+                        }}
+                      >
+                        <Play size={12} fill="#ffffff" /> Resume
+                      </button>
+                      <button
+                        onClick={() => deleteHeldCart(item.id)}
+                        style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '10.5px', cursor: 'pointer', textAlign: 'center' }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Header Row */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
@@ -2183,6 +2420,122 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '12px', fontWeight: '700' }}>
                   Save Customer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* PHONE NUMBER FIRST PROMPT & PAUSE CART MODAL */}
+      {showPhonePromptModal && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-container" style={{
+            maxWidth: '440px',
+            padding: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                  color: '#3b82f6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Smartphone size={20} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '16px', fontWeight: '800', margin: 0, color: 'var(--text-main)' }}>
+                    Customer Mobile Number
+                  </h3>
+                  <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
+                    Required for billing & cart pausing
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowPhonePromptModal(false)}
+                className="btn-icon"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={(e) => { e.preventDefault(); handleConfirmPhoneAndCheckout(); }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label className="form-label" style={{ fontSize: '12px' }}>Mobile Phone Number *</label>
+                <input
+                  type="tel"
+                  required
+                  autoFocus
+                  placeholder="Enter 10-digit mobile number e.g. 9811122233"
+                  value={promptPhoneInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPromptPhoneInput(val);
+                    const match = customers.find(c => c.phone && c.phone.trim() === val.trim());
+                    if (match) setPromptNameInput(match.name);
+                  }}
+                  className="form-input mono"
+                  style={{ fontSize: '15px', fontWeight: '700', height: '40px' }}
+                />
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontSize: '12px' }}>Customer Name (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Rahul Sharma"
+                  value={promptNameInput}
+                  onChange={(e) => setPromptNameInput(e.target.value)}
+                  className="form-input"
+                  style={{ fontSize: '13px', height: '36px' }}
+                />
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ padding: '11px', fontSize: '13px', fontWeight: '700', justifyContent: 'center' }}
+                >
+                  <CheckCircle2 size={16} /> Proceed to Pay & Complete Bill
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleConfirmPhoneAndPause}
+                  className="btn btn-warning"
+                  style={{
+                    padding: '10px',
+                    fontSize: '12.5px',
+                    fontWeight: '700',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(245,158,11,0.15)',
+                    color: '#f59e0b',
+                    border: '1px solid rgba(245,158,11,0.3)'
+                  }}
+                >
+                  <Pause size={15} /> ⏸️ Pause Cart & Serve Next Customer
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSkipPhoneCheckout}
+                  className="btn btn-secondary"
+                  style={{ padding: '8px', fontSize: '12px', justifyContent: 'center' }}
+                >
+                  Skip Phone & Pay (Walk-in Customer)
                 </button>
               </div>
             </form>

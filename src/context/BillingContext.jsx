@@ -1406,6 +1406,38 @@ export const BillingProvider = ({ children }) => {
     }
   };
 
+  // Held Carts (Multi-Customer Sessions)
+  const holdCart = (cartPayload) => {
+    const heldItem = {
+      id: 'held_' + Date.now(),
+      businessId: data.activeBusinessId,
+      customer: cartPayload.customer || { name: 'Walk-in Customer' },
+      cart: cartPayload.cart || [],
+      discountPercent: cartPayload.discountPercent || 0,
+      paymentMethod: cartPayload.paymentMethod || 'UPI',
+      vehicleDetails: cartPayload.vehicleDetails || null,
+      restaurantDetails: cartPayload.restaurantDetails || null,
+      grandTotal: cartPayload.grandTotal || 0,
+      itemCount: (cartPayload.cart || []).reduce((acc, i) => acc + (i.qty || 1), 0),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      date: new Date().toISOString()
+    };
+
+    setData((prev) => ({
+      ...prev,
+      heldCarts: [heldItem, ...(prev.heldCarts || [])]
+    }));
+
+    return heldItem;
+  };
+
+  const deleteHeldCart = (id) => {
+    setData((prev) => ({
+      ...prev,
+      heldCarts: (prev.heldCarts || []).filter((h) => h.id !== id)
+    }));
+  };
+
   const resetToDefaults = () => {
     safeStorage.removeItem(STORAGE_KEY);
     if (typeof window !== 'undefined') {
@@ -1441,6 +1473,7 @@ export const BillingProvider = ({ children }) => {
         quotations: data.quotations.filter((q) => !q.businessId || q.businessId === data.activeBusinessId),
         returns: data.returns.filter((r) => !r.businessId || r.businessId === data.activeBusinessId),
         expenses: data.expenses.filter((e) => !e.businessId || e.businessId === data.activeBusinessId),
+        heldCarts: (data.heldCarts || []).filter((h) => !h.businessId || h.businessId === data.activeBusinessId),
         kitchenOrders: data.kitchenOrders || [],
         restaurantTables: data.restaurantTables || [],
         serviceJobs: data.serviceJobs || [],
@@ -1458,6 +1491,8 @@ export const BillingProvider = ({ children }) => {
         deleteQuotation,
         addExpense,
         deleteExpense,
+        holdCart,
+        deleteHeldCart,
         updateSettings,
         updateKOTStatus,
         updateJobStatus,
