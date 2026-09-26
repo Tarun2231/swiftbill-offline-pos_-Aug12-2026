@@ -44,7 +44,13 @@ import {
   Pause,
   Play,
   Phone,
-  UserCheck
+  UserCheck,
+  Keyboard,
+  Barcode,
+  MessageSquare,
+  FileText,
+  AlertCircle,
+  Info
 } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
@@ -80,8 +86,17 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const [showPhonePromptModal, setShowPhonePromptModal] = useState(false);
   const [promptPhoneInput, setPromptPhoneInput] = useState('');
   const [promptNameInput, setPromptNameInput] = useState('');
+  const [promptNoteInput, setPromptNoteInput] = useState('');
   const [phoneLookupQuery, setPhoneLookupQuery] = useState('');
   const [pauseSuccessToast, setPauseSuccessToast] = useState(null);
+  
+  // Dedicated Modals & Enhanced Features
+  const [showHeldCartsModal, setShowHeldCartsModal] = useState(false);
+  const [showHotkeysModal, setShowHotkeysModal] = useState(false);
+  const [barcodeMode, setBarcodeMode] = useState(false);
+  const [itemNotesMap, setItemNotesMap] = useState({});
+  const [editingNoteItemId, setEditingNoteItemId] = useState(null);
+  const [itemNoteText, setItemNoteText] = useState('');
   
   // Screen Width Breakpoint State (Phone vs Tablet vs Desktop)
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -93,6 +108,43 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Keyboard Shortcuts Listener (F2, F4, F8, Esc, ?)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const activeTag = document.activeElement?.tagName;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
+        if (e.key === 'Escape') {
+          document.activeElement.blur();
+        }
+        return;
+      }
+
+      if (e.key === 'F2') {
+        e.preventDefault();
+        document.getElementById('pos-search-input')?.focus();
+      } else if (e.key === 'F4') {
+        e.preventDefault();
+        handlePauseCartClick();
+      } else if (e.key === 'F8') {
+        e.preventDefault();
+        handleCheckout();
+      } else if (e.key === '?') {
+        e.preventDefault();
+        setShowHotkeysModal(true);
+      } else if (e.key === 'Escape') {
+        setShowPhonePromptModal(false);
+        setShowHeldCartsModal(false);
+        setShowHotkeysModal(false);
+        setShowCustomerHistoryModal(false);
+        setShowTableTimingModal(false);
+        setShowUpiModal(false);
+        setShowAddCustomerModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [cart, selectedCustomer]);
 
   const isMobilePhone = windowWidth <= 768;
   const isTablet = windowWidth > 768 && windowWidth <= 1150;
@@ -381,7 +433,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     executePauseCart(selectedCustomer);
   };
 
-  const executePauseCart = (custToUse) => {
+  const executePauseCart = (custToUse, optionalNote = '') => {
+    const noteToUse = optionalNote || promptNoteInput.trim();
     const heldItem = holdCart({
       customer: custToUse,
       cart: cart,
@@ -389,7 +442,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       paymentMethod: paymentMethod,
       vehicleDetails: activeBusinessId === 'automotive' ? { vehicleNo, vehicleModel, odometerKm, technicianName } : null,
       restaurantDetails: activeBusinessId === 'restaurant' ? { tableNo, orderType, chefNotes } : null,
-      grandTotal: grandTotal
+      grandTotal: grandTotal,
+      note: noteToUse
     });
 
     setCart([]);
@@ -398,7 +452,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     setVehicleModel('');
     setSelectedCustomer(customers[0] || { name: 'Walk-in Customer', phone: '-' });
     setPhoneLookupQuery('');
-    setPauseSuccessToast(`⏸️ Paused cart for ${custToUse.name} (${custToUse.phone || 'Walk-in'}). Ready for next customer!`);
+    setPromptNoteInput('');
+    setPauseSuccessToast(`⏸️ Paused cart for ${custToUse.name}${noteToUse ? ` (${noteToUse})` : ''}. Ready for next customer!`);
     setTimeout(() => setPauseSuccessToast(null), 6000);
   };
 
@@ -458,7 +513,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       custToUse = { name: promptNameInput.trim() || 'Paused Customer', phone: '-' };
     }
     setShowPhonePromptModal(false);
-    executePauseCart(custToUse);
+    executePauseCart(custToUse, promptNoteInput.trim());
   };
 
   const handleSkipPhoneCheckout = () => {
@@ -732,81 +787,95 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             </div>
           )}
 
-          {/* HELD CARTS (PAUSED CUSTOMER ORDERS) BANNER */}
+          {/* HELD CARTS COMPACT CHIP BAR (NON-CLUMSY SLEEK DESIGN) */}
           {heldCarts && heldCarts.length > 0 && (
             <div style={{
-              padding: '10px 14px',
-              backgroundColor: 'rgba(245, 158, 11, 0.12)',
-              border: '1.5px solid rgba(245, 158, 11, 0.4)',
-              borderRadius: 'var(--radius-md)',
               display: 'flex',
-              flexDirection: 'column',
+              alignItems: 'center',
               gap: '8px',
-              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.1)'
+              padding: '6px 12px',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: 'var(--radius-md)',
+              boxShadow: '0 2px 10px rgba(245, 158, 11, 0.08)',
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+              flexShrink: 0
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Pause size={16} color="#f59e0b" />
-                  <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-main)' }}>
-                    ⏸️ Paused Customer Orders ({heldCarts.length})
-                  </span>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    (Switch/Resume customer carts anytime)
-                  </span>
-                </div>
-              </div>
+              <button
+                onClick={() => setShowHeldCartsModal(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#f59e0b',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+                title="Click to view all paused customer carts"
+              >
+                <Pause size={14} /> Paused Orders ({heldCarts.length}):
+              </button>
 
-              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'thin' }}>
+              <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', flex: 1, scrollbarWidth: 'none', alignItems: 'center' }}>
                 {heldCarts.map((item) => (
                   <div key={item.id} style={{
-                    padding: '8px 12px',
+                    padding: '4px 10px',
                     backgroundColor: 'var(--bg-card)',
                     border: '1px solid var(--border-color)',
-                    borderRadius: 'var(--radius-sm)',
+                    borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    minWidth: '250px',
+                    gap: '8px',
+                    fontSize: '12px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
                     boxShadow: 'var(--shadow-sm)'
                   }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '12.5px', fontWeight: '800', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        👤 {item.customer?.name || 'Customer'}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: '700' }}>
-                        📱 {item.customer?.phone !== '-' ? item.customer.phone : 'No Phone'} • {item.itemCount} items
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {settings.currency}{item.grandTotal} • {item.timestamp}
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <button
-                        onClick={() => handleResumeCart(item)}
-                        className="btn btn-primary"
-                        style={{
-                          padding: '4px 10px',
-                          fontSize: '11.5px',
-                          fontWeight: '700',
-                          height: '28px',
-                          backgroundColor: '#f59e0b',
-                          borderColor: '#f59e0b',
-                          gap: '4px'
-                        }}
-                      >
-                        <Play size={12} fill="#ffffff" /> Resume
-                      </button>
-                      <button
-                        onClick={() => deleteHeldCart(item.id)}
-                        style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '10.5px', cursor: 'pointer', textAlign: 'center' }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
+                    <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>
+                      👤 {item.customer?.name} {item.note ? `• 🏷️ ${item.note}` : ''} ({settings.currency}{item.grandTotal})
+                    </span>
+                    <button
+                      onClick={() => handleResumeCart(item)}
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        backgroundColor: '#f59e0b',
+                        color: '#ffffff',
+                        border: 'none',
+                        fontSize: '11px',
+                        fontWeight: '800',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '3px'
+                      }}
+                    >
+                      <Play size={10} fill="#ffffff" /> Resume
+                    </button>
+                    <button
+                      onClick={() => deleteHeldCart(item.id)}
+                      style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '11px', cursor: 'pointer', padding: '0 2px' }}
+                      title="Cancel Paused Order"
+                    >
+                      <X size={13} />
+                    </button>
                   </div>
                 ))}
               </div>
+
+              <button
+                onClick={() => setShowHeldCartsModal(true)}
+                className="btn btn-secondary"
+                style={{ padding: '3px 8px', fontSize: '11px', height: '26px', flexShrink: 0, color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.4)', fontWeight: '700' }}
+              >
+                Manage ({heldCarts.length}) ➔
+              </button>
             </div>
           )}
 
@@ -817,6 +886,29 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 <span className="time-badge">
                   <Zap size={11} fill="var(--swiggy-orange)" /> Quick POS
                 </span>
+
+                {heldCarts && heldCarts.length > 0 && (
+                  <button
+                    onClick={() => setShowHeldCartsModal(true)}
+                    style={{
+                      padding: '2px 8px',
+                      borderRadius: 'var(--radius-full)',
+                      backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                      border: '1px solid rgba(245, 158, 11, 0.4)',
+                      fontSize: '11px',
+                      fontWeight: '800',
+                      color: '#f59e0b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      cursor: 'pointer'
+                    }}
+                    title="View Paused Orders"
+                  >
+                    <Pause size={11} /> {heldCarts.length} Paused
+                  </button>
+                )}
+
                 <div style={{
                   padding: '2px 8px',
                   borderRadius: 'var(--radius-full)',
@@ -834,34 +926,92 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 </div>
               </div>
 
-              {isAdmin && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <button
-                  onClick={() => setShowProfitPeek(!showProfitPeek)}
+                  onClick={() => setShowHotkeysModal(true)}
                   className="btn btn-secondary"
                   style={{
-                    fontSize: '11.5px',
-                    padding: '5px 10px',
+                    fontSize: '11px',
+                    padding: '4px 8px',
                     height: '28px',
                     flexShrink: 0,
                     fontWeight: '600',
                     gap: '4px'
                   }}
+                  title="View Keyboard Hotkeys (?)"
                 >
-                  {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="var(--instamart-green)" />}
-                  {showProfitPeek ? `Margin: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
+                  <Keyboard size={13} color="#3b82f6" /> Shortcuts
                 </button>
-              )}
+
+                {isAdmin && (
+                  <button
+                    onClick={() => setShowProfitPeek(!showProfitPeek)}
+                    className="btn btn-secondary"
+                    style={{
+                      fontSize: '11.5px',
+                      padding: '5px 10px',
+                      height: '28px',
+                      flexShrink: 0,
+                      fontWeight: '600',
+                      gap: '4px'
+                    }}
+                  >
+                    {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="var(--instamart-green)" />}
+                    {showProfitPeek ? `Margin: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Search & Action Bar */}
+            {/* Search & Barcode Action Bar */}
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {/* Barcode Scanner Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setBarcodeMode(!barcodeMode)}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  border: `1.5px solid ${barcodeMode ? 'var(--instamart-green)' : 'var(--border-color)'}`,
+                  backgroundColor: barcodeMode ? 'var(--instamart-green-light)' : 'var(--bg-card)',
+                  color: barcodeMode ? 'var(--instamart-green)' : 'var(--text-main)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+                title={barcodeMode ? 'Barcode Mode Active (Enter to auto-add item)' : 'Toggle Barcode Mode'}
+              >
+                <Barcode size={18} />
+              </button>
+
               <div style={{ position: 'relative', flex: 1 }}>
                 <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '10px' }} />
                 <input
+                  id="pos-search-input"
                   type="text"
-                  placeholder={`Search produce, essentials, dishes, or SKU...`}
+                  placeholder={barcodeMode ? "Scan Barcode / SKU & press Enter to auto-add..." : "Search produce, essentials, dishes, SKU (Press Enter to quick add)..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (!searchQuery.trim()) return;
+                      const matchedSku = products.find(p => p.sku && p.sku.toLowerCase() === searchQuery.trim().toLowerCase());
+                      if (matchedSku) {
+                        addToCart(matchedSku, 1);
+                        setSearchQuery('');
+                        return;
+                      }
+                      if (filteredProducts.length === 1) {
+                        addToCart(filteredProducts[0], 1);
+                        setSearchQuery('');
+                        return;
+                      }
+                    }
+                  }}
                   className="form-input"
                   style={{
                     paddingLeft: '36px',
@@ -2458,7 +2608,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       {showPhonePromptModal && (
         <div className="modal-overlay" style={{ zIndex: 9999 }}>
           <div className="modal-container" style={{
-            maxWidth: '440px',
+            maxWidth: '450px',
             padding: '24px',
             display: 'flex',
             flexDirection: 'column',
@@ -2480,10 +2630,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 </div>
                 <div>
                   <h3 style={{ fontSize: '16px', fontWeight: '800', margin: 0, color: 'var(--text-main)' }}>
-                    Customer Mobile Number
+                    Customer Details & Session Tag
                   </h3>
                   <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
-                    Required for billing & cart pausing
+                    Identify customer or tag session reason
                   </span>
                 </div>
               </div>
@@ -2517,16 +2667,56 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 />
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label className="form-label" style={{ fontSize: '11.5px' }}>Customer Name (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Rahul Sharma"
+                    value={promptNameInput}
+                    onChange={(e) => setPromptNameInput(e.target.value)}
+                    className="form-input"
+                    style={{ fontSize: '12.5px', height: '36px' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="form-label" style={{ fontSize: '11.5px' }}>Hold Reason / Note Tag</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Table 4 / Fetching item"
+                    value={promptNoteInput}
+                    onChange={(e) => setPromptNoteInput(e.target.value)}
+                    className="form-input"
+                    style={{ fontSize: '12.5px', height: '36px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Quick Tag Pills */}
               <div>
-                <label className="form-label" style={{ fontSize: '12px' }}>Customer Name (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Rahul Sharma"
-                  value={promptNameInput}
-                  onChange={(e) => setPromptNameInput(e.target.value)}
-                  className="form-input"
-                  style={{ fontSize: '13px', height: '36px' }}
-                />
+                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Quick Note Presets:</span>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '4px' }}>
+                  {['Forgot Item', 'Table Order', 'Card Pending', 'Waiting for Friend', 'Counter 2'].map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setPromptNoteInput(tag)}
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--border-color)',
+                        backgroundColor: promptNoteInput === tag ? 'rgba(245, 158, 11, 0.2)' : 'var(--bg-input)',
+                        color: promptNoteInput === tag ? '#f59e0b' : 'var(--text-muted)',
+                        fontSize: '10.5px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      +{tag}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* ACTION BUTTONS */}
@@ -2566,6 +2756,222 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* DEDICATED PAUSED CUSTOMER CARTS MANAGER MODAL */}
+      {showHeldCartsModal && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-container" style={{
+            maxWidth: '620px',
+            width: '95%',
+            padding: '22px',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                  color: '#f59e0b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Pause size={22} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '17px', fontWeight: '800', margin: 0, color: 'var(--text-main)' }}>
+                    ⏸️ Paused Customer Sessions ({heldCarts.length})
+                  </h3>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                    Switch or resume paused billing sessions at any time
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowHeldCartsModal(false)}
+                className="btn-icon"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {heldCarts.length === 0 ? (
+              <div style={{ padding: '36px 0', textAlign: 'center', color: 'var(--text-dim)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                <Pause size={42} opacity={0.3} color="#f59e0b" />
+                <p style={{ fontSize: '14px', fontWeight: '600' }}>No paused customer orders right now.</p>
+                <span style={{ fontSize: '12px' }}>Click "Pause Cart" during checkout when a customer needs time to fetch items.</span>
+              </div>
+            ) : (
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
+                {heldCarts.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      padding: '14px 16px',
+                      backgroundColor: 'var(--bg-input)',
+                      border: '1.5px solid rgba(245, 158, 11, 0.35)',
+                      borderRadius: 'var(--radius-md)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '12px',
+                      boxShadow: 'var(--shadow-sm)'
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>
+                          👤 {item.customer?.name || 'Customer'}
+                        </span>
+                        {item.note && (
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: 'full',
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                            color: '#f59e0b',
+                            fontSize: '11px',
+                            fontWeight: '700'
+                          }}>
+                            🏷️ {item.note}
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <span>📱 {item.customer?.phone !== '-' ? item.customer.phone : 'No Phone'}</span>
+                        <span>🛒 {item.itemCount} items</span>
+                        <span>🕒 {item.timestamp}</span>
+                      </div>
+
+                      <div style={{ fontSize: '11.5px', color: 'var(--text-dim)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        Items: {item.cart.map(i => `${i.name} (${i.qty})`).join(', ')}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                      <div className="mono" style={{ fontSize: '16px', fontWeight: '800', color: 'var(--instamart-green)' }}>
+                        {settings.currency}{item.grandTotal.toLocaleString()}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                          onClick={() => {
+                            setShowHeldCartsModal(false);
+                            handleResumeCart(item);
+                          }}
+                          className="btn btn-primary"
+                          style={{
+                            padding: '6px 14px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            backgroundColor: '#f59e0b',
+                            borderColor: '#f59e0b',
+                            gap: '5px'
+                          }}
+                        >
+                          <Play size={13} fill="#ffffff" /> Resume Cart
+                        </button>
+
+                        <button
+                          onClick={() => deleteHeldCart(item.id)}
+                          className="btn btn-danger"
+                          style={{ padding: '6px 10px', fontSize: '11.5px' }}
+                          title="Delete Paused Cart"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => setShowHeldCartsModal(false)}
+              className="btn btn-secondary"
+              style={{ width: '100%', padding: '9px', fontSize: '13px', fontWeight: '700', marginTop: '4px' }}
+            >
+              Close Paused Orders Manager
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* KEYBOARD SHORTCUTS HOTKEYS MODAL */}
+      {showHotkeysModal && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-container" style={{
+            maxWidth: '440px',
+            padding: '22px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Keyboard size={20} color="#3b82f6" />
+                <h3 style={{ fontSize: '16px', fontWeight: '800', margin: 0, color: 'var(--text-main)' }}>
+                  ⌨️ POS Keyboard Hotkeys
+                </h3>
+              </div>
+              <button onClick={() => setShowHotkeysModal(false)} className="btn-icon">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {[
+                { key: 'F2', label: 'Focus Product Search / Barcode Input' },
+                { key: 'F4', label: 'Pause Active Cart & Serve Next Customer' },
+                { key: 'F8', label: 'Print Invoice / Settle Bill' },
+                { key: 'Enter (in search)', label: 'Auto-add matched SKU / Barcode item' },
+                { key: '?', label: 'Open Shortcuts Cheatsheet' },
+                { key: 'Esc', label: 'Close Active Modals / Blur Input' }
+              ].map((hk) => (
+                <div key={hk.key} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 12px',
+                  backgroundColor: 'var(--bg-input)',
+                  borderRadius: 'var(--radius-xs)',
+                  border: '1px solid var(--border-color)'
+                }}>
+                  <span style={{ fontSize: '12.5px', color: 'var(--text-main)', fontWeight: '500' }}>
+                    {hk.label}
+                  </span>
+                  <span className="mono" style={{
+                    padding: '3px 8px',
+                    borderRadius: '6px',
+                    backgroundColor: 'var(--bg-card)',
+                    border: '1px solid var(--border-color)',
+                    color: '#3b82f6',
+                    fontSize: '12px',
+                    fontWeight: '800'
+                  }}>
+                    {hk.key}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowHotkeysModal(false)}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '9px', fontSize: '13px', fontWeight: '700', marginTop: '4px' }}
+            >
+              Got it
+            </button>
           </div>
         </div>
       )}
