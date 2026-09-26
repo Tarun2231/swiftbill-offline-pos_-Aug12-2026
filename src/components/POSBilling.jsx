@@ -1454,14 +1454,39 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     <ArrowLeft size={13} /> Back
                   </button>
                 )}
-                <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+                <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                   {activeBusinessId === 'restaurant' ? `${tableNo} Running Tab` : 'Order Summary'}
                 </h3>
               </div>
 
-              <span className="badge badge-success" style={{ fontSize: '10.5px', padding: '2px 7px' }}>
-                {combinedItemsForBilling.length} items
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {/* PROMINENT PAUSE CART BUTTON */}
+                <button
+                  onClick={handlePauseCartClick}
+                  className="btn btn-warning"
+                  style={{
+                    padding: '4px 10px',
+                    height: '28px',
+                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                    color: '#f59e0b',
+                    border: '1.5px solid rgba(245, 158, 11, 0.4)',
+                    fontWeight: '800',
+                    fontSize: '11.5px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    cursor: 'pointer',
+                    borderRadius: '6px'
+                  }}
+                  title="Pause / Hold Current Customer Cart & Serve Next Customer"
+                >
+                  <Pause size={13} /> Pause Cart
+                </button>
+
+                <span className="badge badge-success" style={{ fontSize: '10.5px', padding: '3px 7px' }}>
+                  {combinedItemsForBilling.length} items
+                </span>
+              </div>
             </div>
 
             {/* Customer Picker */}
@@ -1510,6 +1535,27 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   title="Add New Customer"
                 >
                   <UserPlus size={15} color="var(--instamart-green)" />
+                </button>
+
+                <button
+                  onClick={handlePauseCartClick}
+                  className="btn btn-secondary"
+                  style={{
+                    padding: '6px 10px',
+                    height: '34px',
+                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                    color: '#f59e0b',
+                    border: '1px solid rgba(245, 158, 11, 0.35)',
+                    fontWeight: '800',
+                    fontSize: '11.5px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    whiteSpace: 'nowrap'
+                  }}
+                  title="Pause Customer Cart & Serve Next Customer"
+                >
+                  <Pause size={13} /> Pause
                 </button>
               </div>
             </div>
