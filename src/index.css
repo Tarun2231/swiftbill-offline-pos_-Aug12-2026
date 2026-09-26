@@ -623,6 +623,44 @@ html, body {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
     gap: 8px !important;
   }
+
+  /* Mobile Touch Target & Scroll Fixes */
+  button, input, select, textarea, a {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Table Horizontal Touch Scroll */
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Modal Responsive Fixes */
+  .modal-overlay {
+    padding: 8px !important;
+  }
+
+  .modal-container {
+    max-width: 96vw !important;
+    width: 100% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 16px 14px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .product-grid-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .form-input, .form-select {
+    font-size: 14px !important; /* Prevents mobile Safari auto-zoom on input focus */
+  }
 }
 
 /* Print Styles */

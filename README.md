@@ -54,7 +54,15 @@ SwiftBill operates **100% locally with zero internet dependency**, zero cloud su
 
 ---
 
-### 👥 6. Staff Accounts & Security PIN
+### ⏸️ 6. Multi-Customer Sessions (Pause / Resume Cart) & Phone-First Checkout
+* **Pause Customer Cart**: When a customer needs time to think or fetch forgot items, click `⏸️ Pause Cart` to save their session with their mobile number.
+* **Serve Next Customer**: Immediately log in another customer using their mobile number and complete their transaction without waiting or losing data.
+* **Resume Previous Cart**: Pick up paused carts from the top notification banner at any time and complete checkout seamlessly.
+* **Phone-Number First Workflow**: Enter or confirm customer mobile numbers upfront during checkout or cart pause for accurate record keeping.
+
+---
+
+### 👥 7. Staff Accounts & Security PIN
 * **Master Admin PIN**: `1234` (Can be changed in Store Settings & Security panel).
 * **Multi-User Staff Roles**: Cashier and Master Admin profiles with individual shift tracking.
 
