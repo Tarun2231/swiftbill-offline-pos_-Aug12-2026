@@ -1512,15 +1512,15 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 </button>
               </div>
 
-              <div style={{ display: 'flex', gap: '6px' }}>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                 <select
                   className="form-select"
-                  value={selectedCustomer.id}
+                  value={selectedCustomer?.id || ''}
                   onChange={(e) => {
-                    const found = customers.find((c) => c.id === e.target.value);
+                    const found = customers.find((c) => String(c.id) === String(e.target.value));
                     if (found) setSelectedCustomer(found);
                   }}
-                  style={{ flex: 1, fontSize: '12.5px', height: '34px', minHeight: '34px', padding: '4px 10px' }}
+                  style={{ flex: 1, minWidth: 0, fontSize: '12.5px', height: '34px', minHeight: '34px', padding: '4px 8px' }}
                 >
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -1528,34 +1528,15 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     </option>
                   ))}
                 </select>
-                <button
-                  onClick={() => setShowAddCustomerModal(true)}
-                  className="btn btn-secondary"
-                  style={{ padding: '6px 10px', height: '34px' }}
-                  title="Add New Customer"
-                >
-                  <UserPlus size={15} color="var(--instamart-green)" />
-                </button>
 
                 <button
-                  onClick={handlePauseCartClick}
+                  type="button"
+                  onClick={() => setShowAddCustomerModal(true)}
                   className="btn btn-secondary"
-                  style={{
-                    padding: '6px 10px',
-                    height: '34px',
-                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                    color: '#f59e0b',
-                    border: '1px solid rgba(245, 158, 11, 0.35)',
-                    fontWeight: '800',
-                    fontSize: '11.5px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    whiteSpace: 'nowrap'
-                  }}
-                  title="Pause Customer Cart & Serve Next Customer"
+                  style={{ width: '38px', minWidth: '38px', height: '34px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Add New Customer"
                 >
-                  <Pause size={13} /> Pause
+                  <UserPlus size={16} color="var(--instamart-green)" />
                 </button>
               </div>
             </div>
