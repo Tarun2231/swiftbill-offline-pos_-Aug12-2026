@@ -1373,21 +1373,29 @@ export const BillingProvider = ({ children }) => {
     }));
   };
 
-  // Export / Import
-  const exportDataJSON = () => {
+  // Export / Import Data Backup (Supports both Web Browser downloads & Electron Desktop Native Dialogs)
+  const exportDataJSON = async () => {
     const jsonStr = JSON.stringify(data, null, 2);
+    const defaultFilename = `SwiftBill_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+
+    if (typeof window !== 'undefined' && window.electronAPI?.saveBackupFile) {
+      const res = await window.electronAPI.saveBackupFile(jsonStr, defaultFilename);
+      return res;
+    }
+
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `SwiftBill_MultiBusiness_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = defaultFilename;
     a.click();
     URL.revokeObjectURL(url);
+    return { success: true, message: 'Backup file downloaded successfully.' };
   };
 
   const importDataJSON = (jsonString) => {
     try {
-      const parsed = JSON.parse(jsonString);
+      const parsed = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
       if (parsed.businesses) {
         setData(parsed);
         return { success: true, message: 'Data restored successfully!' };

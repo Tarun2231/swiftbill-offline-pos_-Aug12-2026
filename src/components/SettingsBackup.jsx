@@ -59,6 +59,28 @@ export default function SettingsBackup() {
     setTimeout(() => setSavedSuccess(false), 3000);
   };
 
+  const handleExportBackup = async () => {
+    const res = await exportDataJSON();
+    if (res && res.message) {
+      setImportStatus(res);
+      setTimeout(() => setImportStatus(null), 5000);
+    }
+  };
+
+  const handleNativeRestore = async () => {
+    if (typeof window !== 'undefined' && window.electronAPI?.loadBackupFile) {
+      const res = await window.electronAPI.loadBackupFile();
+      if (res.success && res.content) {
+        const importRes = importDataJSON(res.content);
+        setImportStatus(importRes);
+        setTimeout(() => setImportStatus(null), 5000);
+      } else if (res.message && !res.message.includes('canceled')) {
+        setImportStatus(res);
+        setTimeout(() => setImportStatus(null), 5000);
+      }
+    }
+  };
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -454,7 +476,7 @@ export default function SettingsBackup() {
               Your store data is saved locally on your device. Download a periodic backup to prevent data loss.
             </p>
 
-            <button onClick={exportDataJSON} className="btn btn-primary" style={{ padding: '9px', fontSize: '12.5px', fontWeight: '700' }}>
+            <button onClick={handleExportBackup} className="btn btn-primary" style={{ padding: '9px', fontSize: '12.5px', fontWeight: '700' }}>
               <HardDriveDownload size={15} /> Download Full JSON Backup
             </button>
 
@@ -465,15 +487,26 @@ export default function SettingsBackup() {
                 Restore Data from Backup
               </label>
 
-              <label className="btn btn-secondary" style={{ width: '100%', padding: '9px', cursor: 'pointer', fontSize: '12.5px' }}>
-                <HardDriveUpload size={15} /> Select Backup File (.json)
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={handleFileUpload}
-                  style={{ display: 'none' }}
-                />
-              </label>
+              {typeof window !== 'undefined' && window.electronAPI?.loadBackupFile ? (
+                <button
+                  type="button"
+                  onClick={handleNativeRestore}
+                  className="btn btn-secondary"
+                  style={{ width: '100%', padding: '9px', fontSize: '12.5px', justifyContent: 'center' }}
+                >
+                  <HardDriveUpload size={15} /> Select Backup File (.json)
+                </button>
+              ) : (
+                <label className="btn btn-secondary" style={{ width: '100%', padding: '9px', cursor: 'pointer', fontSize: '12.5px', justifyContent: 'center' }}>
+                  <HardDriveUpload size={15} /> Select Backup File (.json)
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileUpload}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              )}
 
               {importStatus && (
                 <div style={{
