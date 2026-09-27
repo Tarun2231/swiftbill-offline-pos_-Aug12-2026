@@ -109,43 +109,6 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Keyboard Shortcuts Listener (F2, F4, F8, Esc, ?)
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const activeTag = document.activeElement?.tagName;
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
-        if (e.key === 'Escape') {
-          document.activeElement.blur();
-        }
-        return;
-      }
-
-      if (e.key === 'F2') {
-        e.preventDefault();
-        document.getElementById('pos-search-input')?.focus();
-      } else if (e.key === 'F4') {
-        e.preventDefault();
-        handlePauseCartClick();
-      } else if (e.key === 'F8') {
-        e.preventDefault();
-        handleCheckout();
-      } else if (e.key === '?') {
-        e.preventDefault();
-        setShowHotkeysModal(true);
-      } else if (e.key === 'Escape') {
-        setShowPhonePromptModal(false);
-        setShowHeldCartsModal(false);
-        setShowHotkeysModal(false);
-        setShowCustomerHistoryModal(false);
-        setShowTableTimingModal(false);
-        setShowUpiModal(false);
-        setShowAddCustomerModal(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cart, selectedCustomer]);
-
   const isMobilePhone = windowWidth <= 768;
   const isTablet = windowWidth > 768 && windowWidth <= 1150;
   const isMobile = isMobilePhone;
@@ -407,122 +370,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     : grandTotal;
   const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
-  // RESTAURANT: FIRE KOT ACTION (Send to kitchen, keep table occupied)
-  const handleFireKOT = () => {
-    if (cart.length === 0) return;
-    fireKOT(tableNo, cart, chefNotes);
-    setCart([]);
-    setChefNotes('');
-    alert(`🔥 Kitchen Order Ticket (KOT) sent to kitchen for ${tableNo}!`);
-  };
-
-  // PAUSE / HOLD CART & MULTI-CUSTOMER SESSION HANDLERS
-  const handlePauseCartClick = () => {
-    if (cart.length === 0 && runningTableItems.length === 0) {
-      alert('Your current cart is empty. Add items first before pausing!');
-      return;
-    }
-
-    if (selectedCustomer.name === 'Walk-in Customer' || !selectedCustomer.phone || selectedCustomer.phone === '-') {
-      setPromptPhoneInput('');
-      setPromptNameInput('');
-      setShowPhonePromptModal(true);
-      return;
-    }
-
-    executePauseCart(selectedCustomer);
-  };
-
-  const executePauseCart = (custToUse, optionalNote = '') => {
-    const noteToUse = optionalNote || promptNoteInput.trim();
-    const heldItem = holdCart({
-      customer: custToUse,
-      cart: cart,
-      discountPercent: discountPercent,
-      paymentMethod: paymentMethod,
-      vehicleDetails: activeBusinessId === 'automotive' ? { vehicleNo, vehicleModel, odometerKm, technicianName } : null,
-      restaurantDetails: activeBusinessId === 'restaurant' ? { tableNo, orderType, chefNotes } : null,
-      grandTotal: grandTotal,
-      note: noteToUse
-    });
-
-    setCart([]);
-    setDiscountPercent(0);
-    setVehicleNo('');
-    setVehicleModel('');
-    setSelectedCustomer(customers[0] || { name: 'Walk-in Customer', phone: '-' });
-    setPhoneLookupQuery('');
-    setPromptNoteInput('');
-    setPauseSuccessToast(`⏸️ Paused cart for ${custToUse.name}${noteToUse ? ` (${noteToUse})` : ''}. Ready for next customer!`);
-    setTimeout(() => setPauseSuccessToast(null), 6000);
-  };
-
-  const handleResumeCart = (heldItem) => {
-    if (cart.length > 0) {
-      if (!window.confirm(`You have active items in your cart. Pause current cart and load ${heldItem.customer?.name}'s cart?`)) {
-        return;
-      }
-      executePauseCart(selectedCustomer);
-    }
-
-    setCart(heldItem.cart || []);
-    setSelectedCustomer(heldItem.customer || customers[0] || { name: 'Walk-in Customer', phone: '-' });
-    setDiscountPercent(heldItem.discountPercent || 0);
-    setPaymentMethod(heldItem.paymentMethod || 'UPI');
-    deleteHeldCart(heldItem.id);
-
-    if (isMobile) setMobileTab('cart');
-    setPauseSuccessToast(`▶️ Resumed paused cart for ${heldItem.customer?.name} (${heldItem.customer?.phone || 'Customer'})!`);
-    setTimeout(() => setPauseSuccessToast(null), 5000);
-  };
-
-  const handleConfirmPhoneAndCheckout = () => {
-    let custToUse = selectedCustomer;
-    if (promptPhoneInput.trim()) {
-      const match = customers.find((c) => c.phone && c.phone.trim() === promptPhoneInput.trim());
-      if (match) {
-        custToUse = match;
-        setSelectedCustomer(match);
-      } else {
-        const created = addCustomer({
-          name: promptNameInput.trim() || `Customer (${promptPhoneInput.trim()})`,
-          phone: promptPhoneInput.trim()
-        });
-        custToUse = created;
-        setSelectedCustomer(created);
-      }
-    }
-    setShowPhonePromptModal(false);
-    handleCheckout(true);
-  };
-
-  const handleConfirmPhoneAndPause = () => {
-    let custToUse = selectedCustomer;
-    if (promptPhoneInput.trim()) {
-      const match = customers.find((c) => c.phone && c.phone.trim() === promptPhoneInput.trim());
-      if (match) {
-        custToUse = match;
-      } else {
-        const created = addCustomer({
-          name: promptNameInput.trim() || `Customer (${promptPhoneInput.trim()})`,
-          phone: promptPhoneInput.trim()
-        });
-        custToUse = created;
-      }
-    } else {
-      custToUse = { name: promptNameInput.trim() || 'Paused Customer', phone: '-' };
-    }
-    setShowPhonePromptModal(false);
-    executePauseCart(custToUse, promptNoteInput.trim());
-  };
-
-  const handleSkipPhoneCheckout = () => {
-    setShowPhonePromptModal(false);
-    handleCheckout(true);
-  };
-
   // CHECKOUT & POST-DINING SETTLEMENT ACTION (Pay after eating)
-  const handleCheckout = (skipPhoneCheck = false) => {
+  function handleCheckout(skipPhoneCheck = false) {
     if (combinedItemsForBilling.length === 0) return;
 
     // PHONE NUMBER FIRST PROMPT BEFORE PAYMENT
@@ -604,7 +453,158 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
     if (isMobile) setMobileTab('catalog');
     onCompleteSale(created);
-  };
+  }
+
+  // RESTAURANT: FIRE KOT ACTION (Send to kitchen, keep table occupied)
+  function handleFireKOT() {
+    if (cart.length === 0) return;
+    fireKOT(tableNo, cart, chefNotes);
+    setCart([]);
+    setChefNotes('');
+    alert(`🔥 Kitchen Order Ticket (KOT) sent to kitchen for ${tableNo}!`);
+  }
+
+  // PAUSE / HOLD CART & MULTI-CUSTOMER SESSION HANDLERS
+  function handlePauseCartClick() {
+    if (cart.length === 0 && runningTableItems.length === 0) {
+      alert('Your current cart is empty. Add items first before pausing!');
+      return;
+    }
+
+    if (selectedCustomer.name === 'Walk-in Customer' || !selectedCustomer.phone || selectedCustomer.phone === '-') {
+      setPromptPhoneInput('');
+      setPromptNameInput('');
+      setShowPhonePromptModal(true);
+      return;
+    }
+
+    executePauseCart(selectedCustomer);
+  }
+
+  function executePauseCart(custToUse, optionalNote = '') {
+    const noteToUse = optionalNote || promptNoteInput.trim();
+    const heldItem = holdCart({
+      customer: custToUse,
+      cart: cart,
+      discountPercent: discountPercent,
+      paymentMethod: paymentMethod,
+      vehicleDetails: activeBusinessId === 'automotive' ? { vehicleNo, vehicleModel, odometerKm, technicianName } : null,
+      restaurantDetails: activeBusinessId === 'restaurant' ? { tableNo, orderType, chefNotes } : null,
+      grandTotal: grandTotal,
+      note: noteToUse
+    });
+
+    setCart([]);
+    setDiscountPercent(0);
+    setVehicleNo('');
+    setVehicleModel('');
+    setSelectedCustomer(customers[0] || { name: 'Walk-in Customer', phone: '-' });
+    setPhoneLookupQuery('');
+    setPromptNoteInput('');
+    setPauseSuccessToast(`⏸️ Paused cart for ${custToUse.name}${noteToUse ? ` (${noteToUse})` : ''}. Ready for next customer!`);
+    setTimeout(() => setPauseSuccessToast(null), 6000);
+  }
+
+  function handleResumeCart(heldItem) {
+    if (cart.length > 0) {
+      if (!window.confirm(`You have active items in your cart. Pause current cart and load ${heldItem.customer?.name}'s cart?`)) {
+        return;
+      }
+      executePauseCart(selectedCustomer);
+    }
+
+    setCart(heldItem.cart || []);
+    setSelectedCustomer(heldItem.customer || customers[0] || { name: 'Walk-in Customer', phone: '-' });
+    setDiscountPercent(heldItem.discountPercent || 0);
+    setPaymentMethod(heldItem.paymentMethod || 'UPI');
+    deleteHeldCart(heldItem.id);
+
+    if (isMobile) setMobileTab('cart');
+    setPauseSuccessToast(`▶️ Resumed paused cart for ${heldItem.customer?.name} (${heldItem.customer?.phone || 'Customer'})!`);
+    setTimeout(() => setPauseSuccessToast(null), 5000);
+  }
+
+  function handleConfirmPhoneAndCheckout() {
+    let custToUse = selectedCustomer;
+    if (promptPhoneInput.trim()) {
+      const match = customers.find((c) => c.phone && c.phone.trim() === promptPhoneInput.trim());
+      if (match) {
+        custToUse = match;
+        setSelectedCustomer(match);
+      } else {
+        const created = addCustomer({
+          name: promptNameInput.trim() || `Customer (${promptPhoneInput.trim()})`,
+          phone: promptPhoneInput.trim()
+        });
+        custToUse = created;
+        setSelectedCustomer(created);
+      }
+    }
+    setShowPhonePromptModal(false);
+    handleCheckout(true);
+  }
+
+  function handleConfirmPhoneAndPause() {
+    let custToUse = selectedCustomer;
+    if (promptPhoneInput.trim()) {
+      const match = customers.find((c) => c.phone && c.phone.trim() === promptPhoneInput.trim());
+      if (match) {
+        custToUse = match;
+      } else {
+        const created = addCustomer({
+          name: promptNameInput.trim() || `Customer (${promptPhoneInput.trim()})`,
+          phone: promptPhoneInput.trim()
+        });
+        custToUse = created;
+      }
+    } else {
+      custToUse = { name: promptNameInput.trim() || 'Paused Customer', phone: '-' };
+    }
+    setShowPhonePromptModal(false);
+    executePauseCart(custToUse, promptNoteInput.trim());
+  }
+
+  function handleSkipPhoneCheckout() {
+    setShowPhonePromptModal(false);
+    handleCheckout(true);
+  }
+
+  // Keyboard Shortcuts Listener (F2, F4, F8, Esc, ?)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const activeTag = document.activeElement?.tagName;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
+        if (e.key === 'Escape') {
+          document.activeElement.blur();
+        }
+        return;
+      }
+
+      if (e.key === 'F2') {
+        e.preventDefault();
+        document.getElementById('pos-search-input')?.focus();
+      } else if (e.key === 'F4') {
+        e.preventDefault();
+        handlePauseCartClick();
+      } else if (e.key === 'F8') {
+        e.preventDefault();
+        handleCheckout();
+      } else if (e.key === '?') {
+        e.preventDefault();
+        setShowHotkeysModal(true);
+      } else if (e.key === 'Escape') {
+        setShowPhonePromptModal(false);
+        setShowHeldCartsModal(false);
+        setShowHotkeysModal(false);
+        setShowCustomerHistoryModal(false);
+        setShowTableTimingModal(false);
+        setShowUpiModal(false);
+        setShowAddCustomerModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [cart, selectedCustomer]);
 
   const handleSaveQuotation = () => {
     if (combinedItemsForBilling.length === 0) return;
