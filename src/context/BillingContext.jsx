@@ -333,6 +333,26 @@ const INITIAL_BUSINESS_TEMPLATES = {
   }
 };
 
+const INITIAL_CUSTOMERS_LIST = [
+  // Grocery Customers
+  { id: 'c1', businessId: 'grocery', name: 'Walk-in Grocery Customer', phone: '-', email: '-', address: '-', gstin: '-', balance: 0 },
+  { id: 'c2', businessId: 'grocery', name: 'Apex Corp Organic Mart', phone: '+91 91234 56789', email: 'accounts@apex.com', address: 'IT Park', gstin: '27BBBBB1111B1Z2', balance: 0 },
+  
+  // Automotive & Detailing Service Customers
+  { id: 'c3', businessId: 'automotive', name: 'Walk-in Detailing Client', phone: '-', email: '-', address: '-', gstin: '-', balance: 0 },
+  { id: 'c4', businessId: 'automotive', name: 'Rajesh Varma (Fortuner MH 12 AB 4590)', phone: '+91 98220 11223', email: 'rajesh.v@gmail.com', address: 'Baner Road, Pune', gstin: '27AAAAA1234A1Z1', balance: 0 },
+  { id: 'c5', businessId: 'automotive', name: 'Vikram Singh (BMW 3 Series KA 05 MN 8821)', phone: '+91 99001 88776', email: 'vikram.s@techcorp.in', address: 'Koramangala, Bangalore', gstin: '29BBBBB5678B1Z5', balance: 1500 },
+  { id: 'c6', businessId: 'automotive', name: 'Apex Corporate Fleet Detailing', phone: '+91 91234 56789', email: 'fleet@apex.com', address: 'IT Park', gstin: '27BBBBB1111B1Z2', balance: 4500 },
+
+  // Restaurant & Dining Customers
+  { id: 'c7', businessId: 'restaurant', name: 'Walk-in Diner', phone: '-', email: '-', address: '-', gstin: '-', balance: 0 },
+  { id: 'c8', businessId: 'restaurant', name: 'Ananya Roy (VIP Member)', phone: '+91 98333 44556', email: 'ananya.roy@outlook.com', address: 'Juhu Scheme, Mumbai', gstin: '-', balance: 0 },
+
+  // General Retail & Tech Store Customers
+  { id: 'c9', businessId: 'retail', name: 'Walk-in Shopper', phone: '-', email: '-', address: '-', gstin: '-', balance: 0 },
+  { id: 'c10', businessId: 'retail', name: 'Karan Malhotra (TechNova Member)', phone: '+91 98444 55667', email: 'karan.m@gmail.com', address: 'Cyber City, Gurugram', gstin: '-', balance: 0 }
+];
+
 export const BillingProvider = ({ children }) => {
   const [data, setData] = useState(() => {
     const saved = safeStorage.getItem(STORAGE_KEY);
@@ -355,6 +375,18 @@ export const BillingProvider = ({ children }) => {
               pin: parsed.auth?.pin || '1234'
             };
           }
+
+          // Ensure Automotive Detailing Customers exist in parsed customers list
+          if (parsed.customers && parsed.customers.length > 0) {
+            const hasAuto = parsed.customers.some((c) => c.businessId === 'automotive');
+            if (!hasAuto) {
+              const updatedParsedCust = parsed.customers.map((c) => !c.businessId ? { ...c, businessId: 'grocery' } : c);
+              parsed.customers = [...updatedParsedCust, ...INITIAL_CUSTOMERS_LIST.filter((c) => c.businessId === 'automotive')];
+            }
+          } else {
+            parsed.customers = INITIAL_CUSTOMERS_LIST;
+          }
+
           return parsed;
         }
       } catch (e) {
@@ -376,10 +408,7 @@ export const BillingProvider = ({ children }) => {
       theme: 'dark',
       activeBusinessId: 'grocery',
       businesses: INITIAL_BUSINESS_TEMPLATES,
-      customers: [
-        { id: 'c1', name: 'Walk-in Customer', phone: '-', email: '-', address: '-', gstin: '-', balance: 0 },
-        { id: 'c2', name: 'Apex Corp', phone: '+91 91234 56789', email: 'accounts@apex.com', address: 'IT Park', gstin: '27BBBBB1111B1Z2', balance: 0 }
-      ],
+      customers: INITIAL_CUSTOMERS_LIST,
       invoices: [
         {
           id: 'GRO-1001',
@@ -739,6 +768,7 @@ export const BillingProvider = ({ children }) => {
     const cust = {
       ...newCust,
       id: 'c_' + Date.now(),
+      businessId: newCust.businessId || data.activeBusinessId,
       balance: parseFloat(newCust.balance) || 0
     };
     setData((prev) => ({
@@ -1468,7 +1498,8 @@ export const BillingProvider = ({ children }) => {
         toggleTheme,
         settings,
         products,
-        customers: data.customers,
+        customers: (data.customers || []).filter((c) => !c.businessId || c.businessId === data.activeBusinessId),
+        allCustomers: data.customers || [],
         invoices: data.invoices.filter((i) => !i.businessId || i.businessId === data.activeBusinessId),
         quotations: data.quotations.filter((q) => !q.businessId || q.businessId === data.activeBusinessId),
         returns: data.returns.filter((r) => !r.businessId || r.businessId === data.activeBusinessId),

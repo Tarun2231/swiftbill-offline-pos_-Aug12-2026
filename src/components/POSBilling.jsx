@@ -253,7 +253,12 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     setSearchQuery('');
     setOnlyPriceDrop(false);
     setSortBy('recommended');
-  }, [activeBusinessId]);
+    if (customers && customers.length > 0) {
+      setSelectedCustomer(customers[0]);
+    } else {
+      setSelectedCustomer({ name: 'Walk-in Customer', phone: '-' });
+    }
+  }, [activeBusinessId, customers]);
 
   // Filtered and Sorted Products
   const filteredProducts = useMemo(() => {

@@ -21,8 +21,9 @@ import { useBilling } from '../context/BillingContext';
 import InvoicePrintModal from './InvoicePrintModal';
 
 export default function CustomerLedger() {
-  const { customers, invoices, addCustomer, recordCustomerPayment, settings } = useBilling();
+  const { customers, allCustomers, invoices, addCustomer, recordCustomerPayment, settings, activeBusiness } = useBilling();
   
+  const [filterScope, setFilterScope] = useState('current'); // 'current' | 'all'
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCustForPayment, setSelectedCustForPayment] = useState(null);
@@ -47,13 +48,15 @@ export default function CustomerLedger() {
   const [gstin, setGstin] = useState('');
   const [openingBalance, setOpeningBalance] = useState('');
 
-  const filteredCustomers = customers.filter(
+  const targetCustomerList = filterScope === 'all' ? (allCustomers || customers) : customers;
+
+  const filteredCustomers = targetCustomerList.filter(
     (c) =>
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.phone.includes(searchQuery)
   );
 
-  const totalOutstanding = customers.reduce((acc, c) => acc + (c.balance || 0), 0);
+  const totalOutstanding = targetCustomerList.reduce((acc, c) => acc + (c.balance || 0), 0);
 
   // Helper to get customer purchase orders
   const getCustomerInvoices = (customer) => {
@@ -187,17 +190,64 @@ export default function CustomerLedger() {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div style={{ position: 'relative' }}>
-        <Search size={17} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '13px' }} />
-        <input
-          type="text"
-          placeholder="Search by customer name or phone..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="form-input"
-          style={{ paddingLeft: '42px', fontSize: '13.5px' }}
-        />
+      {/* Filter Scope & Search Bar */}
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between' }}>
+        {/* Toggle Scope Pills */}
+        <div style={{
+          display: 'flex',
+          backgroundColor: 'var(--bg-input)',
+          padding: '3px',
+          borderRadius: 'var(--radius-sm)',
+          gap: '2px',
+          width: isMobile ? '100%' : 'auto'
+        }}>
+          <button
+            onClick={() => setFilterScope('current')}
+            style={{
+              flex: isMobile ? 1 : 'none',
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-xs)',
+              border: 'none',
+              backgroundColor: filterScope === 'current' ? 'var(--instamart-green)' : 'transparent',
+              color: filterScope === 'current' ? '#ffffff' : 'var(--text-muted)',
+              fontSize: '12px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+          >
+            🏢 {activeBusiness?.name || 'Current Business'} ({customers.length})
+          </button>
+          
+          <button
+            onClick={() => setFilterScope('all')}
+            style={{
+              flex: isMobile ? 1 : 'none',
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-xs)',
+              border: 'none',
+              backgroundColor: filterScope === 'all' ? 'var(--instamart-green)' : 'transparent',
+              color: filterScope === 'all' ? '#ffffff' : 'var(--text-muted)',
+              fontSize: '12px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+          >
+            🌐 All Business Accounts ({(allCustomers || []).length})
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+          <Search size={17} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '11px' }} />
+          <input
+            type="text"
+            placeholder="Search by customer name or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="form-input"
+            style={{ paddingLeft: '42px', fontSize: '13px', height: '38px', minHeight: '38px' }}
+          />
+        </div>
       </div>
 
       {/* MOBILE VIEW: Customer Cards (<= 768px) */}
