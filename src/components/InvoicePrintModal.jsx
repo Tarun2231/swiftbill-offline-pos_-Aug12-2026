@@ -32,6 +32,36 @@ export default function InvoicePrintModal({ invoice, onClose }) {
     minute: '2-digit'
   });
 
+  const handleExportCSV = () => {
+    if (!invoice) return;
+    const headers = ['Invoice ID', 'Date', 'Customer Name', 'Phone', 'Item Name', 'SKU', 'Price', 'Qty', 'Unit', 'Tax Rate %', 'Line Total', 'Grand Total', 'Payment Method', 'Status'];
+    const rows = (invoice.items || []).map(item => [
+      invoice.id,
+      new Date(invoice.date).toLocaleString(),
+      `"${invoice.customer?.name || 'Walk-in'}"`,
+      `"${invoice.customer?.phone || '-'}"`,
+      `"${item.name}"`,
+      `"${item.sku || '-'}"`,
+      item.price,
+      item.qty,
+      item.unit || 'pcs',
+      item.taxRate || 0,
+      item.total || Math.round(item.price * item.qty),
+      invoice.grandTotal,
+      invoice.paymentMethod,
+      invoice.status
+    ]);
+    
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Invoice_${invoice.id}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="modal-overlay" style={{ padding: isMobile ? '8px' : '20px' }}>
       <div className="modal-container" style={{
@@ -125,6 +155,21 @@ export default function InvoicePrintModal({ invoice, onClose }) {
                 Standard A4 Invoice
               </button>
             </div>
+
+            <button
+              onClick={handleExportCSV}
+              className="btn btn-secondary"
+              style={{
+                padding: '8px 14px',
+                fontSize: '13px',
+                fontWeight: '700',
+                flex: isMobile ? 1 : 'none'
+              }}
+              title="Download CSV breakdown of invoice items"
+            >
+              <Download size={15} />
+              CSV Export
+            </button>
 
             <button
               onClick={handlePrint}

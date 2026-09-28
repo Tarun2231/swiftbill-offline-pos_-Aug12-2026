@@ -19,6 +19,8 @@ import SettingsBackup from './components/SettingsBackup';
 import StaffManagement from './components/StaffManagement';
 import InvoicePrintModal from './components/InvoicePrintModal';
 import SwitchUserModal from './components/SwitchUserModal';
+import CommandPaletteModal from './components/CommandPaletteModal';
+import NotificationsModal from './components/NotificationsModal';
 import { 
   ShoppingBag, 
   Car, 
@@ -37,16 +39,21 @@ import {
   LogOut, 
   User, 
   Users, 
-  ShieldCheck 
+  ShieldCheck,
+  Bell,
+  Command,
+  Search
 } from 'lucide-react';
 
 function MainApp() {
-  const { theme, auth, currentUser, logout, activeBusinessId, activeBusiness, settings, switchBusiness, createBusiness, businesses, toggleTheme } = useBilling();
+  const { theme, auth, currentUser, logout, activeBusinessId, activeBusiness, settings, switchBusiness, createBusiness, businesses, toggleTheme, products, customers, restaurantTables, heldCarts } = useBilling();
   const isAdmin = auth?.role === 'admin' || currentUser?.role === 'Master Admin';
   const [activeTab, setActiveTab] = useState('pos');
   const [selectedInvoiceForPrint, setSelectedInvoiceForPrint] = useState(null);
   const [showSwitchBusinessModal, setShowSwitchBusinessModal] = useState(false);
   const [showSwitchUserModal, setShowSwitchUserModal] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [selectedTableForOrder, setSelectedTableForOrder] = useState('Table 1');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   
@@ -55,6 +62,13 @@ function MainApp() {
   const [newBizName, setNewBizName] = useState('');
   const [newBizType, setNewBizType] = useState('Retail Store');
   const [newBizCurrency, setNewBizCurrency] = useState('₹');
+
+  // Count active operational alerts for notification badge
+  const lowStockCount = (products || []).filter(p => p.stock <= (p.minStockAlert || 5)).length;
+  const longDiningCount = (restaurantTables || []).filter(t => t.status === 'occupied' && t.seatedAt && ((Date.now() - new Date(t.seatedAt).getTime()) / 60000) > 30).length;
+  const highPendingUdharCount = (customers || []).filter(c => (c.balance || 0) > 1000).length;
+  const heldCartsCount = (heldCarts || []).length;
+  const totalAlertsCount = lowStockCount + longDiningCount + highPendingUdharCount + heldCartsCount;
 
   // Tab label mapping for breadcrumbs
   const tabTitles = {
@@ -92,12 +106,15 @@ function MainApp() {
 
   const bizColor = getBusinessColor();
 
-  // Keyboard shortcut listener for POS fast key (F2)
+  // Keyboard shortcut listener for POS fast key (F2) & Command Palette (Ctrl+K)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'F2') {
         e.preventDefault();
         setActiveTab('pos');
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(prev => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -130,7 +147,7 @@ function MainApp() {
   return (
     <div className="app-container" data-theme={theme}>
       
-      {/* Mobile Sticky Navigation Header (<= 1024px) */}
+      {/* Mobile & Tablet Top Navigation Header */}
       <header className="mobile-topbar" style={{
         padding: '8px 14px',
         minHeight: '48px',
@@ -187,8 +204,71 @@ function MainApp() {
           </div>
         </div>
 
-        {/* Right: User Pill & Utility Actions */}
+        {/* Right: User Pill, Command Palette, Operational Alerts & Utility Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          {/* Quick Command Palette Launcher Button (Ctrl+K) */}
+          <button
+            type="button"
+            onClick={() => setShowCommandPalette(true)}
+            style={{
+              padding: '4px 9px',
+              borderRadius: 'var(--radius-full)',
+              backgroundColor: 'var(--bg-input)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-muted)',
+              fontSize: '11px',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              cursor: 'pointer'
+            }}
+            title="Open Quick Command Palette (Ctrl+K)"
+          >
+            <Search size={13} color="var(--instamart-green)" />
+            <span className="mono" style={{ fontSize: '10px', color: 'var(--instamart-green)', fontWeight: '800' }}>Ctrl+K</span>
+          </button>
+
+          {/* Operational Alerts Bell Button */}
+          <button
+            type="button"
+            onClick={() => setShowNotificationsModal(true)}
+            style={{
+              padding: '6px',
+              borderRadius: '8px',
+              backgroundColor: totalAlertsCount > 0 ? 'rgba(239, 68, 68, 0.12)' : 'var(--bg-input)',
+              border: `1px solid ${totalAlertsCount > 0 ? 'rgba(239, 68, 68, 0.3)' : 'var(--border-color)'}`,
+              color: totalAlertsCount > 0 ? '#ef4444' : 'var(--text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              position: 'relative'
+            }}
+            title={`Operational Alerts & Notifications (${totalAlertsCount})`}
+          >
+            <Bell size={15} />
+            {totalAlertsCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-3px',
+                right: '-3px',
+                backgroundColor: '#ef4444',
+                color: '#ffffff',
+                fontSize: '9px',
+                fontWeight: '900',
+                borderRadius: '50%',
+                width: '15px',
+                height: '15px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {totalAlertsCount}
+              </span>
+            )}
+          </button>
+
           {/* User Session Pill */}
           <button
             type="button"
@@ -516,6 +596,20 @@ function MainApp() {
           setActiveTab('staff');
           setShowSwitchUserModal(false);
         }}
+      />
+
+      {/* Quick Command Palette Modal (Ctrl+K) */}
+      <CommandPaletteModal
+        isOpen={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        onNavigate={(tab) => setActiveTab(tab)}
+      />
+
+      {/* Operational Alerts & Notifications Center Modal */}
+      <NotificationsModal
+        isOpen={showNotificationsModal}
+        onClose={() => setShowNotificationsModal(false)}
+        onNavigate={(tab) => setActiveTab(tab)}
       />
     </div>
   );

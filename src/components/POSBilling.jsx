@@ -118,6 +118,21 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const [discountPercent, setDiscountPercent] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [paidAmount, setPaidAmount] = useState('');
+  
+  // Split Payment & Loyalty Points State
+  const [splitCashAmount, setSplitCashAmount] = useState('');
+  const [splitUpiAmount, setSplitUpiAmount] = useState('');
+  const [redeemedPointsDiscount, setRedeemedPointsDiscount] = useState(0);
+
+  // Today KPI Stats (Sales, Orders Count, Avg Order Value)
+  const todayKpiStats = useMemo(() => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayInvoices = (invoices || []).filter((inv) => inv.date && inv.date.startsWith(todayStr));
+    const todaySales = todayInvoices.reduce((sum, inv) => sum + (inv.grandTotal || 0), 0);
+    const todayOrdersCount = todayInvoices.length;
+    const avgOrderValue = todayOrdersCount > 0 ? Math.round(todaySales / todayOrdersCount) : 0;
+    return { todaySales, todayOrdersCount, avgOrderValue };
+  }, [invoices]);
 
   // Customer History Modal in POS
   const [showCustomerHistoryModal, setShowCustomerHistoryModal] = useState(false);
@@ -191,6 +206,20 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
       (selectedCustomer.phone !== '-' && inv.customer?.phone && inv.customer.phone === selectedCustomer.phone)
     );
   }, [selectedCustomer, invoices]);
+
+  // Selected Customer Loyalty Points (1 Point per ₹100 spent)
+  const customerLoyaltyPoints = useMemo(() => {
+    if (!selectedCustomer || selectedCustomer.name === 'Walk-in Customer') return 0;
+    const totalSpent = selectedCustomerInvoices.reduce((acc, inv) => acc + (inv.grandTotal || 0), 0);
+    return Math.floor(totalSpent / 100);
+  }, [selectedCustomer, selectedCustomerInvoices]);
+
+  const handleRedeemLoyaltyPoints = () => {
+    if (customerLoyaltyPoints <= 0) return;
+    setRedeemedPointsDiscount(customerLoyaltyPoints);
+    setPauseSuccessToast(`🎁 Redeemed ${customerLoyaltyPoints} Loyalty Points (₹${customerLoyaltyPoints} discount applied)!`);
+    setTimeout(() => setPauseSuccessToast(null), 5000);
+  };
 
   // Categories extraction
   const categories = useMemo(() => {
@@ -351,8 +380,8 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
   const rawSubtotal = combinedItemsForBilling.reduce((acc, item) => acc + item.price * item.qty, 0);
   const totalCost = combinedItemsForBilling.reduce((acc, item) => acc + (item.purchaseCost || 0) * item.qty, 0);
-  const discountAmount = (rawSubtotal * (parseFloat(discountPercent) || 0)) / 100;
-  const taxableSubtotal = rawSubtotal - discountAmount;
+  const discountAmount = ((rawSubtotal * (parseFloat(discountPercent) || 0)) / 100) + (parseFloat(redeemedPointsDiscount) || 0);
+  const taxableSubtotal = Math.max(0, rawSubtotal - discountAmount);
 
   const totalTax = combinedItemsForBilling.reduce((acc, item) => {
     const itemSubtotal = item.price * item.qty;
@@ -365,9 +394,11 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const grandTotal = Math.round(taxableSubtotal + totalTax);
   const estimatedGrossProfit = Math.max(0, taxableSubtotal - totalCost);
 
+  const splitCash = parseFloat(splitCashAmount) || 0;
+  const splitUpi = parseFloat(splitUpiAmount) || 0;
   const effectivePaid = paymentMethod === 'Credit' 
     ? (parseFloat(paidAmount) || 0) 
-    : grandTotal;
+    : (paymentMethod === 'Split' ? (splitCash + splitUpi) : grandTotal);
   const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
   // CHECKOUT & POST-DINING SETTLEMENT ACTION (Pay after eating)
@@ -960,6 +991,37 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     {showProfitPeek ? `Margin: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
                   </button>
                 )}
+              </div>
+            </div>
+
+            {/* Quick KPI Stats Strip */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '8px',
+              padding: '6px 12px',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-sm)',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Today's Sales</span>
+                <span style={{ fontSize: '13.5px', fontWeight: '800', color: 'var(--instamart-green)' }}>
+                  {settings.currency}{todayKpiStats.todaySales.toLocaleString()}
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Orders Today</span>
+                <span style={{ fontSize: '13.5px', fontWeight: '800', color: '#3b82f6' }}>
+                  {todayKpiStats.todayOrdersCount} orders
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Avg Order</span>
+                <span style={{ fontSize: '13.5px', fontWeight: '800', color: '#f59e0b' }}>
+                  {settings.currency}{todayKpiStats.avgOrderValue.toLocaleString()}
+                </span>
               </div>
             </div>
 
@@ -1689,6 +1751,41 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   <UserPlus size={16} color="var(--instamart-green)" />
                 </button>
               </div>
+
+              {/* Loyalty Points Redemption Banner */}
+              {customerLoyaltyPoints > 0 && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '5px 9px',
+                  backgroundColor: 'rgba(252, 128, 25, 0.12)',
+                  border: '1px solid rgba(252, 128, 25, 0.35)',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  color: '#fc8019',
+                  fontWeight: '700',
+                  marginTop: '5px'
+                }}>
+                  <span>🎁 Loyalty: {customerLoyaltyPoints} Pts (₹{customerLoyaltyPoints})</span>
+                  <button
+                    onClick={handleRedeemLoyaltyPoints}
+                    disabled={redeemedPointsDiscount > 0}
+                    style={{
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      backgroundColor: redeemedPointsDiscount > 0 ? '#10b981' : '#fc8019',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontSize: '10.5px',
+                      fontWeight: '800',
+                      cursor: redeemedPointsDiscount > 0 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {redeemedPointsDiscount > 0 ? '✓ Redeemed' : `Redeem ₹${customerLoyaltyPoints}`}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* RESTAURANT TABLE CONTROLS & TIMING BANNER */}
@@ -1962,12 +2059,13 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             </div>
 
             {/* Payment Method Selector */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px' }}>
               {[
                 { id: 'UPI', icon: QrCode },
                 { id: 'Cash', icon: Banknote },
                 { id: 'Card', icon: CreditCard },
-                { id: 'Credit', icon: Clock }
+                { id: 'Credit', icon: Clock },
+                { id: 'Split', icon: Layers }
               ].map((pm) => {
                 const Icon = pm.icon;
                 const isSelected = paymentMethod === pm.id;
@@ -1977,15 +2075,19 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     onClick={() => {
                       setPaymentMethod(pm.id);
                       if (pm.id === 'UPI') setShowUpiModal(true);
+                      if (pm.id === 'Split' && !splitCashAmount) {
+                        setSplitCashAmount(Math.round(grandTotal / 2).toString());
+                        setSplitUpiAmount((grandTotal - Math.round(grandTotal / 2)).toString());
+                      }
                     }}
                     style={{
-                      padding: '6px 4px',
+                      padding: '6px 2px',
                       borderRadius: 'var(--radius-xs)',
                       border: '1px solid',
                       borderColor: isSelected ? 'var(--instamart-green)' : 'var(--border-color)',
                       backgroundColor: isSelected ? 'var(--instamart-green-light)' : 'var(--bg-card)',
                       color: isSelected ? 'var(--instamart-green)' : 'var(--text-muted)',
-                      fontSize: '11px',
+                      fontSize: '10.5px',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
@@ -2000,6 +2102,51 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 );
               })}
             </div>
+
+            {/* Split Payment Input Fields */}
+            {paymentMethod === 'Split' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                padding: '8px',
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: 'var(--radius-xs)',
+                border: '1px dashed var(--instamart-green)'
+              }}>
+                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--instamart-green)' }}>
+                  Split Payment Breakdown:
+                </span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                  <div>
+                    <label style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Cash (₹)</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      placeholder="0"
+                      value={splitCashAmount}
+                      onChange={(e) => {
+                        const cash = parseFloat(e.target.value) || 0;
+                        setSplitCashAmount(e.target.value);
+                        setSplitUpiAmount(Math.max(0, grandTotal - cash).toString());
+                      }}
+                      style={{ height: '30px', fontSize: '12px', padding: '4px 8px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '10px', color: 'var(--text-muted)' }}>UPI / Card (₹)</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      placeholder="0"
+                      value={splitUpiAmount}
+                      onChange={(e) => setSplitUpiAmount(e.target.value)}
+                      style={{ height: '30px', fontSize: '12px', padding: '4px 8px' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Quick Chef Modifiers for Restaurant Mode */}
             {activeBusinessId === 'restaurant' && cart.length > 0 && (
