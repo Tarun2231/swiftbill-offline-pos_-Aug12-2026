@@ -444,9 +444,45 @@ export default function ProductManagement() {
                         )}
 
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                          <span className={`badge badge-${isLow ? 'danger' : 'success'}`} style={{ fontSize: '11px' }}>
-                            {p.stock} {p.unit}
-                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                            <span className={`badge badge-${isLow ? 'danger' : 'success'}`} style={{ fontSize: '11px' }}>
+                              {p.stock} {p.unit}
+                            </span>
+                            <div style={{ display: 'flex', gap: '3px', marginTop: '2px' }}>
+                              <button
+                                onClick={() => updateProduct(p.id, { stock: Math.max(0, p.stock + 5) })}
+                                style={{
+                                  padding: '1px 5px',
+                                  fontSize: '10px',
+                                  borderRadius: '3px',
+                                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                  color: '#10b981',
+                                  fontWeight: '800',
+                                  cursor: 'pointer'
+                                }}
+                                title="Quick Restock +5 Units"
+                              >
+                                +5
+                              </button>
+                              <button
+                                onClick={() => updateProduct(p.id, { stock: Math.max(0, p.stock + 20) })}
+                                style={{
+                                  padding: '1px 5px',
+                                  fontSize: '10px',
+                                  borderRadius: '3px',
+                                  border: '1px solid rgba(59, 130, 246, 0.4)',
+                                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                  color: '#3b82f6',
+                                  fontWeight: '800',
+                                  cursor: 'pointer'
+                                }}
+                                title="Quick Restock +20 Units"
+                              >
+                                +20
+                              </button>
+                            </div>
+                          </div>
                         </td>
 
                         <td style={{ padding: '12px 16px', fontSize: '12.5px', textAlign: 'center', color: 'var(--text-muted)' }}>

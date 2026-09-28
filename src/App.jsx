@@ -206,6 +206,74 @@ function MainApp() {
 
         {/* Right: User Pill, Command Palette, Operational Alerts & Utility Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          
+          {/* Header Store Quick Switcher */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <select
+              className="form-select"
+              value={activeBusinessId}
+              onChange={(e) => switchBusiness(e.target.value)}
+              style={{
+                height: '28px',
+                minHeight: '28px',
+                padding: '2px 8px',
+                fontSize: '11px',
+                fontWeight: '700',
+                backgroundColor: 'var(--bg-card)',
+                borderColor: bizColor,
+                color: 'var(--text-main)',
+                borderRadius: 'var(--radius-full)',
+                cursor: 'pointer'
+              }}
+              title="Switch Active Store Profile"
+            >
+              {Object.values(businesses).map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Live DB Sync Status Pill */}
+          {!isMobileNavOpen && (
+            <div style={{
+              padding: '3px 8px',
+              borderRadius: 'var(--radius-full)',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.35)',
+              color: '#10b981',
+              fontSize: '10.5px',
+              fontWeight: '800',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px'
+            }}>
+              <span className="pulse-glow" style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+              <span>Offline DB Sync</span>
+            </div>
+          )}
+
+          {/* Dark / Light Theme Quick Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            style={{
+              padding: '6px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--bg-input)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+            title="Toggle Light / Dark Theme"
+          >
+            {theme === 'dark' ? <Sun size={15} color="#f59e0b" /> : <Moon size={15} color="#6366f1" />}
+          </button>
+
           {/* Quick Command Palette Launcher Button (Ctrl+K) */}
           <button
             type="button"
