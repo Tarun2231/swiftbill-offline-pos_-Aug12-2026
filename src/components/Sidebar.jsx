@@ -166,119 +166,46 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
           </div>
         </div>
 
-        {/* ACTIVE WORKSPACE CARD */}
-        <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-color)' }}>
-          <div style={{
-            padding: '10px 12px',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'var(--bg-input)',
-            border: '1px solid var(--border-color)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '8px'
-          }}>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: '700' }}>
-                Active Store
-              </div>
-              <h3 style={{
-                fontSize: '13px',
-                fontWeight: '700',
-                color: 'var(--text-main)',
-                margin: '2px 0 0 0',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}>
-                {settings.storeName}
-              </h3>
-            </div>
-
-            <button
-              onClick={() => {
-                onOpenSwitchBusiness();
-                if (onClose) onClose();
-              }}
-              className="btn btn-secondary"
-              style={{
-                padding: '5px 10px',
-                fontSize: '11px',
-                fontWeight: '600',
-                height: '28px',
-                gap: '4px'
-              }}
-              title="Switch Business Workspace"
-            >
-              <ArrowRightLeft size={12} color={bizColor} /> Switch
-            </button>
+        {/* Compact Workspace Summary Bar */}
+        <div style={{
+          padding: '8px 12px',
+          borderBottom: '1px solid var(--border-color)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: 'var(--bg-input)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+            <span style={{ color: bizColor, display: 'flex' }}>
+              {getBusinessIcon(activeBusinessId, 14)}
+            </span>
+            <span style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {settings.storeName}
+            </span>
           </div>
 
-          {/* Logged-In User / Staff Session Indicator (Click to Switch Account) */}
-          <div 
+          <button
             onClick={() => {
-              if (onOpenSwitchUser) onOpenSwitchUser();
+              if (onOpenSwitchBusiness) onOpenSwitchBusiness();
               if (onClose) onClose();
             }}
             style={{
-              marginTop: '8px',
-              padding: '6px 10px',
+              padding: '3px 8px',
               borderRadius: 'var(--radius-xs)',
-              backgroundColor: currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)',
-              border: `1px solid ${currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.25)' : 'rgba(59,130,246,0.25)'}`,
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-card)',
+              color: bizColor,
+              fontSize: '10.5px',
+              fontWeight: '700',
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              cursor: 'pointer'
+              gap: '3px'
             }}
-            title="Click to Switch User / Cashier (Cancellable anytime without losing session)"
+            title="Switch Store Workspace"
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-              <div style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                backgroundColor: currentUser?.role === 'Master Admin' ? '#10b981' : '#3b82f6',
-                color: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '10px',
-                fontWeight: '800'
-              }}>
-                {(currentUser?.name || 'A').charAt(0).toUpperCase()}
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: '11.5px', fontWeight: '800', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {currentUser?.name || 'Master Admin'}
-                </div>
-                <div style={{ fontSize: '9.5px', color: currentUser?.role === 'Master Admin' ? '#10b981' : '#3b82f6', fontWeight: '700' }}>
-                  {currentUser?.role || 'Staff'}
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onOpenSwitchUser) onOpenSwitchUser();
-                if (onClose) onClose();
-              }}
-              className="btn btn-secondary"
-              style={{
-                fontSize: '10px',
-                fontWeight: '700',
-                padding: '2px 6px',
-                height: '22px',
-                gap: '3px'
-              }}
-              title="Switch User Account"
-            >
-              <UserCheck size={11} color={currentUser?.role === 'Master Admin' ? '#10b981' : '#3b82f6'} />
-              Switch
-            </button>
-          </div>
+            <ArrowRightLeft size={11} color={bizColor} /> Switch
+          </button>
         </div>
 
         {/* Navigation List */}

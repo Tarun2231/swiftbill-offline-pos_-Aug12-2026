@@ -915,118 +915,67 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             </div>
           )}
 
-          {/* Header Row */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {/* Streamlined Compact Header Bar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flexWrap: 'wrap' }}>
-                <span className="time-badge">
-                  <Zap size={11} fill="var(--swiggy-orange)" /> Quick POS
+              {/* Compact Inline KPI Metrics */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '11.5px', flexWrap: 'wrap' }}>
+                <span style={{ color: 'var(--text-muted)' }}>
+                  Sales: <strong style={{ color: 'var(--instamart-green)' }}>{settings.currency}{todayKpiStats.todaySales.toLocaleString()}</strong>
                 </span>
-
-                {heldCarts && heldCarts.length > 0 && (
-                  <button
-                    onClick={() => setShowHeldCartsModal(true)}
-                    style={{
-                      padding: '2px 8px',
-                      borderRadius: 'var(--radius-full)',
-                      backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                      border: '1px solid rgba(245, 158, 11, 0.4)',
-                      fontSize: '11px',
-                      fontWeight: '800',
-                      color: '#f59e0b',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      cursor: 'pointer'
-                    }}
-                    title="View Paused Orders"
-                  >
-                    <Pause size={11} /> {heldCarts.length} Paused
-                  </button>
-                )}
-
-                <div style={{
-                  padding: '2px 8px',
-                  borderRadius: 'var(--radius-full)',
-                  backgroundColor: currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.12)' : 'rgba(59,130,246,0.12)',
-                  border: `1px solid ${currentUser?.role === 'Master Admin' ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)'}`,
-                  fontSize: '11px',
-                  fontWeight: '700',
-                  color: currentUser?.role === 'Master Admin' ? '#10b981' : '#3b82f6',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  <span>👤</span>
-                  <span>{currentUser?.name || 'Admin'} ({currentUser?.role || 'Cashier'})</span>
-                </div>
+                <span style={{ color: 'var(--text-muted)' }}>
+                  Orders: <strong style={{ color: '#3b82f6' }}>{todayKpiStats.todayOrdersCount}</strong>
+                </span>
+                <span style={{ color: 'var(--text-muted)' }}>
+                  Avg: <strong style={{ color: '#f59e0b' }}>{settings.currency}{todayKpiStats.avgOrderValue.toLocaleString()}</strong>
+                </span>
               </div>
 
+              {/* Utility Action Buttons */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <button
                   onClick={() => setShowHotkeysModal(true)}
-                  className="btn btn-secondary"
                   style={{
-                    fontSize: '11px',
-                    padding: '4px 8px',
-                    height: '28px',
-                    flexShrink: 0,
+                    fontSize: '10.5px',
+                    padding: '3px 8px',
+                    height: '24px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-input)',
+                    color: 'var(--text-muted)',
                     fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '4px'
                   }}
                   title="View Keyboard Hotkeys (?)"
                 >
-                  <Keyboard size={13} color="#3b82f6" /> Shortcuts
+                  <Keyboard size={12} color="#3b82f6" /> Shortcuts
                 </button>
 
                 {isAdmin && (
                   <button
                     onClick={() => setShowProfitPeek(!showProfitPeek)}
-                    className="btn btn-secondary"
                     style={{
-                      fontSize: '11.5px',
-                      padding: '5px 10px',
-                      height: '28px',
-                      flexShrink: 0,
+                      fontSize: '10.5px',
+                      padding: '3px 8px',
+                      height: '24px',
+                      borderRadius: '4px',
+                      border: '1px solid var(--border-color)',
+                      backgroundColor: 'var(--bg-input)',
+                      color: 'var(--text-muted)',
                       fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
                       gap: '4px'
                     }}
                   >
-                    {showProfitPeek ? <EyeOff size={13} /> : <Eye size={13} color="var(--instamart-green)" />}
+                    {showProfitPeek ? <EyeOff size={12} /> : <Eye size={12} color="var(--instamart-green)" />}
                     {showProfitPeek ? `Margin: ${settings.currency}${estimatedGrossProfit.toLocaleString()}` : 'Profit Peek'}
                   </button>
                 )}
-              </div>
-            </div>
-
-            {/* Quick KPI Stats Strip */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '8px',
-              padding: '6px 12px',
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-sm)',
-              boxShadow: 'var(--shadow-sm)'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Today's Sales</span>
-                <span style={{ fontSize: '13.5px', fontWeight: '800', color: 'var(--instamart-green)' }}>
-                  {settings.currency}{todayKpiStats.todaySales.toLocaleString()}
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Orders Today</span>
-                <span style={{ fontSize: '13.5px', fontWeight: '800', color: '#3b82f6' }}>
-                  {todayKpiStats.todayOrdersCount} orders
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Avg Order</span>
-                <span style={{ fontSize: '13.5px', fontWeight: '800', color: '#f59e0b' }}>
-                  {settings.currency}{todayKpiStats.avgOrderValue.toLocaleString()}
-                </span>
               </div>
             </div>
 
