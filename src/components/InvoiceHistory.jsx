@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, XCircle, FileText, Calendar, Filter } from 'lucide-react';
+import { Search, Eye, XCircle, FileText, Calendar, Filter, MessageSquare } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
 export default function InvoiceHistory({ onViewInvoice }) {
@@ -15,6 +15,14 @@ export default function InvoiceHistory({ onViewInvoice }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const handleShareWhatsApp = (inv) => {
+    const rawPhone = (inv.customer?.phone && inv.customer.phone !== '-') ? inv.customer.phone.replace(/[^0-9]/g, '') : '';
+    const itemsSummary = (inv.items || []).map(i => `• ${i.name} x${i.qty} = ₹${i.price * i.qty}`).join('\n');
+    const msg = `🧾 *${settings.storeName || 'SwiftBill POS'} - Invoice ${inv.id}*\n\nHello ${inv.customer?.name || 'Valued Customer'},\nThank you for shopping with us!\n\n*Items:* \n${itemsSummary}\n\n*Grand Total:* ₹${inv.grandTotal}\n*Payment Method:* ${inv.paymentMethod}\n*Status:* ${inv.status}\n\nHave a great day! 🙏`;
+    const url = rawPhone ? `https://wa.me/91${rawPhone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+  };
 
   const filteredInvoices = invoices.filter((inv) => {
     const matchSearch =
@@ -320,6 +328,15 @@ export default function InvoiceHistory({ onViewInvoice }) {
 
                         <td style={{ padding: '14px 18px', textAlign: 'right' }}>
                           <div style={{ display: 'inline-flex', gap: '6px' }}>
+                            <button
+                              onClick={() => handleShareWhatsApp(inv)}
+                              className="btn btn-secondary"
+                              style={{ padding: '6px 8px', fontSize: '12px', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)', backgroundColor: 'rgba(16, 185, 129, 0.08)' }}
+                              title="Send Receipt via WhatsApp"
+                            >
+                              <MessageSquare size={13} />
+                            </button>
+
                             <button
                               onClick={() => onViewInvoice(inv)}
                               className="btn btn-secondary"

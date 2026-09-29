@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Printer, Download, X, FileText, CheckCircle2, Car, Utensils, Scale, ArrowLeft } from 'lucide-react';
+import { Printer, Download, X, FileText, CheckCircle2, Car, Utensils, Scale, ArrowLeft, Share2, MessageSquare } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 
 export default function InvoicePrintModal({ invoice, onClose }) {
@@ -22,6 +22,15 @@ export default function InvoicePrintModal({ invoice, onClose }) {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleShareWhatsApp = () => {
+    if (!invoice) return;
+    const rawPhone = (invoice.customer?.phone && invoice.customer.phone !== '-') ? invoice.customer.phone.replace(/[^0-9]/g, '') : '';
+    const itemsSummary = (invoice.items || []).map(i => `• ${i.name} x${i.qty} = ₹${i.price * i.qty}`).join('\n');
+    const msg = `🧾 *${settings.storeName || 'SwiftBill POS'} - Invoice ${invoice.id}*\n\nHello ${invoice.customer?.name || 'Valued Customer'},\nThank you for your purchase!\n\n*Items Ordered:* \n${itemsSummary}\n\n*Grand Total:* ₹${invoice.grandTotal}\n*Payment Mode:* ${invoice.paymentMethod}\n*Status:* ${invoice.status}\n\nHave a wonderful day! 🙏`;
+    const url = rawPhone ? `https://wa.me/91${rawPhone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
   };
 
   const formattedDate = new Date(invoice.date).toLocaleDateString('en-IN', {
@@ -157,11 +166,29 @@ export default function InvoicePrintModal({ invoice, onClose }) {
             </div>
 
             <button
+              onClick={handleShareWhatsApp}
+              className="btn btn-secondary"
+              style={{
+                padding: '8px 14px',
+                fontSize: '12.5px',
+                fontWeight: '700',
+                color: '#10b981',
+                borderColor: 'rgba(16, 185, 129, 0.4)',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                flex: isMobile ? 1 : 'none'
+              }}
+              title="Share Bill via WhatsApp"
+            >
+              <MessageSquare size={15} />
+              WhatsApp Share
+            </button>
+
+            <button
               onClick={handleExportCSV}
               className="btn btn-secondary"
               style={{
                 padding: '8px 14px',
-                fontSize: '13px',
+                fontSize: '12.5px',
                 fontWeight: '700',
                 flex: isMobile ? 1 : 'none'
               }}
