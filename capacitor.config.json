@@ -1,0 +1,9 @@
+{
+  "appId": "com.swiftbill.pos",
+  "appName": "SwiftBill POS",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
