@@ -119,9 +119,10 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
   const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [paidAmount, setPaidAmount] = useState('');
   
-  // Split Payment & Loyalty Points State
+  // Split Payment, Cash Tendered & Loyalty Points State
   const [splitCashAmount, setSplitCashAmount] = useState('');
   const [splitUpiAmount, setSplitUpiAmount] = useState('');
+  const [cashTendered, setCashTendered] = useState('');
   const [redeemedPointsDiscount, setRedeemedPointsDiscount] = useState(0);
 
   // Today KPI Stats (Sales, Orders Count, Avg Order Value)
@@ -474,6 +475,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
     setCart([]);
     setDiscountPercent(0);
     setPaidAmount('');
+    setCashTendered('');
     setVehicleNo('');
     setVehicleModel('');
     setShowUpiModal(false);
@@ -532,6 +534,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
 
     setCart([]);
     setDiscountPercent(0);
+    setCashTendered('');
     setVehicleNo('');
     setVehicleModel('');
     setSelectedCustomer(customers[0] || { name: 'Walk-in Customer', phone: '-' });
@@ -1244,6 +1247,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
               return (
                 <div
                   key={prod.id}
+                  className="card-hover"
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -2099,6 +2103,85 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     />
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Quick Cash Tendered & Change Return Calculator */}
+            {paymentMethod === 'Cash' && grandTotal > 0 && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5px',
+                padding: '6px 8px',
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: '8px',
+                border: '1px solid var(--border-color)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: 1 }}>
+                    <span style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Cash Given:</span>
+                    <input
+                      type="number"
+                      className="form-input"
+                      placeholder={`₹${grandTotal}`}
+                      value={cashTendered}
+                      onChange={(e) => setCashTendered(e.target.value)}
+                      style={{ height: '26px', fontSize: '11.5px', padding: '2px 6px', fontWeight: '700', maxWidth: '85px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
+                    {[100, 200, 500].map((note) => (
+                      <button
+                        key={note}
+                        type="button"
+                        onClick={() => setCashTendered((prev) => ((parseFloat(prev) || 0) + note).toString())}
+                        style={{
+                          padding: '2px 6px',
+                          borderRadius: '5px',
+                          border: '1px solid var(--border-color)',
+                          backgroundColor: 'var(--bg-input)',
+                          color: 'var(--text-main)',
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        +₹{note}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setCashTendered(grandTotal.toString())}
+                      style={{
+                        padding: '2px 6px',
+                        borderRadius: '5px',
+                        border: '1px solid rgba(12, 131, 31, 0.35)',
+                        backgroundColor: 'rgba(12, 131, 31, 0.1)',
+                        color: 'var(--instamart-green)',
+                        fontSize: '10px',
+                        fontWeight: '700',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Exact
+                    </button>
+                  </div>
+                </div>
+                {parseFloat(cashTendered) > grandTotal && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    paddingTop: '3px',
+                    borderTop: '1px dashed var(--border-color)',
+                    fontSize: '11px',
+                    fontWeight: '800',
+                    color: '#10b981'
+                  }}>
+                    <span>Change to Return:</span>
+                    <span>₹{Math.round((parseFloat(cashTendered) - grandTotal) * 100) / 100}</span>
+                  </div>
+                )}
               </div>
             )}
 
