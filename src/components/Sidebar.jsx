@@ -92,6 +92,13 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
     return '#8b5cf6';
   };
 
+  const getBusinessIcon = (id, size = 14) => {
+    if (id === 'grocery') return <ShoppingBag size={size} />;
+    if (id === 'automotive') return <Car size={size} />;
+    if (id === 'restaurant') return <Utensils size={size} />;
+    return <Package size={size} />;
+  };
+
   const bizColor = getBusinessColor();
 
   return (
