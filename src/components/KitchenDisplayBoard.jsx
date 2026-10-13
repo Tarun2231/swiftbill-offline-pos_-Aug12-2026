@@ -92,15 +92,9 @@ export default function KitchenDisplayBoard() {
         gap: '12px'
       }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge badge-warning" style={{ fontSize: '11px' }}>Chef KDS Board</span>
-            <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-              Kitchen Orders (KOT Live Board)
-            </h2>
-          </div>
-          <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
-            Live ticket board for chefs • Multi-station routing • Item checkoff • Print KOT slip
-          </span>
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Kitchen Display
+          </h2>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -109,18 +103,18 @@ export default function KitchenDisplayBoard() {
               onClick={() => {
                 const lastServed = servedOrders[0];
                 updateKOTStatus(lastServed.id, 'Ready to Serve');
-                alert(`Recalled ${lastServed.id} (${lastServed.tableNo}) back to KDS!`);
+                alert(`Recalled ${lastServed.id} (${lastServed.tableNo})!`);
               }}
               className="btn btn-secondary"
-              style={{ padding: '7px 12px', fontSize: '12px', gap: '5px', fontWeight: '600' }}
-              title="Recall last bumped order"
+              style={{ padding: '6px 10px', fontSize: '11.5px', gap: '4px', fontWeight: '600' }}
+              title="Recall last order"
             >
-              <RotateCcw size={13} /> Recall Last Order
+              <RotateCcw size={12} /> Recall
             </button>
           )}
 
-          <span className="badge badge-info" style={{ fontSize: '12px', padding: '6px 14px', fontWeight: '700' }}>
-            {activeOrders.length} Active Orders
+          <span className="badge badge-info" style={{ fontSize: '11px', padding: '5px 10px', fontWeight: '700' }}>
+            {activeOrders.length} Active
           </span>
         </div>
       </div>

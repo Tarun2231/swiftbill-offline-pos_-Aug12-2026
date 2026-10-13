@@ -51,33 +51,33 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
   const activeJobsCount = (serviceJobs || []).filter(j => j.status !== 'Delivered').length;
 
   const posNavItems = [
-    { id: 'pos', label: 'POS Billing', icon: ShoppingBag, badge: 'F2' },
+    { id: 'pos', label: 'POS', icon: ShoppingBag, badge: 'F2' },
     
     // Restaurant Specific Navigation
     ...(activeBusinessId === 'restaurant' ? [
-      { id: 'floorplan', label: 'Table Floorplan', icon: LayoutGrid },
-      { id: 'kds', label: 'Kitchen Display (KOT)', icon: Flame, badge: activeKOTCount > 0 ? `${activeKOTCount}` : null }
+      { id: 'floorplan', label: 'Floorplan', icon: LayoutGrid },
+      { id: 'kds', label: 'Kitchen', icon: Flame, badge: activeKOTCount > 0 ? `${activeKOTCount}` : null }
     ] : []),
 
     // Automotive Specific Navigation
     ...(activeBusinessId === 'automotive' ? [
-      { id: 'jobs', label: 'Service Job Cards', icon: Wrench, badge: activeJobsCount > 0 ? `${activeJobsCount}` : null }
+      { id: 'jobs', label: 'Job Cards', icon: Wrench, badge: activeJobsCount > 0 ? `${activeJobsCount}` : null }
     ] : []),
 
-    { id: 'products', label: 'Inventory & Items', icon: Package },
-    { id: 'quotations', label: 'Quotations & Estimates', icon: FileCheck },
-    { id: 'invoices', label: 'Invoice Records', icon: FileText },
-    { id: 'returns', label: 'Returns & Credit Notes', icon: RotateCcw },
-    { id: 'shift', label: 'Cash Shift & Z-Report', icon: Banknote },
-    { id: 'customers', label: 'Customer Ledger', icon: Users },
-    { id: 'barcode', label: 'Barcode Generator', icon: Barcode }
+    { id: 'products', label: 'Inventory', icon: Package },
+    { id: 'quotations', label: 'Estimates', icon: FileCheck },
+    { id: 'invoices', label: 'Invoices', icon: FileText },
+    { id: 'returns', label: 'Returns', icon: RotateCcw },
+    { id: 'shift', label: 'Cash Shift', icon: Banknote },
+    { id: 'customers', label: 'Customers', icon: Users },
+    { id: 'barcode', label: 'Barcodes', icon: Barcode }
   ];
 
   const adminNavItems = [
-    { id: 'staff', label: 'Staff Accounts & PINs', icon: Users, badge: '+ Add' },
-    { id: 'expenses', label: 'Expense Tracker', icon: DollarSign },
-    { id: 'reports', label: 'Sales Analytics', icon: BarChart3 },
-    { id: 'settings', label: 'Store Settings', icon: Settings }
+    { id: 'staff', label: 'Staff', icon: Users, badge: '+ Add' },
+    { id: 'expenses', label: 'Expenses', icon: DollarSign },
+    { id: 'reports', label: 'Reports', icon: BarChart3 },
+    { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
   const handleNavClick = (id) => {
@@ -140,9 +140,6 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
                 <span className="badge badge-success" style={{ fontSize: '9px', padding: '1px 5px' }}>
                   v2.0
                 </span>
-              </div>
-              <div style={{ fontSize: '10.5px', color: 'var(--text-dim)' }}>
-                Offline POS System
               </div>
             </div>
           </div>
@@ -279,7 +276,7 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
                 gap: '5px'
               }}>
                 <ShieldCheck size={12} color="#10b981" />
-                <span>Master & Admin Panel</span>
+                <span>Admin</span>
               </div>
 
               {adminNavItems.map((item) => {
@@ -355,10 +352,10 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
               gap: '5px',
               color: 'var(--text-main)'
             }}
-            title="Switch User Account (Cancellable anytime)"
+            title="Switch User Account"
           >
             <UserCheck size={14} color="#3b82f6" />
-            Switch User
+            Switch
           </button>
 
           <button
@@ -373,10 +370,10 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
               fontWeight: '600',
               gap: '5px'
             }}
-            title="Lock Session & Sign Out"
+            title="Lock Session"
           >
             <LogOut size={14} />
-            {isAdmin ? 'Lock Session' : 'End Shift'}
+            {isAdmin ? 'Lock' : 'Logout'}
           </button>
         </div>
       </aside>

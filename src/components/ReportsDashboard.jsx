@@ -160,11 +160,8 @@ export default function ReportsDashboard() {
       }}>
         <div>
           <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-            Analytics & Financial Overview
+            Reports
           </h2>
-          <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
-            Real-time revenue, profit margin, category performance, and staff metrics
-          </span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -205,9 +202,9 @@ export default function ReportsDashboard() {
           <button
             onClick={handleExportReportCSV}
             className="btn btn-secondary"
-            style={{ padding: '6px 12px', fontSize: '11.5px', height: '30px' }}
+            style={{ padding: '6px 10px', fontSize: '11px', height: '28px', gap: '4px' }}
           >
-            <Download size={13} color="var(--instamart-green)" /> Export CSV
+            <Download size={12} color="var(--instamart-green)" /> CSV
           </button>
         </div>
       </div>

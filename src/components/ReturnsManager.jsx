@@ -92,16 +92,13 @@ export default function ReturnsManager() {
         gap: isMobile ? '12px' : '16px'
       }}>
         <div>
-          <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-            Sales Returns & Credit Notes
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Returns
           </h2>
-          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Process customer returns, issue credit notes, and auto-restock inventory.
-          </p>
         </div>
 
-        <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ padding: '10px 18px', fontSize: '13.5px' }}>
-          <Plus size={16} /> New Sales Return
+        <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>
+          <Plus size={15} /> New Return
         </button>
       </div>
 

@@ -99,23 +99,17 @@ export default function ServiceJobTracker() {
         gap: '12px'
       }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge badge-info" style={{ fontSize: '11px' }}>Automotive Bay</span>
-            <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-              Vehicle Service Job Cards & Bay Tracker
-            </h2>
-          </div>
-          <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
-            Track repair stages, parts vs labor, next service reminders & delivery status.
-          </span>
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Job Cards
+          </h2>
         </div>
 
         <button
           onClick={() => setShowAddJobModal(true)}
           className="btn btn-primary"
-          style={{ padding: '8px 18px', fontSize: '13px', fontWeight: '700', gap: '6px' }}
+          style={{ padding: '8px 16px', fontSize: '13px', fontWeight: '700', gap: '5px' }}
         >
-          <Plus size={16} /> + New Job Card
+          <Plus size={15} /> New Job
         </button>
       </div>
 
@@ -125,30 +119,30 @@ export default function ServiceJobTracker() {
         gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
         gap: '12px'
       }}>
-        <div className="glass-panel" style={{ padding: '14px', borderLeft: '4px solid #3b82f6' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Active Vehicles in Bay</span>
-          <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#3b82f6', margin: '2px 0 0 0' }}>
+        <div className="glass-panel" style={{ padding: '12px 14px', borderLeft: '4px solid #3b82f6' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Active Jobs</span>
+          <h3 className="mono" style={{ fontSize: '18px', fontWeight: '800', color: '#3b82f6', margin: '2px 0 0 0' }}>
             {activeJobs.length}
           </h3>
         </div>
 
-        <div className="glass-panel" style={{ padding: '14px', borderLeft: '4px solid #f59e0b' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Under Inspection / Repair</span>
-          <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#f59e0b', margin: '2px 0 0 0' }}>
+        <div className="glass-panel" style={{ padding: '12px 14px', borderLeft: '4px solid #f59e0b' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>In Progress</span>
+          <h3 className="mono" style={{ fontSize: '18px', fontWeight: '800', color: '#f59e0b', margin: '2px 0 0 0' }}>
             {jobs.filter(j => j.status === 'Inspection & Bay' || j.status === 'Parts Installation').length}
           </h3>
         </div>
 
-        <div className="glass-panel" style={{ padding: '14px', borderLeft: '4px solid #0c831f' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Ready for Delivery</span>
-          <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#0c831f', margin: '2px 0 0 0' }}>
+        <div className="glass-panel" style={{ padding: '12px 14px', borderLeft: '4px solid #0c831f' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Ready</span>
+          <h3 className="mono" style={{ fontSize: '18px', fontWeight: '800', color: '#0c831f', margin: '2px 0 0 0' }}>
             {jobs.filter(j => j.status === 'Ready for Delivery').length}
           </h3>
         </div>
 
-        <div className="glass-panel" style={{ padding: '14px', borderLeft: '4px solid #8b5cf6' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Delivered Jobs</span>
-          <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', margin: '2px 0 0 0' }}>
+        <div className="glass-panel" style={{ padding: '12px 14px', borderLeft: '4px solid #8b5cf6' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Delivered</span>
+          <h3 className="mono" style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', margin: '2px 0 0 0' }}>
             {deliveredJobs.length}
           </h3>
         </div>

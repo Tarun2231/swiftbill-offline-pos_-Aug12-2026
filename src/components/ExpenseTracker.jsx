@@ -79,23 +79,20 @@ export default function ExpenseTracker() {
         gap: isMobile ? '12px' : '16px'
       }}>
         <div>
-          <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-            Business Expense Tracker
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Expenses
           </h2>
-          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Daily store expenses, staff wages, utilities, and vendor payouts.
-          </p>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <div className="glass-panel" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Total Outflow:</span>
-            <span className="mono" style={{ fontSize: '16px', fontWeight: '800', color: '#f43f5e' }}>
+          <div className="glass-panel" style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>Total:</span>
+            <span className="mono" style={{ fontSize: '15px', fontWeight: '800', color: '#f43f5e' }}>
               {settings.currency}{totalExpenseAmount.toLocaleString()}
             </span>
           </div>
 
-          <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ padding: '9px 16px', fontSize: '13px' }}>
+          <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>
             <Plus size={15} /> Add Expense
           </button>
         </div>

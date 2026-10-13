@@ -213,23 +213,17 @@ export default function StaffManagement() {
         gap: '12px'
       }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge badge-info" style={{ fontSize: '11px' }}>Admin Control</span>
-            <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-              Staff Accounts & Shift Performance
-            </h2>
-          </div>
-          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Assign employee login credentials, passwords, and track individual sales & cash collections per shift.
-          </p>
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Staff
+          </h2>
         </div>
 
         <button
           onClick={handleOpenAdd}
           className="btn btn-primary"
-          style={{ padding: '8px 18px', fontSize: '13px', fontWeight: '700', gap: '6px', alignSelf: isMobile ? 'stretch' : 'center' }}
+          style={{ padding: '8px 16px', fontSize: '13px', fontWeight: '700', gap: '5px', alignSelf: isMobile ? 'stretch' : 'center' }}
         >
-          <UserPlus size={16} /> + Add New Employee
+          <UserPlus size={15} /> Add Staff
         </button>
       </div>
 

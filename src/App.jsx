@@ -72,21 +72,21 @@ function MainApp() {
 
   // Tab label mapping for breadcrumbs
   const tabTitles = {
-    pos: 'POS Billing & Counter',
-    floorplan: 'Table Floorplan & Seating',
-    kds: 'Kitchen Display Board (KOT)',
-    jobs: 'Vehicle Service Bay Cards',
-    products: 'Inventory & Item Catalog',
-    quotations: 'Price Quotations & Estimates',
-    invoices: 'Invoice Records & History',
-    returns: 'Sales Returns & Credit Notes',
-    shift: 'Cash Shift & Daily Z-Report',
-    staff: 'Staff & Shift Performance',
-    expenses: 'Business Expense Tracker',
-    customers: 'Customer Ledger & Udhar',
-    barcode: 'Barcode & Sticker Generator',
-    reports: 'Sales & Revenue Analytics',
-    settings: 'Store Configuration & Backup'
+    pos: 'POS',
+    floorplan: 'Floorplan',
+    kds: 'Kitchen',
+    jobs: 'Job Cards',
+    products: 'Inventory',
+    quotations: 'Estimates',
+    invoices: 'Invoices',
+    returns: 'Returns',
+    shift: 'Cash Shift',
+    staff: 'Staff',
+    expenses: 'Expenses',
+    customers: 'Customers',
+    barcode: 'Barcodes',
+    reports: 'Reports',
+    settings: 'Settings'
   };
 
   // Business icon helper
@@ -238,19 +238,19 @@ function MainApp() {
           {/* Live DB Sync Status Pill */}
           {!isMobileNavOpen && (
             <div style={{
-              padding: '3px 8px',
+              padding: '3px 7px',
               borderRadius: 'var(--radius-full)',
               backgroundColor: 'rgba(16, 185, 129, 0.12)',
               border: '1px solid rgba(16, 185, 129, 0.35)',
               color: '#10b981',
-              fontSize: '10.5px',
-              fontWeight: '800',
+              fontSize: '10px',
+              fontWeight: '700',
               display: 'flex',
               alignItems: 'center',
-              gap: '5px'
+              gap: '4px'
             }}>
-              <span className="pulse-glow" style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
-              <span>Offline DB Sync</span>
+              <span className="pulse-glow" style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+              <span>Sync</span>
             </div>
           )}
 

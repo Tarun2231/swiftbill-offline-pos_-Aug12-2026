@@ -137,12 +137,9 @@ export default function SettingsBackup() {
       
       {/* Header */}
       <div>
-        <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-          Store Settings & Security
+        <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+          Settings
         </h2>
-        <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-          Business details, tax numbers, Master Admin PIN / Password change, and offline data backups.
-        </p>
       </div>
 
       <div style={{
@@ -152,11 +149,11 @@ export default function SettingsBackup() {
       }}>
         
         {/* Left Column: Business Profile Form */}
-        <div className="glass-panel" style={{ padding: isMobile ? '16px' : '24px' }}>
+        <div className="glass-panel" style={{ padding: isMobile ? '16px' : '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-            <Store size={18} color="#10b981" />
-            <h3 style={{ fontSize: '15.5px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-              Business Profile & Tax Setup
+            <Store size={16} color="#10b981" />
+            <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+              Profile & Tax
             </h3>
           </div>
 

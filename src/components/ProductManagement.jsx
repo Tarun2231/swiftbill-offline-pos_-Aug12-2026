@@ -150,19 +150,16 @@ export default function ProductManagement() {
       }}>
         <div>
           <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-            Inventory & Catalog
+            Inventory
           </h2>
-          <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
-            Manage stock levels, prices, barcode SKUs, and weighted items.
-          </span>
         </div>
 
         <button
           onClick={handleOpenAdd}
           className="btn btn-primary"
-          style={{ padding: '9px 18px', fontSize: '13px', alignSelf: isMobile ? 'stretch' : 'center', fontWeight: '700' }}
+          style={{ padding: '8px 16px', fontSize: '13px', alignSelf: isMobile ? 'stretch' : 'center', fontWeight: '700' }}
         >
-          <Plus size={16} /> + Add New Item / Service
+          <Plus size={15} /> Add Item
         </button>
       </div>
 
@@ -173,37 +170,37 @@ export default function ProductManagement() {
         gap: '12px'
       }}>
         <div className="glass-panel" style={{
-          padding: '14px 18px',
+          padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
           borderLeft: '4px solid #0c831f'
         }}>
           <div>
-            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Total SKUs</span>
-            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Items</span>
+            <h3 className="mono" style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
               {totalItemsCount}
             </h3>
           </div>
         </div>
 
         <div className="glass-panel" style={{
-          padding: '14px 18px',
+          padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
           borderLeft: '4px solid #f59e0b'
         }}>
           <div>
-            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Low Stock Items</span>
-            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#f59e0b', margin: 0 }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>Low Stock</span>
+            <h3 className="mono" style={{ fontSize: '18px', fontWeight: '800', color: '#f59e0b', margin: 0 }}>
               {lowStockItems.length}
             </h3>
           </div>
         </div>
 
         <div className="glass-panel" style={{
-          padding: '14px 18px',
+          padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
@@ -211,11 +208,11 @@ export default function ProductManagement() {
           gridColumn: isMobile ? 'span 2' : 'auto'
         }}>
           <div>
-            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>
-              {isAdmin ? 'Total Inventory Valuation' : 'Catalog In-Stock Items'}
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>
+              {isAdmin ? 'Valuation' : 'In-Stock'}
             </span>
-            <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#3b82f6', margin: 0 }}>
-              {isAdmin ? `${settings.currency}${Math.round(totalValuation).toLocaleString()}` : `${products.filter(p => p.stock > 0).length} Available`}
+            <h3 className="mono" style={{ fontSize: '18px', fontWeight: '800', color: '#3b82f6', margin: 0 }}>
+              {isAdmin ? `${settings.currency}${Math.round(totalValuation).toLocaleString()}` : `${products.filter(p => p.stock > 0).length}`}
             </h3>
           </div>
         </div>

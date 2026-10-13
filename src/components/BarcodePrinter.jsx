@@ -39,16 +39,13 @@ export default function BarcodePrinter() {
         gap: isMobile ? '12px' : '16px'
       }}>
         <div>
-          <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-            Barcode & Price Labels
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Barcodes
           </h2>
-          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Generate and print barcode sticker sheets for inventory items or shelf price tags.
-          </p>
         </div>
 
-        <button onClick={handlePrint} className="btn btn-primary" style={{ padding: '10px 18px', fontSize: '13.5px' }}>
-          <Printer size={16} /> Print Sticker Sheet
+        <button onClick={handlePrint} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>
+          <Printer size={15} /> Print
         </button>
       </div>
 

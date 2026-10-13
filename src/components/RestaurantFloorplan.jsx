@@ -177,32 +177,18 @@ export default function RestaurantFloorplan({ onSelectTableOrder }) {
         gap: '12px'
       }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge badge-warning" style={{ fontSize: '11px' }}>Restaurant Floorplan</span>
-            <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-              Table Seating & Live Floor Map
-            </h2>
-          </div>
-          <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
-            Real-time table status • Live cooking tracker • Split bill • Table transfer & reservations
-          </span>
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Floorplan
+          </h2>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <button
-            onClick={() => setShowLifecycleGuide(!showLifecycleGuide)}
-            className="btn btn-secondary"
-            style={{ padding: '8px 14px', fontSize: '12px', fontWeight: '600', gap: '6px' }}
-          >
-            <HelpCircle size={15} color="#3b82f6" /> {showLifecycleGuide ? 'Hide Guide' : 'How Dine-In Works'}
-          </button>
-
-          <button
             onClick={() => setShowAddTableModal(true)}
             className="btn btn-primary"
-            style={{ padding: '8px 18px', fontSize: '13px', fontWeight: '700', gap: '6px' }}
+            style={{ padding: '8px 16px', fontSize: '13px', fontWeight: '700', gap: '5px' }}
           >
-            <Plus size={16} /> + Add New Table
+            <Plus size={15} /> Add Table
           </button>
         </div>
       </div>

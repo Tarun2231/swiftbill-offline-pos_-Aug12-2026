@@ -149,16 +149,13 @@ export default function CustomerLedger() {
         gap: isMobile ? '12px' : '16px'
       }}>
         <div>
-          <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-            Customer Ledger & Order Records
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Customers
           </h2>
-          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Track complete customer purchase logs, items bought, order dates, and credit balances.
-          </p>
         </div>
 
-        <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ padding: '10px 18px', fontSize: '13.5px' }}>
-          <Plus size={16} /> Add Customer
+        <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>
+          <Plus size={15} /> Add Customer
         </button>
       </div>
 
@@ -168,23 +165,23 @@ export default function CustomerLedger() {
         gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
         gap: '12px'
       }}>
-        <div className="glass-panel" style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Registered Customers</span>
-          <h3 className="mono" style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+        <div className="glass-panel" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Total Customers</span>
+          <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
             {customers.length}
           </h3>
         </div>
 
-        <div className="glass-panel" style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Customers with Dues</span>
-          <h3 className="mono" style={{ fontSize: '22px', fontWeight: '800', color: '#f59e0b', margin: 0 }}>
+        <div className="glass-panel" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>With Dues</span>
+          <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#f59e0b', margin: 0 }}>
             {customers.filter((c) => (c.balance || 0) > 0).length}
           </h3>
         </div>
 
-        <div className="glass-panel" style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Total Outstanding Due</span>
-          <h3 className="mono" style={{ fontSize: '22px', fontWeight: '800', color: '#f43f5e', margin: 0 }}>
+        <div className="glass-panel" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Outstanding Due</span>
+          <h3 className="mono" style={{ fontSize: '20px', fontWeight: '800', color: '#f43f5e', margin: 0 }}>
             {settings.currency}{totalOutstanding.toLocaleString()}
           </h3>
         </div>
@@ -205,34 +202,34 @@ export default function CustomerLedger() {
             onClick={() => setFilterScope('current')}
             style={{
               flex: isMobile ? 1 : 'none',
-              padding: '6px 14px',
+              padding: '5px 12px',
               borderRadius: 'var(--radius-xs)',
               border: 'none',
               backgroundColor: filterScope === 'current' ? 'var(--instamart-green)' : 'transparent',
               color: filterScope === 'current' ? '#ffffff' : 'var(--text-muted)',
-              fontSize: '12px',
+              fontSize: '11.5px',
               fontWeight: '700',
               cursor: 'pointer'
             }}
           >
-            🏢 {activeBusiness?.name || 'Current Business'} ({customers.length})
+            {activeBusiness?.name || 'Current Store'} ({customers.length})
           </button>
           
           <button
             onClick={() => setFilterScope('all')}
             style={{
               flex: isMobile ? 1 : 'none',
-              padding: '6px 14px',
+              padding: '5px 12px',
               borderRadius: 'var(--radius-xs)',
               border: 'none',
               backgroundColor: filterScope === 'all' ? 'var(--instamart-green)' : 'transparent',
               color: filterScope === 'all' ? '#ffffff' : 'var(--text-muted)',
-              fontSize: '12px',
+              fontSize: '11.5px',
               fontWeight: '700',
               cursor: 'pointer'
             }}
           >
-            🌐 All Business Accounts ({(allCustomers || []).length})
+            All Stores ({targetCustomerList.length})
           </button>
         </div>
 

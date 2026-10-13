@@ -1011,7 +1011,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 <input
                   id="pos-search-input"
                   type="text"
-                  placeholder={barcodeMode ? "Scan Barcode / SKU & press Enter to auto-add..." : "Search produce, essentials, dishes, SKU (Press Enter to quick add)..."}
+                  placeholder={barcodeMode ? "Scan barcode or SKU..." : "Search items or SKU..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -1678,7 +1678,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   }}
                 >
                   <History size={12} />
-                  Past Orders ({selectedCustomerInvoices.length})
+                  Orders ({selectedCustomerInvoices.length})
                 </button>
               </div>
 
@@ -1725,7 +1725,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                   fontWeight: '700',
                   marginTop: '5px'
                 }}>
-                  <span>🎁 Loyalty: {customerLoyaltyPoints} Pts (₹{customerLoyaltyPoints})</span>
+                  <span>🎁 Loyalty: {customerLoyaltyPoints} Pts</span>
                   <button
                     onClick={handleRedeemLoyaltyPoints}
                     disabled={redeemedPointsDiscount > 0}
@@ -1740,7 +1740,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                       cursor: redeemedPointsDiscount > 0 ? 'not-allowed' : 'pointer'
                     }}
                   >
-                    {redeemedPointsDiscount > 0 ? '✓ Redeemed' : `Redeem ₹${customerLoyaltyPoints}`}
+                    {redeemedPointsDiscount > 0 ? '✓ Redeemed' : `Redeem (₹${customerLoyaltyPoints})`}
                   </button>
                 </div>
               )}
@@ -2188,9 +2188,9 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
             {/* Quick Chef Modifiers for Restaurant Mode */}
             {activeBusinessId === 'restaurant' && cart.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '6px 8px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-color)' }}>
-                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Chef Instructions / Modifiers:</span>
+                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Instructions:</span>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                  {['Less Spicy', 'Extra Cheese', 'No Onion/Garlic (Jain)', 'Gluten Free', 'Parcel Pack'].map((tag) => (
+                  {['Less Spicy', 'Extra Cheese', 'No Onion/Garlic', 'Gluten Free', 'Parcel'].map((tag) => (
                     <button
                       key={tag}
                       type="button"
@@ -2234,7 +2234,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                     gap: '4px',
                     fontWeight: '700'
                   }}
-                  title="Fire new food dishes to kitchen"
+                  title="Send to kitchen"
                 >
                   <Flame size={14} /> Send KOT
                 </button>
@@ -2253,7 +2253,7 @@ export default function POSBilling({ onCompleteSale, initialTable }) {
                 }}
               >
                 <Printer size={15} />
-                {activeBusinessId === 'restaurant' ? 'Settle & Print Bill' : 'Print Tax Invoice'}
+                {activeBusinessId === 'restaurant' ? 'Settle & Print' : 'Print Invoice'}
               </button>
             </div>
           </div>

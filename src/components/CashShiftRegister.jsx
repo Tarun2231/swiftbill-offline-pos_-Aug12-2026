@@ -73,17 +73,14 @@ export default function CashShiftRegister() {
         gap: isMobile ? '10px' : '16px'
       }}>
         <div>
-          <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-            Cash Register & Daily Shift
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Cash Shift
           </h2>
-          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Shift float reconciliation, mid-day cash withdrawals, and settlement Z-Reports.
-          </p>
         </div>
 
         <div>
-          <span className={`badge badge-${currentShift?.isOpen ? 'success' : 'warning'}`} style={{ fontSize: '12px', padding: '6px 12px' }}>
-            {currentShift?.isOpen ? '🟢 Shift Active & Open' : '🔒 Shift Closed'}
+          <span className={`badge badge-${currentShift?.isOpen ? 'success' : 'warning'}`} style={{ fontSize: '11px', padding: '4px 10px' }}>
+            {currentShift?.isOpen ? '🟢 Open' : '🔒 Closed'}
           </span>
         </div>
       </div>

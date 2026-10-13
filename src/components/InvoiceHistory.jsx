@@ -59,23 +59,20 @@ export default function InvoiceHistory({ onViewInvoice }) {
         gap: isMobile ? '12px' : '16px'
       }}>
         <div>
-          <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-            Invoice History & Sales Records
+          <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+            Invoices
           </h2>
-          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Past invoices, tax bills, thermal slips, and cancellation records.
-          </p>
         </div>
 
         <div className="glass-panel" style={{
-          padding: isMobile ? '10px 16px' : '12px 20px',
+          padding: isMobile ? '8px 14px' : '10px 18px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '12px'
+          gap: '10px'
         }}>
-          <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', fontWeight: '600' }}>Total Invoiced:</span>
-          <span className="mono" style={{ fontSize: isMobile ? '18px' : '22px', fontWeight: '800', color: '#10b981' }}>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Total:</span>
+          <span className="mono" style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: '800', color: '#10b981' }}>
             {settings.currency}{totalSalesRevenue.toLocaleString()}
           </span>
         </div>
@@ -89,14 +86,14 @@ export default function InvoiceHistory({ onViewInvoice }) {
         alignItems: isMobile ? 'stretch' : 'center'
       }}>
         <div style={{ position: 'relative', flex: 1 }}>
-          <Search size={17} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '13px' }} />
+          <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '11px' }} />
           <input
             type="text"
-            placeholder="Search by Invoice #, Customer, or Vehicle..."
+            placeholder="Search invoice #, customer..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="form-input"
-            style={{ paddingLeft: '42px', fontSize: '13.5px' }}
+            style={{ paddingLeft: '38px', fontSize: '13px' }}
           />
         </div>
 

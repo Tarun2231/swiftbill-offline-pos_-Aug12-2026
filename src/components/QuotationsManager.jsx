@@ -45,24 +45,21 @@ export default function QuotationsManager({ onConvertInvoice }) {
       
       {/* Header */}
       <div>
-        <h2 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-          Quotations & Price Estimates
+        <h2 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
+          Estimates
         </h2>
-        <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>
-          Draft estimates for customers. Inventory stock is only deducted upon 1-click conversion to Tax Bill.
-        </p>
       </div>
 
       {/* Search Bar */}
       <div style={{ position: 'relative' }}>
-        <Search size={17} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '13px' }} />
+        <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '11px' }} />
         <input
           type="text"
-          placeholder="Search by Quote ID or Customer..."
+          placeholder="Search estimate #, customer..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="form-input"
-          style={{ paddingLeft: '42px', fontSize: '13.5px' }}
+          style={{ paddingLeft: '38px', fontSize: '13px' }}
         />
       </div>
 
