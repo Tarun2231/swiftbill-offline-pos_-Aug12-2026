@@ -42,7 +42,9 @@ import {
   ShieldCheck,
   Bell,
   Command,
-  Search
+  Search,
+  BarChart3,
+  FileText
 } from 'lucide-react';
 
 function MainApp() {
@@ -148,67 +150,60 @@ function MainApp() {
     <div className="app-container" data-theme={theme}>
       
       {/* Mobile & Tablet Top Navigation Header */}
-      <header className="mobile-topbar" style={{
-        padding: '8px 14px',
-        minHeight: '48px',
-        backgroundColor: 'var(--bg-sidebar)',
-        borderBottom: '1px solid var(--border-color)',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 40,
-        backdropFilter: 'blur(10px)'
-      }}>
-        {/* Left: Menu & Store Identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+      <header className="mobile-topbar">
+        {/* Left: Always Visible Menu Button & Store Identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flexShrink: 0 }}>
           <button 
+            type="button"
             onClick={() => setIsMobileNavOpen(true)} 
-            className="btn-icon" 
+            className="mobile-hamburger-btn" 
             style={{
-              padding: '6px',
+              padding: '6px 10px',
               borderRadius: '8px',
-              backgroundColor: 'var(--bg-input)',
-              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-card)',
+              border: '1.5px solid var(--border-color)',
               color: 'var(--text-main)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              gap: '6px',
+              cursor: 'pointer',
+              flexShrink: 0
             }}
             title="Open Menu"
           >
-            <Menu size={18} />
+            <Menu size={18} color="var(--instamart-green)" />
+            <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-main)' }}>Menu</span>
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-            <span style={{ color: bizColor, display: 'flex', alignItems: 'center' }}>
+            <span style={{ color: bizColor, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
               {getBusinessIcon(activeBusinessId, 15)}
             </span>
             <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
               <div style={{
-                fontSize: '13px',
+                fontSize: '12.5px',
                 fontWeight: '800',
                 color: 'var(--text-main)',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                maxWidth: '130px',
+                maxWidth: '120px',
                 lineHeight: '1.2'
               }}>
                 {settings.storeName}
               </div>
-              <div style={{ fontSize: '9.5px', color: bizColor, fontWeight: '700', lineHeight: '1' }}>
+              <div style={{ fontSize: '9px', color: bizColor, fontWeight: '700', lineHeight: '1' }}>
                 {tabTitles[activeTab]?.split('&')[0]}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right: User Pill, Command Palette, Operational Alerts & Utility Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+        {/* Right: Compact Actions (Alerts, User, Theme) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
           
-          {/* Header Store Quick Switcher */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {/* Header Store Quick Switcher (Hidden on Mobile) */}
+          <div className="hide-on-mobile" style={{ alignItems: 'center', gap: '4px' }}>
             <select
               className="form-select"
               value={activeBusinessId}
@@ -235,9 +230,9 @@ function MainApp() {
             </select>
           </div>
 
-          {/* Live DB Sync Status Pill */}
+          {/* Live DB Sync Status Pill (Hidden on Mobile) */}
           {!isMobileNavOpen && (
-            <div style={{
+            <div className="hide-on-mobile" style={{
               padding: '3px 7px',
               borderRadius: 'var(--radius-full)',
               backgroundColor: 'rgba(16, 185, 129, 0.12)',
@@ -245,7 +240,6 @@ function MainApp() {
               color: '#10b981',
               fontSize: '10px',
               fontWeight: '700',
-              display: 'flex',
               alignItems: 'center',
               gap: '4px'
             }}>
@@ -254,30 +248,11 @@ function MainApp() {
             </div>
           )}
 
-          {/* Dark / Light Theme Quick Toggle */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            style={{
-              padding: '6px',
-              borderRadius: '8px',
-              backgroundColor: 'var(--bg-input)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-main)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }}
-            title="Toggle Light / Dark Theme"
-          >
-            {theme === 'dark' ? <Sun size={15} color="#f59e0b" /> : <Moon size={15} color="#6366f1" />}
-          </button>
-
-          {/* Quick Command Palette Launcher Button (Ctrl+K) */}
+          {/* Quick Command Palette (Hidden on Mobile) */}
           <button
             type="button"
             onClick={() => setShowCommandPalette(true)}
+            className="hide-on-mobile"
             style={{
               padding: '4px 9px',
               borderRadius: 'var(--radius-full)',
@@ -286,7 +261,6 @@ function MainApp() {
               color: 'var(--text-muted)',
               fontSize: '11px',
               fontWeight: '600',
-              display: 'flex',
               alignItems: 'center',
               gap: '5px',
               cursor: 'pointer'
@@ -313,7 +287,7 @@ function MainApp() {
               cursor: 'pointer',
               position: 'relative'
             }}
-            title={`Operational Alerts & Notifications (${totalAlertsCount})`}
+            title={`Alerts (${totalAlertsCount})`}
           >
             <Bell size={15} />
             {totalAlertsCount > 0 && (
@@ -354,7 +328,7 @@ function MainApp() {
               fontWeight: '700',
               color: 'var(--text-main)'
             }}
-            title="Switch User / Account"
+            title="Switch User"
           >
             <div style={{
               width: '16px',
@@ -370,44 +344,30 @@ function MainApp() {
             }}>
               {(currentUser?.name || 'A').charAt(0).toUpperCase()}
             </div>
-            <span style={{ maxWidth: '70px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ maxWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {currentUser?.name?.split(' ')[0] || 'User'}
             </span>
             <span style={{ fontSize: '8px', color: 'var(--text-dim)' }}>▼</span>
           </button>
 
-          {/* Quick Store Switch Button */}
-          {isAdmin && (
-            <button
-              onClick={() => setShowSwitchBusinessModal(true)}
-              className="btn-icon"
-              style={{
-                padding: '6px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--bg-input)',
-                border: '1px solid var(--border-color)',
-                color: bizColor
-              }}
-              title="Switch Store Workspace"
-            >
-              <ArrowRightLeft size={14} />
-            </button>
-          )}
-
-          {/* Theme Toggle */}
+          {/* Dark / Light Theme Toggle */}
           <button
+            type="button"
             onClick={toggleTheme}
-            className="btn-icon"
             style={{
               padding: '6px',
               borderRadius: '8px',
               backgroundColor: 'var(--bg-input)',
               border: '1px solid var(--border-color)',
-              color: theme === 'dark' ? '#fbbf24' : '#3b82f6'
+              color: 'var(--text-main)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
             }}
             title="Toggle Theme"
           >
-            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+            {theme === 'dark' ? <Sun size={15} color="#f59e0b" /> : <Moon size={15} color="#6366f1" />}
           </button>
         </div>
       </header>
@@ -679,6 +639,54 @@ function MainApp() {
         onClose={() => setShowNotificationsModal(false)}
         onNavigate={(tab) => setActiveTab(tab)}
       />
+
+      {/* Mobile Phone Sticky Bottom Navigation Bar (<= 768px only) */}
+      <nav className="mobile-bottom-nav">
+        <button
+          type="button"
+          onClick={() => setActiveTab('pos')}
+          className={`mobile-nav-item ${activeTab === 'pos' ? 'active' : ''}`}
+        >
+          <ShoppingBag size={18} />
+          <span>POS</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('invoices')}
+          className={`mobile-nav-item ${activeTab === 'invoices' ? 'active' : ''}`}
+        >
+          <FileText size={18} />
+          <span>Invoices</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('products')}
+          className={`mobile-nav-item ${activeTab === 'products' ? 'active' : ''}`}
+        >
+          <Package size={18} />
+          <span>Stock</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('reports')}
+          className={`mobile-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
+        >
+          <BarChart3 size={18} />
+          <span>Reports</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsMobileNavOpen(true)}
+          className={`mobile-nav-item ${isMobileNavOpen ? 'active' : ''}`}
+        >
+          <Menu size={18} color="var(--instamart-green)" />
+          <span style={{ fontWeight: '800', color: 'var(--instamart-green)' }}>Menu</span>
+        </button>
+      </nav>
     </div>
   );
 }

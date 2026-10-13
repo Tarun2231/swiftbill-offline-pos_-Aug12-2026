@@ -161,9 +161,22 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenSwitchBusiness,
             </button>
 
             <button
+              type="button"
               onClick={onClose}
-              className="btn-icon"
-              style={{ display: isOpen ? 'flex' : 'none', padding: '6px' }}
+              className="btn-icon sidebar-close-btn"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--bg-input)',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-main)',
+                cursor: 'pointer'
+              }}
+              title="Close Menu"
             >
               <X size={18} />
             </button>
